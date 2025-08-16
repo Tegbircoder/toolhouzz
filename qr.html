@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free QR Code Generator – Create & Download QR Codes for Links, Wi-Fi & More | ToolHouzz</title>
+  
+  
+  <meta name="description" content="Generate QR codes instantly for URLs, Wi-Fi access, text, email, and more with our free QR Code Generator. Download as PNG or SVG. Works entirely in your browser – fast, private, and mobile-friendly.">
+  <link rel="canonical" href="https://toolhouzz.com/qr.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free QR Code Generator – PNG & SVG Downloads">
+  <meta property="og:description" content="Create QR codes for links, Wi-Fi, text, and more. Download in PNG or SVG format – fast, private, and free.">
+  <meta property="og:url" content="https://toolhouzz.com/qr.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free QR Code Generator – ToolHouzz">
+  <meta name="twitter:description" content="Generate QR codes for links, Wi-Fi, and more. Download PNG/SVG instantly – no uploads, private, and fast.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&family=Playfair+Display:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="th-layout.css" />
+  <style>
+    .hero{background:
+      radial-gradient(900px 360px at 10% -20%, rgba(99,102,241,.12), transparent 60%),
+      radial-gradient(700px 260px at 90% -20%, rgba(20,184,166,.10), transparent 60%),
+      linear-gradient(#fafbff,#f6f8ff)}
+    .chip{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid var(--border);background:#f3f6ff;font-size:12px}
+    .preset{padding:8px 10px;border:1.5px solid var(--border-strong);border-radius:10px;background:#fff;cursor:pointer}
+    .preset strong{display:block}
+    .preset small{color:var(--muted)}
+    .link-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+    .link-card{display:grid;gap:6px;padding:14px;border-radius:12px;border:1.5px solid var(--border-strong);background:#fff}
+    .link-card small{color:var(--muted)}
+    
+  </style>
+</head>
+<body class="theme-light">
+  <!-- Header injected by th-layout.js -->
+
+  <!-- Hero -->
+  <section class="hero" style="padding:60px 22px 26px">
+    <div class="hero-inner">
+      <h1 class="hero-title">QR Code <span class="accent">Generator</span></h1>
+      <p class="hero-sub">Make clean, scannable QR codes — no upload, no watermark.</p>
+      <div style="margin-top:10px">
+        <span class="chip">High-contrast colors</span>
+        <span class="chip">Error correction</span>
+        <span class="chip">Handy presets</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tool -->
+  <section class="tools" style="padding:20px 22px 10px">
+    <div class="grid" style="grid-template-columns:1.15fr .85fr;max-width:1100px;align-items:start">
+
+      <!-- Left: Builder -->
+      <div class="card">
+        <h2 class="tool-title">Build</h2>
+
+        <div style="display:grid;gap:12px;grid-template-columns:repeat(5,1fr)">
+          <div>
+            <label>Size</label>
+            <select id="size" class="search" style="height:44px">
+              <option>128</option><option>160</option><option selected>256</option><option>320</option><option>512</option>
+            </select>
+          </div>
+          <div>
+            <label>Margin</label>
+            <select id="margin" class="search" style="height:44px">
+              <option>1</option><option selected>2</option><option>4</option><option>8</option>
+            </select>
+          </div>
+          <div>
+            <label>Foreground</label>
+            <input id="fg" type="color" class="search" value="#111111" style="height:44px;padding:6px">
+          </div>
+          <div>
+            <label>Background</label>
+            <input id="bg" type="color" class="search" value="#ffffff" style="height:44px;padding:6px">
+          </div>
+          <div>
+            <label>Error Correction</label>
+            <select id="ecc" class="search" style="height:44px" title="Higher = more resilient to damage (but denser)">
+              <option value="L">Low (L)</option>
+              <option value="M" selected>Medium (M)</option>
+              <option value="Q">Quartile (Q)</option>
+              <option value="H">High (H)</option>
+            </select>
+          </div>
+        </div>
+
+        <label style="display:block;margin:12px 0 6px">Text / URL</label>
+        <textarea id="text" class="search" rows="3" placeholder="https://example.com"></textarea>
+        <div class="helper" style="margin-top:6px">Tip: keep foreground dark and background light for best scan results.</div>
+
+        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn primary" id="gen">Generate</button>
+          <button class="btn" id="savePng" disabled>Download PNG</button>
+          <button class="btn" id="copyImg" disabled>Copy Image</button>
+          <span id="note" class="helper" style="margin-left:auto"></span>
+        </div>
+
+        <div id="wrap" style="margin-top:14px;display:flex;justify-content:center"></div>
+
+        <!-- How to use -->
+        <details style="margin-top:14px" class="help">
+          <summary style="font-weight:800;cursor:pointer">How to use</summary>
+          <div style="color:var(--muted);padding-top:8px">
+            <ol style="margin:0 0 8px 18px">
+              <li>Enter your <strong>Text/URL</strong> or use a preset on the right.</li>
+              <li>Pick size, colors, and <strong>Error Correction</strong> (H is most robust).</li>
+              <li>Click <strong>Generate</strong>, then <strong>Download PNG</strong> or <strong>Copy Image</strong>.</li>
+            </ol>
+            <div class="helper">Printing? Choose a bigger size (e.g., 512) and strong contrast.</div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Right: Presets & More -->
+      <div class="card" style="background:#fbfcff">
+        <h2 class="tool-title">Presets</h2>
+        <div class="preset" data-t="url" style="margin-bottom:8px">
+          <strong>Website</strong><small>https://example.com</small>
+        </div>
+        <div class="preset" data-t="wifi" style="margin-bottom:8px">
+          <strong>Wi-Fi</strong><small>WIFI:T:WPA;S:MyNetwork;P:password;;</small>
+        </div>
+        <div class="preset" data-t="sms" style="margin-bottom:8px">
+          <strong>SMS</strong><small>sms:+15551234567?body=Hello</small>
+        </div>
+        <div class="preset" data-t="tel" style="margin-bottom:8px">
+          <strong>Phone</strong><small>tel:+15551234567</small>
+        </div>
+        <div class="preset" data-t="geo">
+          <strong>Location</strong><small>geo:37.7749,-122.4194</small>
+        </div>
+
+        <h3 style="margin:16px 0 8px">Try more tools</h3>
+        <div class="link-cards">
+          <a class="link-card" href="image-to-pdf.html">
+            <strong>Image → PDF</strong><small>Bundle screenshots into one PDF.</small>
+          </a>
+          <a class="link-card" href="pdf-to-images.html">
+            <strong>PDF → Images</strong><small>Export each page as PNG/JPG.</small>
+          </a>
+          <a class="link-card" href="file-converter.html">
+            <strong>Image Converter</strong><small>Batch PNG/JPG/WebP + resize.</small>
+          </a>
+          <a class="link-card" href="unit-converter.html">
+            <strong>Unit Converter</strong><small>Length, weight, temp, more.</small>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer injected by th-layout.js -->
+  <script src="app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" crossorigin="anonymous"></script>
+  <script>
+    let q=null;
+    const $=id=>document.getElementById(id);
+
+    function eccValue(k){
+      return (QRCode.CorrectLevel[k] ?? QRCode.CorrectLevel.M);
+    }
+
+    function build(){
+      $('wrap').innerHTML='';
+      q=new QRCode($('wrap'),{
+        text:$('text').value || 'https://toolhouzz.com',
+        width:+$('size').value,
+        height:+$('size').value,
+        colorDark:$('fg').value,
+        colorLight:$('bg').value,
+        correctLevel: eccValue($('ecc').value)
+      });
+      $('savePng').disabled=false;
+      $('copyImg').disabled=false;
+      $('note').textContent = 'Generated.';
+      setTimeout(()=> $('note').textContent = '', 1200);
+    }
+
+    $('gen').onclick = build;
+
+    $('savePng').onclick=()=>{
+      if (!q) return;
+      const img = $('wrap').querySelector('img') || $('wrap').querySelector('canvas');
+      const url = img.tagName==='IMG'?img.src:img.toDataURL('image/png');
+      const a=document.createElement('a'); a.href=url; a.download='qr-code.png';
+      document.body.appendChild(a); a.click(); a.remove();
+    };
+
+    $('copyImg').onclick=async ()=>{
+      if (!q) return;
+      const canvas = $('wrap').querySelector('canvas');
+      if (canvas && canvas.toBlob){
+        try{
+          const blob = await new Promise(res=>canvas.toBlob(res,'image/png'));
+          await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+          $('note').textContent = 'Copied to clipboard.';
+          setTimeout(()=> $('note').textContent = '', 1200);
+          return;
+        }catch{}
+      }
+      $('note').textContent = 'Copy not supported in this browser.';
+      setTimeout(()=> $('note').textContent = '', 1400);
+    };
+
+    // Presets
+    document.addEventListener('click', (e)=>{
+      const p = e.target.closest('.preset'); if(!p) return;
+      const t = p.getAttribute('data-t');
+      const map = {
+        url:'https://example.com',
+        wifi:'WIFI:T:WPA;S:MyNetwork;P:password;;',
+        sms:'sms:+15551234567?body=Hello',
+        tel:'tel:+15551234567',
+        geo:'geo:37.7749,-122.4194'
+      };
+      $('text').value = map[t] || '';
+      $('text').focus();
+    });
+  </script>
+
+  <!-- Inject standard header + footer -->
+  <script src="th-layout.js"></script>
+</body>
+</html>

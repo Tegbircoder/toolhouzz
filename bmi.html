@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <title>BMI Calculator – Free Online Body Mass Index Tool | Check Weight & Health Status</title>
+  <meta name="description" content="Use our free BMI Calculator to instantly check your Body Mass Index, find your healthy weight range, and understand BMI categories for adults and children. Fast, accurate, and mobile-friendly.">
+  <link rel="canonical" href="https://toolhouzz.com/bmi.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free BMI Calculator – Check Your Body Mass Index Online">
+  <meta property="og:description" content="Quickly calculate your BMI, see healthy weight ranges, and learn your BMI category. Ideal for fitness, weight loss, and health tracking.">
+  <meta property="og:url" content="https://toolhouzz.com/bmi.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free BMI Calculator – Body Mass Index Tool">
+  <meta name="twitter:description" content="Instantly check your BMI, find your ideal weight range, and understand your health status. 100% free and mobile-friendly.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+
+  <!-- Global sticky header + footer -->
+  <link rel="stylesheet" href="th-layout.css">
+  <script defer src="th-layout.js"></script>
+
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--ink:#0f172a;--muted:#64748b;--border:#e5e7eb;--border-strong:#d1d5db}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    a{color:inherit;text-decoration:none}
+
+    .hero{padding:54px 22px 28px;text-align:center}
+    .hero-title{margin:0;font-weight:900;font-size:44px}
+    .hero-sub{margin:8px 0 0;color:#475569}
+    .hero .hero-sub strong{color:#4f46e5}
+
+    .tools{display:flex;justify-content:center;padding:14px 16px 28px}
+    .grid{width:100%;max-width:900px;display:grid;gap:12px}
+    .card{background:#fff;border:1.5px solid var(--border-strong);border-radius:16px;padding:14px}
+    .tool-title{display:flex;align-items:center;gap:10px;margin:0 0 8px;font-size:18px;font-weight:900}
+    .muted{color:var(--muted)}
+
+    label{display:block;font-weight:800;margin:0 0 6px 2px;font-size:12px;color:#6b7280}
+    .row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .row > div{min-width:0}
+    input.search,select.search{width:100%;height:44px;padding:0 12px;border-radius:12px;border:1.5px solid var(--border-strong);background:#fff;outline:none}
+    input.search:focus,select.search:focus{border-color:#818cf8;box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+
+    .toolbar{display:flex;gap:8px;align-items:center}
+    .btn{height:44px;padding:0 16px;border-radius:12px;border:1.5px solid var(--border-strong);background:#fff;font-weight:800;cursor:pointer}
+    .btn.primary{background:#4f46e5;color:#fff;border-color:#4f46e5}
+    .btn.primary:hover{filter:brightness(1.05)}
+
+    .soft{background:#fbfcff;border:1px solid var(--border);border-radius:12px;padding:12px}
+    .bigNum{font-size:clamp(28px,6vw,40px);font-weight:900;letter-spacing:.3px}
+    .tipLine{font-size:16px;font-weight:800}
+
+    .meter{position:relative;height:16px;border-radius:999px;background:linear-gradient(90deg,#ef4444 0% 17.5%,#22c55e 17.5% 50%,#f59e0b 50% 75%,#ef4444 75% 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+    .pin{position:absolute;top:-7px;width:2px;height:30px;border-radius:2px;background:#111;left:0;transform:translateX(-1px);transition:left .25s ease}
+    .legend{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:8px}
+    .legend>div{display:flex;flex-direction:column;align-items:center;font-size:12px;color:var(--muted)}
+    .legend .chip{width:100%;height:8px;border-radius:999px}
+    .legend .cU{background:#ef4444}.legend .cH{background:#22c55e}.legend .cO{background:#f59e0b}.legend .cOb{background:#ef4444}
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <h1 class="hero-title">BMI Calculator</h1>
+    <p class="hero-sub">Get your number and see where you fall on the color meter. <strong>BMI = weight (kg) ÷ height² (m²)</strong>.</p>
+  </section>
+
+  <section class="tools">
+    <div class="grid">
+      <div class="card">
+        <h2 class="tool-title">Your BMI</h2>
+
+        <div class="row">
+          <div>
+            <label>Weight</label>
+            <div class="row" style="grid-template-columns:1fr 120px">
+              <input id="wVal" class="search" type="number" inputmode="decimal" placeholder="e.g., 70">
+              <select id="wUnit" class="search" style="height:44px">
+                <option value="kg" selected>kg</option>
+                <option value="g">g</option>
+                <option value="lb">lb</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label>Height</label>
+            <div class="row" style="grid-template-columns:1fr 120px">
+              <input id="hVal" class="search" type="number" inputmode="decimal" placeholder="e.g., 170">
+              <select id="hUnit" class="search" style="height:44px">
+                <option value="cm" selected>cm</option>
+                <option value="m">m</option>
+                <option value="ftin">ft + in</option>
+              </select>
+            </div>
+            <div id="ftWrap" class="row" style="grid-template-columns:1fr 1fr;display:none;margin-top:8px">
+              <input id="ft" class="search" type="number" inputmode="numeric" placeholder="ft">
+              <input id="inch" class="search" type="number" inputmode="decimal" placeholder="in">
+            </div>
+          </div>
+
+          <div>
+            <label>Age (optional)</label>
+            <input id="age" class="search" type="number" inputmode="numeric" placeholder="e.g., 25">
+          </div>
+        </div>
+
+        <div class="toolbar" style="margin-top:10px">
+          <button class="btn primary" id="calcBmi">Calculate BMI</button>
+          <span class="muted" id="bmiNote" style="margin-left:auto">Use accurate height & weight for best results.</span>
+        </div>
+
+        <div class="soft" style="margin-top:14px">
+          <div style="display:grid;grid-template-columns:1fr 1.2fr;gap:16px;align-items:center">
+            <div>
+              <div style="font-weight:800">Result</div>
+              <div id="bmiOut" class="bigNum" style="margin-top:6px">—</div>
+              <div id="bmiTips" class="tipLine" style="margin-top:10px"></div>
+            </div>
+
+            <div>
+              <div class="meter"><div id="bmiPin" class="pin"></div></div>
+              <div class="legend">
+                <div><div class="chip cU"></div><span>15–18.4</span><span>Under</span></div>
+                <div><div class="chip cH"></div><span>18.5–24.9</span><span>Healthy</span></div>
+                <div><div class="chip cO"></div><span>25–29.9</span><span>Over</span></div>
+                <div><div class="chip cOb"></div><span>30+</span><span>Obese</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <p class="muted" style="margin-top:10px">Note: BMI is a screening tool, not a diagnosis. Ranges differ for children and some athletes.</p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+  (() => {
+    const $ = (id) => document.getElementById(id);
+    const clamp=(v,min,max)=>Math.min(Math.max(v,min),max);
+
+    const ftWrap=$('ftWrap'); $('hUnit').addEventListener('change',()=>{ ftWrap.style.display=$('hUnit').value==='ftin'?'grid':'none'; });
+
+    function toKg(v,u){v=parseFloat(v)||0; if(u==='kg')return v; if(u==='g')return v/1000; if(u==='lb')return v*0.45359237; return 0;}
+    function toMeters(v,u){
+      v=parseFloat(v)||0;
+      if(u==='m')return v; if(u==='cm')return v/100;
+      if(u==='ftin'){const ft=parseFloat($('ft').value)||0; const inc=parseFloat($('inch').value)||0; return (ft*12+inc)*0.0254;}
+      return 0;
+    }
+    function classify(b){
+      if(b<18.5) return {cat:'Underweight',color:'#ef4444',msg:'Add a gentle surplus with protein-rich meals.'};
+      if(b<25) return {cat:'Healthy',color:'#22c55e',msg:'Great—keep consistent activity & balanced meals.'};
+      if(b<30) return {cat:'Overweight',color:'#f59e0b',msg:'A 300–500 kcal daily deficit + walking/strength helps.'};
+      return {cat:'Obese',color:'#ef4444',msg:'Try a structured plan; consider professional guidance.'};
+    }
+    function pinLeftFor(bmi){ return clamp(((bmi-15)/20)*100,0,100); }
+
+    $('calcBmi').onclick=()=>{
+      const kg=toKg($('wVal').value,$('wUnit').value);
+      const m =toMeters($('hVal').value,$('hUnit').value);
+      const out=$('bmiOut'), pin=$('bmiPin'), tips=$('bmiTips');
+      if(!kg||!m){ out.textContent='—'; tips.textContent='Enter valid weight & height.'; return; }
+      const bmi=kg/(m*m), info=classify(bmi);
+      out.textContent=bmi.toFixed(1)+' — '+info.cat;
+      pin.style.left=pinLeftFor(bmi)+'%';
+      tips.innerHTML=`<span style="font-weight:800;color:${info.color}">${info.cat}</span> · ${info.msg}`;
+      const age=parseFloat($('age').value)||null; if(age&&age<18) tips.innerHTML+=' <em>(ranges differ for children/teens)</em>';
+    };
+
+    ['wVal','hVal','ft','inch','age'].forEach(id=>{
+      const el=$(id); if(!el) return; el.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); $('calcBmi').click(); }});
+    });
+  })();
+  </script>
+</body>
+</html>

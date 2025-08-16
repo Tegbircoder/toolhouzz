@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free Citation Generator – Create APA, MLA, Chicago & More | ToolHouzz</title>
+  <meta name="description" content="Generate accurate citations instantly in APA, MLA, Chicago, and other common styles with our free Citation Generator. Works entirely in your browser for privacy – no sign-up or uploads required. Perfect for students, researchers, and writers.">
+  <link rel="canonical" href="https://toolhouzz.com/citation-generator.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free Citation Generator – APA, MLA, Chicago & More">
+  <meta property="og:description" content="Create accurate citations in multiple styles directly in your browser. Private, fast, and free.">
+  <meta property="og:url" content="https://toolhouzz.com/citation-generator.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Citation Generator – ToolHouzz">
+  <meta name="twitter:description" content="Build APA, MLA, and Chicago citations instantly in your browser. No sign-up, private, and free.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Header/Footer layout styles -->
+  <link rel="stylesheet" href="th-layout.css" />
+  <style>
+    .flex{display:flex;gap:8px;flex-wrap:wrap}
+    .stack{display:grid;gap:10px}
+    .mono{font-family:ui-monospace, Menlo, Consolas, monospace}
+    /* Spacing for About / Privacy / Terms in injected header */
+    .nav-right{gap:14px}
+  </style>
+</head>
+<body class="theme-light">
+<!-- Header is injected by th-layout.js -->
+
+<section class="tool-hero" data-theme="purple">
+  <div class="hero-inner">
+    <h1 class="hero-title">Citation Generator</h1>
+    <p class="hero-sub">APA, MLA, and Chicago formats for websites, books, and journal articles.</p>
+    <a class="btn primary" href="#tool" style="margin-top:14px">Start</a>
+  </div>
+</section>
+
+<section id="tool" class="tools">
+  <div class="grid" style="grid-template-columns:1fr;max-width:980px">
+    <div class="card">
+      <div class="row">
+        <div>
+          <label>Style</label>
+          <select id="style" class="search" style="height:44px"><option>APA</option><option>MLA</option><option>Chicago</option></select>
+        </div>
+        <div>
+          <label>Source type</label>
+          <select id="stype" class="search" style="height:44px">
+            <option value="web">Website</option>
+            <option value="book">Book</option>
+            <option value="journal">Journal article</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="stack" style="margin-top:10px">
+        <div>
+          <label>Authors (First Last). Add each, will auto-format.</label>
+          <div class="flex">
+            <input id="authName" class="search" placeholder="e.g., Ada Lovelace">
+            <button class="btn" id="addAuth">Add author</button>
+            <button class="btn" id="clearAuth">Clear authors</button>
+          </div>
+          <div id="authList" class="muted" style="margin-top:6px"></div>
+        </div>
+
+        <div class="row">
+          <div><label>Title</label><input id="title" class="search" placeholder=""></div>
+          <div><label>Year</label><input id="year" class="search" type="number" inputmode="numeric"></div>
+        </div>
+
+        <div id="webFields" class="row">
+          <div><label>Website / Publisher</label><input id="site" class="search"></div>
+          <div><label>URL</label><input id="url" class="search"></div>
+          <div><label>Access date (optional)</label><input id="access" class="search" type="date"></div>
+        </div>
+
+        <div id="bookFields" class="row" style="display:none">
+          <div><label>Publisher</label><input id="publisher" class="search"></div>
+          <div><label>City (optional)</label><input id="city" class="search"></div>
+          <div><label>Edition (optional)</label><input id="edition" class="search" placeholder="2nd, rev. ed., etc."></div>
+        </div>
+
+        <div id="jourFields" class="row" style="display:none">
+          <div><label>Journal</label><input id="journal" class="search"></div>
+          <div><label>Volume</label><input id="volume" class="search"></div>
+          <div><label>Issue (optional)</label><input id="issue" class="search"></div>
+          <div><label>Pages</label><input id="pages" class="search" placeholder="123–145"></div>
+          <div><label>DOI/URL (optional)</label><input id="doi" class="search"></div>
+        </div>
+
+        <div class="flex">
+          <button class="btn primary" id="generate">Generate</button>
+          <button class="btn" id="copy">Copy</button>
+          <button class="btn" id="download">Download .txt</button>
+        </div>
+
+        <div>
+          <label>Result</label>
+          <textarea id="out" class="search mono" style="min-height:160px"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer is injected by th-layout.js -->
+
+<script>
+  const $ = id=>document.getElementById(id);
+
+  const authors=[];
+  function renderAuthors(){ $('authList').textContent = authors.length ? authors.join('; ') : 'No authors added'; }
+
+  $('addAuth').onclick = ()=>{
+    const n = ($('authName').value||'').trim(); if(!n) return;
+    authors.push(n); $('authName').value=''; renderAuthors();
+  };
+  $('clearAuth').onclick = ()=>{ authors.length=0; renderAuthors(); };
+  renderAuthors();
+
+  $('stype').onchange = ()=>{
+    const t=$('stype').value;
+    $('webFields').style.display   = t==='web' ? 'grid':'none';
+    $('bookFields').style.display  = t==='book'? 'grid':'none';
+    $('jourFields').style.display  = t==='journal'? 'grid':'none';
+  };
+
+  function formatAuthors(style){
+    if (authors.length===0) return '';
+    const parts = authors.map(full=>{
+      const seg = full.trim().split(/\s+/);
+      const last = seg.pop();
+      const first = seg.join(' ');
+      if (style==='APA')     return `${last}, ${first[0]||''}.`.replace(/\s+\./g,'.');
+      if (style==='Chicago') return `${last}, ${first}`;
+      if (style==='MLA')     return `${last}, ${first}`;
+      return full;
+    });
+    if (style==='APA'){
+      if (parts.length===1) return parts[0];
+      if (parts.length===2) return parts.join(' & ');
+      return parts.slice(0,-1).join(', ') + ', & ' + parts.slice(-1);
+    } else { // MLA/Chicago
+      if (parts.length===1) return parts[0];
+      if (parts.length===2) return parts.join(', and ');
+      return parts.slice(0,-1).join(', ') + ', and ' + parts.slice(-1);
+    }
+  }
+
+  function apaWeb(){ // very basic patterns
+    const A = formatAuthors('APA'), y=$('year').value||'n.d.', t=$('title').value, s=$('site').value, u=$('url').value, ad=$('access').value;
+    const access = ad ? ` Accessed ${ad}.` : '';
+    return `${A} (${y}). ${t}. ${s}. ${u}.${access}`.trim();
+  }
+  function mlaWeb(){
+    const A = formatAuthors('MLA'), t=$('title').value, s=$('site').value, y=$('year').value, u=$('url').value, ad=$('access').value;
+    const year = y? `${y}. `:''; const access = ad? ` Accessed ${ad}.`:'';
+    return `${A}. “${t}.” ${s}, ${year}${u}.${access}`.trim();
+  }
+  function chicagoWeb(){
+    const A = formatAuthors('Chicago'), t=$('title').value, s=$('site').value, y=$('year').value||'n.d.', u=$('url').value, ad=$('access').value;
+    const access = ad? ` (accessed ${ad})`:'';
+    return `${A}. “${t}.” ${s}, ${y}. ${u}${access}.`;
+  }
+  function apaBook(){
+    const A = formatAuthors('APA'), y=$('year').value||'n.d.', t=$('title').value, ed=$('edition').value, p=$('publisher').value, c=$('city').value;
+    const eds = ed? ` (${ed}).`:'.'; const city = c? `${c}: `:'';
+    return `${A} (${y}). ${t}${eds} ${city}${p}.`;
+  }
+  function mlaBook(){
+    const A = formatAuthors('MLA'), t=$('title').value, ed=$('edition').value, p=$('publisher').value, y=$('year').value, c=$('city').value;
+    const eds = ed? `, ${ed}`:''; const city = c? `${c}: `:'';
+    return `${A}. ${t}${eds}. ${city}${p}, ${y}.`;
+  }
+  function chicagoBook(){
+    const A = formatAuthors('Chicago'), t=$('title').value, ed=$('edition').value, p=$('publisher').value, y=$('year').value, c=$('city').value;
+    const eds = ed? ` ${ed}`:''; const city = c? `${c}: `:'';
+    return `${A}. ${t}.${eds} ${city}${p}, ${y}.`;
+  }
+  function apaJour(){
+    const A = formatAuthors('APA'), y=$('year').value||'n.d.', t=$('title').value, j=$('journal').value, v=$('volume').value, i=$('issue').value, p=$('pages').value, d=$('doi').value;
+    const issue = i? `(${i})`:''; const pages = p? `, ${p}`:''; const doi = d? `. ${d}`:'';
+    return `${A} (${y}). ${t}. ${j}, ${v}${issue}${pages}${doi}.`;
+  }
+  function mlaJour(){
+    const A = formatAuthors('MLA'), t=$('title').value, j=$('journal').value, v=$('volume').value, i=$('issue').value, y=$('year').value, p=$('pages').value, d=$('doi').value;
+    const issue = i? `, no. ${i}`:''; const pages = p? `, pp. ${p}`:''; const doi = d? `, ${d}`:'';
+    return `${A}. “${t}.” ${j}, vol. ${v}${issue}, ${y}${pages}${doi}.`;
+  }
+  function chicagoJour(){
+    const A = formatAuthors('Chicago'), t=$('title').value, j=$('journal').value, v=$('volume').value, i=$('issue').value, y=$('year').value, p=$('pages').value, d=$('doi').value;
+    const issue = i? `, no. ${i}`:''; const pages = p? `: ${p}`:''; const doi = d? `. ${d}`:'';
+    return `${A}. “${t}.” ${j} ${v}${issue} (${y})${pages}${doi}.`;
+  }
+
+  $('generate').onclick = ()=>{
+    const style = $('style').value, type=$('stype').value;
+    let txt='';
+    if(type==='web'){
+      if(style==='APA') txt=apaWeb();
+      if(style==='MLA') txt=mlaWeb();
+      if(style==='Chicago') txt=chicagoWeb();
+    }else if(type==='book'){
+      if(style==='APA') txt=apaBook();
+      if(style==='MLA') txt=mlaBook();
+      if(style==='Chicago') txt=chicagoBook();
+    }else{
+      if(style==='APA') txt=apaJour();
+      if(style==='MLA') txt=mlaJour();
+      if(style==='Chicago') txt=chicagoJour();
+    }
+    $('out').value = txt.trim();
+  };
+  $('copy').onclick = ()=>{ $('out').select(); document.execCommand('copy'); };
+  $('download').onclick = ()=>{
+    const blob = new Blob([$('out').value||''], {type:'text/plain'}); const a=document.createElement('a');
+    a.href=URL.createObjectURL(blob); a.download='citations.txt'; document.body.appendChild(a); a.click(); a.remove();
+  };
+</script>
+
+<!-- Injects the standard header + footer -->
+<script src="th-layout.js"></script>
+</body>
+</html>

@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free PDF417 Barcode Generator – Create Unique Barcodes & ID Numbers | ToolHouzz</title>
+  <meta name="description" content="Generate a unique PDF417 barcode or custom ID number with our free online tool. Download your barcode image instantly with an optional share note. Works entirely in your browser – fast, private, and secure.">
+  <link rel="canonical" href="https://toolhouzz.com/genetic-barcode.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free PDF417 Barcode & ID Number Generator">
+  <meta property="og:description" content="Create a unique PDF417 barcode or ID number and download the image instantly. Private, fast, and browser-based.">
+  <meta property="og:url" content="https://toolhouzz.com/genetic-barcode.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free PDF417 Barcode Generator – ToolHouzz">
+  <meta name="twitter:description" content="Generate a unique PDF417 barcode or ID number instantly. Download the image with an optional share note.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+
+  <!-- Global sticky header + footer (same as BMI page) -->
+  <link rel="stylesheet" href="th-layout.css">
+  <script defer src="th-layout.js"></script>
+
+  <!-- bwip-js for PDF417 -->
+  <script src="https://cdn.jsdelivr.net/npm/bwip-js@4.7.0/dist/bwip-js-min.js"></script>
+
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--ink:#0f172a;--muted:#64748b;--border:#e5e7eb;--border-strong:#d1d5db}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    a{color:inherit;text-decoration:none}
+
+    .hero{padding:54px 22px 28px;text-align:center}
+    .hero-title{margin:0;font-weight:900;font-size:44px}
+    .hero-sub{margin:8px 0 0;color:#475569}
+    .hero .hero-sub strong{color:#4f46e5}
+
+    .tools{display:flex;justify-content:center;padding:14px 16px 28px}
+    .grid{width:100%;max-width:1000px;display:grid;gap:12px}
+    .card{background:#fff;border:1.5px solid var(--border-strong);border-radius:16px;padding:16px}
+    .tool-title{display:flex;align-items:center;gap:10px;margin:0 0 8px;font-size:18px;font-weight:900}
+    .muted{color:var(--muted)}
+
+    label{display:block;font-weight:800;margin:0 0 6px 2px;font-size:12px;color:#6b7280}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .row-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .row-1{display:grid;grid-template-columns:1fr;gap:12px}
+    .input{width:100%;height:44px;padding:0 12px;border-radius:12px;border:1.5px solid var(--border-strong);background:#fff;outline:none}
+    .input:focus{border-color:#818cf8;box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+    textarea.input{height:auto;padding:10px 12px;min-height:90px;resize:vertical}
+
+    .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .btn{height:44px;padding:0 16px;border-radius:12px;border:1.5px solid var(--border-strong);background:#fff;font-weight:800;cursor:pointer}
+    .btn.primary{background:#4f46e5;color:#fff;border-color:#4f46e5}
+    .btn.primary:hover{filter:brightness(1.05)}
+    .btn.ghost{background:#fbfcff}
+
+    .soft{background:#fbfcff;border:1px solid var(--border);border-radius:12px;padding:12px}
+    .bigNum{font-size:clamp(22px,4vw,34px);font-weight:900;letter-spacing:.2px;word-break:break-all}
+    .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;}
+
+    .flex{display:flex;align-items:center;gap:10px}
+    .wide{width:100%}
+
+    .barcode-wrap{display:flex;justify-content:center}
+    canvas#barcodeCanvas{
+      max-width:100%;
+      height:auto;
+      background:#fff;
+      border:1.5px solid var(--border-strong);
+      border-radius:12px;
+      padding:12px;
+    }
+
+    /* Message toast */
+    .toast{
+      position:fixed;top:50%;left:50%;
+      transform:translate(-50%,-50%);
+      background:#ef4444;color:#fff;
+      padding:14px 18px;border-radius:12px;
+      box-shadow:0 10px 30px rgba(0,0,0,.15);
+      z-index:9999;opacity:1;transition:transform .25s ease,opacity .25s ease
+    }
+    .toast.fade{transform:translate(-50%,-48%);opacity:0}
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1 class="hero-title">Genetic Barcode (PDF417)</h1>
+    <p class="hero-sub">Create a scannable PDF417 from your details. We’ll also give you a <strong>Unique Number</strong> you can save or share.</p>
+  </section>
+
+  <!-- Main Tool -->
+  <section class="tools">
+    <div class="grid">
+      <div class="card">
+        <h2 class="tool-title">Generate Your PDF417 Barcode</h2>
+
+        <!-- Form (kept same IDs & required fields for identical functionality) -->
+        <form id="detailsForm" class="row-1" style="margin-top:6px">
+          <div class="row-1">
+            <div>
+              <label for="fullName">Full Name</label>
+              <input id="fullName" type="text" class="input" required />
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label for="fatherName">Father's Name</label>
+              <input id="fatherName" type="text" class="input" required />
+            </div>
+            <div>
+              <label for="motherName">Mother's Name</label>
+              <input id="motherName" type="text" class="input" required />
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label for="dob">Date of Birth</label>
+              <input id="dob" type="date" class="input" required />
+            </div>
+            <div>
+              <label for="tob">Time of Birth</label>
+              <input id="tob" type="time" class="input" required />
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label for="city">City of Birth</label>
+              <input id="city" type="text" class="input" required />
+            </div>
+            <div>
+              <label for="country">Country of Birth</label>
+              <input id="country" type="text" class="input" required />
+            </div>
+          </div>
+
+          <div class="toolbar" style="margin-top:4px">
+            <button type="submit" class="btn primary">Generate Barcode</button>
+            <span class="muted" style="margin-left:auto">Your data is stored locally in your browser for decoding.</span>
+          </div>
+        </form>
+
+        <!-- Unique Number Display -->
+        <div class="soft" style="margin-top:16px">
+          <div class="flex" style="align-items:flex-start;gap:12px">
+            <div class="wide">
+              <div style="font-weight:800">Here is your Unique Number</div>
+              <div id="encodedData" class="bigNum mono" style="margin-top:6px">—</div>
+            </div>
+            <button id="copyButton" class="btn ghost" title="Copy unique number">Copy</button>
+          </div>
+          <p class="muted" style="margin-top:8px">Tip: Use this number later in the reader to decode your details.</p>
+        </div>
+
+        <!-- Barcode -->
+        <div class="soft" style="margin-top:12px">
+          <div style="font-weight:800">Generated PDF417 Barcode</div>
+          <div class="barcode-wrap" style="margin-top:10px">
+            <canvas id="barcodeCanvas"></canvas>
+          </div>
+        </div>
+
+        <!-- Link to decoder -->
+        <div class="soft" style="margin-top:12px;border-style:dashed">
+          <div class="flex" style="justify-content:space-between">
+            <span class="muted">Want to decode by unique number?</span>
+            <a href="genetic-barcode-reader.html" class="btn">Open Decoder →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // === Functionality preserved exactly (IDs, logic, storage, PDF417) ===
+    document.addEventListener('DOMContentLoaded', () => {
+      const DELIMITER = '|';
+      const copyButton = document.getElementById('copyButton');
+      const encodedDataElement = document.getElementById('encodedData');
+
+      function generateUniqueId() {
+          return Date.now().toString() + Math.floor(Math.random() * 1000000000).toString();
+      }
+
+      document.getElementById('detailsForm').addEventListener('submit', function(event) {
+          event.preventDefault();
+
+          const uniqueId = generateUniqueId();
+          const fullName = document.getElementById('fullName').value;
+          const fatherName = document.getElementById('fatherName').value;
+          const motherName = document.getElementById('motherName').value;
+          const dob = document.getElementById('dob').value;
+          const tob = document.getElementById('tob').value;
+          const city = document.getElementById('city').value;
+          const country = document.getElementById('country').value;
+
+          const encodedString = [uniqueId, fullName, fatherName, motherName, dob, tob, city, country].join(DELIMITER);
+
+          try {
+              localStorage.setItem(uniqueId, encodedString);
+          } catch (e) {
+              console.error("Failed to save to local storage: ", e);
+              showMessageBox("Could not save data to local storage. Decoding by unique number will not work.");
+          }
+
+          // Big & bold unique code
+          encodedDataElement.textContent = uniqueId;
+
+          const canvas = document.getElementById('barcodeCanvas');
+          try {
+              if (typeof bwipjs === 'undefined') {
+                  throw new Error("bwip-js library not loaded correctly.");
+              }
+              bwipjs.toCanvas(canvas, {
+                  bcid: 'pdf417',
+                  text: encodedString,
+                  scale: 3,
+                  includetext: false,
+                  textxalign: 'center'
+              });
+          } catch (error) {
+              console.error("An error occurred during barcode encoding:", error);
+              showMessageBox("An error occurred during barcode generation. Please check your input and ensure the library is loaded correctly.");
+          }
+      });
+
+      copyButton.addEventListener('click', function() {
+          const textToCopy = encodedDataElement.textContent;
+          const tempTextArea = document.createElement('textarea');
+          tempTextArea.value = textToCopy;
+          document.body.appendChild(tempTextArea);
+          tempTextArea.select();
+          try {
+              document.execCommand('copy');
+              showMessageBox("Unique number copied to clipboard!");
+          } catch (err) {
+              console.error('Failed to copy text: ', err);
+              showMessageBox("Failed to copy. Please copy the text manually.");
+          }
+          document.body.removeChild(tempTextArea);
+      });
+    });
+
+    function showMessageBox(message) {
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.textContent = message;
+      document.body.appendChild(el);
+      setTimeout(()=>{ el.classList.add('fade'); }, 2200);
+      el.addEventListener('transitionend', ()=> el.remove());
+    }
+
+    // Footer year (kept same behavior)
+    document.addEventListener('DOMContentLoaded', () => {
+      const y = document.getElementById('year');
+      if (y) y.textContent = new Date().getFullYear();
+    });
+  </script>
+</body>
+</html>

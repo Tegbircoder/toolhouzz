@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free Days Between Dates Calculator – Date Difference & Duration Tool | ToolHouzz</title>
+  <meta name="description" content="Calculate the number of days between two dates with our free Days Between Dates tool. Get detailed breakdowns in days, weeks, months, and years. Perfect for planning events, projects, and timelines.">
+  <link rel="canonical" href="https://toolhouzz.com/days-between.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free Days Between Dates Calculator – Detailed Breakdown">
+  <meta property="og:description" content="Find the exact number of days between two dates, with breakdowns in weeks, months, and years. Perfect for planning and scheduling.">
+  <meta property="og:url" content="https://toolhouzz.com/days-between.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Days Between Dates Calculator – ToolHouzz">
+  <meta name="twitter:description" content="Calculate days between dates with detailed breakdowns for planning and projects.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="th-layout.css">
+  <script defer src="th-layout.js"></script>
+  <style>
+    .k{border:1px solid var(--border-strong);border-radius:12px;padding:10px 12px;background:#fff}
+    .info-card{border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff}
+    .subhead{font-weight:900;margin:10px 0 6px}
+    .try-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  </style>
+</head>
+<body class="theme-light">
+  <section class="hero" style="padding:54px 22px 28px">
+    <div class="hero-inner">
+      <h1 class="hero-title">Days Between Dates</h1>
+      <p class="hero-sub">Exact distance with options for <b>inclusive</b> or <b>exclusive</b> counting, plus “full weeks” and “leftover days”.</p>
+    </div>
+  </section>
+
+  <section class="tools">
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:16px;max-width:1100px">
+      <div class="card">
+        <div class="row">
+          <div><label>Start date</label><input id="d1" class="search" type="date"></div>
+          <div><label>End date</label><input id="d2" class="search" type="date"></div>
+          <div style="display:flex;align-items:end">
+            <label class="checkbox" style="display:flex;gap:6px;align-items:center;margin-bottom:2px">
+              <input id="inclusive" type="checkbox"> Inclusive (count both days)
+            </label>
+          </div>
+        </div>
+        <div class="toolbar" style="margin-top:10px">
+          <button class="btn primary" id="calc">Calculate</button>
+          <button class="btn" id="today">Use Today</button>
+        </div>
+
+        <div class="k" style="margin-top:12px">
+          <div><strong>Total days:</strong> <span id="days">—</span></div>
+          <div class="muted" style="margin-top:6px">
+            <b>Full weeks:</b> <span id="fullWeeks">—</span> • <b>Leftover days:</b> <span id="leftover">—</span>
+          </div>
+        </div>
+
+        <div class="info-card" style="margin-top:10px">
+          <div class="subhead">How it works</div>
+          <ul class="muted" style="margin:0;padding-left:18px">
+            <li><b>Exclusive</b> (checkbox off): counts whole days <i>between</i> start and end.</li>
+            <li><b>Inclusive</b> (checkbox on): adds 1 day to also count the start (and end) day.</li>
+            <li><b>Full weeks</b>: complete 7-day blocks inside the range.</li>
+            <li><b>Leftover days</b>: remaining days after removing all full weeks.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="info-card">
+          <div class="subhead">Try more tools</div>
+          <div class="try-grid">
+            <a class="card" href="hours-between.html"><div class="icon"><img class="icon-img" src="assets/icons/clock.svg" alt=""></div><h3>Hours Between Times</h3></a>
+            <a class="card" href="timer-stop.html"><div class="icon"><img class="icon-img" src="assets/icons/timer.svg" alt=""></div><h3>Timer Challenge</h3></a>
+            <a class="card" href="percentage-calculator.html"><div class="icon"><img class="icon-img" src="assets/icons/scale.svg" alt=""></div><h3>Percentage</h3></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const $=id=>document.getElementById(id);
+    function midnight(d){const x=new Date(d);x.setHours(0,0,0,0);return x;}
+    function go(){
+      const a=$('d1').value,b=$('d2').value;
+      if(!a||!b){$('days').textContent='—';$('fullWeeks').textContent='—';$('leftover').textContent='—';return;}
+      const d1=midnight(a), d2=midnight(b);
+      let diff=Math.round((d2-d1)/(1000*60*60*24));
+      if ($('inclusive').checked) diff += 1;
+      const fw=Math.floor(diff/7), left=Math.max(0, diff - fw*7);
+      $('days').textContent=diff; $('fullWeeks').textContent=fw; $('leftover').textContent=left;
+    }
+    $('calc').onclick=go;
+    $('today').onclick=()=>{const t=new Date().toISOString().slice(0,10);$('d1').value=t;$('d2').value=t;$('inclusive').checked=true;go();};
+    go();
+  </script>
+</body>
+</html>

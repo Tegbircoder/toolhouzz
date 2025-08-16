@@ -1,0 +1,552 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free Budget Planner – Monthly Income & Expense Tracker | ToolHouzz</title>
+  <meta name="description" content="Plan and track your monthly income, expenses, and savings with our free Budget Planner. Visualize spending with charts, set financial goals, and manage your money easily from any device.">
+  <link rel="canonical" href="https://toolhouzz.com/budget.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free Budget Planner – Income, Expense & Savings Tool">
+  <meta property="og:description" content="Easily create a monthly budget, track expenses, and set savings goals with visual charts. Free, simple, and mobile-friendly.">
+  <meta property="og:url" content="https://toolhouzz.com/budget.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Budget Planner – ToolHouzz">
+  <meta name="twitter:description" content="Plan your income, expenses, and savings with an easy-to-use monthly budget tool. Visual charts for better money management.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="th-layout.css">
+  <script defer src="th-layout.js"></script>
+
+  <style>
+    .hero-sub{max-width:820px}
+    .tool-title{display:flex;gap:10px;align-items:center}
+    .strong{font-weight:800}
+    label{font-weight:700}
+    input.search, select.search{font-weight:600}
+
+    /* KPI cards */
+    .kpiBox{border:1px solid var(--border-strong);border-radius:14px;padding:12px;background:#fff;box-shadow:0 6px 14px rgba(16,24,40,.06)}
+    .kpiLabel{font-size:12px;color:#64748b;font-weight:700;letter-spacing:.2px}
+    .kpiVal{font-weight:900;font-size:20px;margin-top:6px}
+
+    /* Chips */
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 4px}
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:800}
+    .chip-need{background:#eef2ff;color:#3730a3}
+    .chip-want{background:#fff7ed;color:#9a3412}
+    .chip-save{background:#ecfdf5;color:#065f46}
+
+    /* Table */
+    #itemsTable{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    #itemsTable thead th{background:#f8fafc;text-align:left;padding:10px 12px;font-weight:800;color:#0f172a;border-bottom:1px solid var(--border)}
+    #itemsTable tbody td{padding:8px 12px;border-bottom:1px solid var(--border)}
+    #itemsTable tbody tr:nth-child(odd){background:#fcfdff}
+    #itemsTable input.search, #itemsTable select.search{width:100%}
+    #itemsTable td.amountCell input{ text-align:right }
+
+    /* Charts: big and roomy */
+    .chartPanel{border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff}
+    .chartLabel{display:block;font-weight:900;margin:0 0 8px}
+    .chartWrap{height:360px;position:relative}
+    @media (min-width:1200px){ .chartWrap{height:420px} }
+
+    /* Advice card */
+    #adviceBox{border:1px dashed #cbd5e1;background:#fbfcff}
+
+    .tipList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+    .tip{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:13px}
+
+    .btn.primary{font-weight:900}
+  </style>
+</head>
+<body class="theme-light">
+
+  <!-- Hero -->
+  <section class="hero" style="padding:54px 22px 28px">
+    <div class="hero-inner">
+      <h1 class="hero-title">Budget Planner</h1>
+      <p class="hero-sub" style="margin-top:10px">
+        Add your income, savings goal, and expenses (needs & wants). We’ll show where your money goes, compare against the
+        <strong>50/30/20</strong> guide, and suggest smart cuts to hit your goals.
+      </p>
+    </div>
+  </section>
+
+  <!-- Tool -->
+  <section class="tools">
+    <div class="grid" style="grid-template-columns:1.2fr 1fr;align-items:start;gap:16px">
+      <!-- Left: Inputs -->
+      <div class="card" id="inputsCard">
+        <h2 class="tool-title">Plan</h2>
+
+        <div class="row">
+          <div>
+            <label for="income">Monthly Net Income</label>
+            <input id="income" class="search" type="number" inputmode="decimal" placeholder="e.g., 3500">
+          </div>
+          <div>
+            <label for="goal">Savings Goal / month (optional)</label>
+            <input id="goal" class="search" type="number" inputmode="decimal" placeholder="e.g., 700">
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:8px">
+          <div>
+            <label for="itemName">Add Expense</label>
+            <!-- Autofill suggestions -->
+            <input id="itemName" class="search" type="text" list="expenseHints" placeholder="Name (e.g., Rent, Groceries, Car Payment)">
+            <datalist id="expenseHints">
+              <option value="Rent / Mortgage">
+              <option value="Loan">
+              <option value="Groceries">
+              <option value="Utilities">
+              <option value="Transport">
+              <option value="Insurance">
+              <option value="Healthcare">
+              <option value="Dining Out">
+              <option value="Subscriptions">
+              <option value="Entertainment">
+              <option value="Shopping">
+              <option value="Travel">
+              <option value="Gym / Hobbies">
+              <option value="Phone & Internet">
+            </datalist>
+          </div>
+          <div>
+            <label for="itemAmount">Amount / month</label>
+            <input id="itemAmount" class="search" type="number" inputmode="decimal" placeholder="e.g., 1200">
+          </div>
+          <div>
+            <label for="itemKind">Type</label>
+            <select id="itemKind" class="search">
+              <option value="need" selected>Need</option>
+              <option value="want">Want</option>
+              <option value="saving">Save</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="toolbar" style="margin-top:10px">
+          <button class="btn primary" id="addItemBtn" type="button">Add Expense</button>
+          <button class="btn" id="resetBtn" type="button">Reset</button>
+          <span class="muted" id="status" style="margin-left:auto"></span>
+        </div>
+
+        <!-- List -->
+        <div style="margin-top:12px">
+          <table id="itemsTable">
+            <thead>
+              <tr>
+                <th style="width:46%">Expense</th>
+                <th style="width:18%">Type</th>
+                <th style="width:20%;text-align:right">Amount</th>
+                <th style="width:16%"></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="toolbar" style="margin-top:14px">
+          <button class="btn" id="saveBtn" type="button">Save</button>
+          <button class="btn" id="copyBtn" type="button">Copy Summary</button>
+        </div>
+      </div>
+
+      <!-- Right: Summary & Charts -->
+      <div class="card">
+        <h2 class="tool-title">Insights</h2>
+
+        <div id="kpis" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:8px">
+          <div class="kpiBox"><div class="kpiLabel">Income</div><div class="kpiVal" id="kpiIncome">—</div></div>
+          <div class="kpiBox"><div class="kpiLabel">Expenses</div><div class="kpiVal" id="kpiExp">—</div></div>
+          <div class="kpiBox"><div class="kpiLabel">Current Savings</div><div class="kpiVal" id="kpiSave">—</div></div>
+          <div class="kpiBox"><div class="kpiLabel">Goal Gap</div><div class="kpiVal" id="kpiGap">—</div></div>
+        </div>
+
+        <div class="chips">
+          <span class="chip chip-need">Needs: <b id="chipNeed">0%</b></span>
+          <span class="chip chip-want">Wants: <b id="chipWant">0%</b></span>
+          <span class="chip chip-save">Savings: <b id="chipSave">0%</b></span>
+        </div>
+
+        <div class="chartPanel" style="margin-top:8px">
+          <label class="chartLabel">Expenses by Category</label>
+          <div class="chartWrap"><canvas id="pieChart"></canvas></div>
+        </div>
+
+        <div class="chartPanel" style="margin-top:12px">
+          <label class="chartLabel">Your Allocation vs 50/30/20</label>
+          <div class="chartWrap"><canvas id="barChart"></canvas></div>
+        </div>
+
+        <div style="margin-top:12px">
+          <label class="chartLabel">Advice</label>
+          <div id="adviceBox" class="card" style="padding:12px;border-radius:12px"></div>
+        </div>
+
+        <div style="margin-top:10px">
+          <label class="chartLabel">Money-Saving Tips</label>
+          <div class="tipList">
+            <div class="tip">Plan meals; buy staples in bulk.</div>
+            <div class="tip">Audit subscriptions; rotate streaming monthly.</div>
+            <div class="tip">Call providers to renegotiate phone/internet/insurance.</div>
+            <div class="tip">Use public transit/carpool 1–2 days per week.</div>
+            <div class="tip">Set up auto-transfer for savings on payday.</div>
+            <div class="tip">Debt avalanche: pay highest APR first.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0" crossorigin="anonymous"></script>
+
+  <script>
+  // ---------- Helpers
+  const $ = (id) => document.getElementById(id);
+  const money = (n, loc = navigator.language) =>
+    isFinite(n) ? n.toLocaleString(loc, { style:'currency', currency: guessCurrency() }) : '—';
+  const pct = (n) => (isFinite(n) ? (n*100).toFixed(0) + '%' : '—');
+  const num = (v) => {
+    if (typeof v === 'number') return v;
+    if (!v) return 0;
+    const x = parseFloat(String(v).toString().replace(/,/g,''));
+    return isFinite(x) ? x : 0;
+  };
+  function guessCurrency(){
+    try{
+      const region = Intl.DateTimeFormat().resolvedOptions().locale.split('-')[1] || 'US';
+      return ({
+        'US':'USD','GB':'GBP','IN':'INR','EU':'EUR','DE':'EUR','FR':'EUR','IT':'EUR','ES':'EUR','NL':'EUR','IE':'EUR',
+        'CA':'CAD','AU':'AUD','NZ':'NZD','JP':'JPY','CN':'CNY','SG':'SGD','AE':'AED','SA':'SAR','NG':'NGN','ZA':'ZAR'
+      }[region] || 'USD');
+    }catch{ return 'USD'; }
+  }
+
+  // Map for autofill (sets Type when name matches)
+  const NAME_KIND = {
+    'rent / mortgage':'need','rent':'need','mortgage':'need',
+    'groceries':'need','food':'need','utilities':'need','transport':'need',
+    'insurance':'need','healthcare':'need','phone & internet':'need','loan':'saving','debt payment':'saving',
+    'dining out':'want','subscriptions':'want','entertainment':'want','shopping':'want','travel':'want','gym / hobbies':'want'
+  };
+
+  // ---------- State
+  const state = { income: 0, goal: 0, items: [] }; // {id,name,amount,kind}
+  const STORE_KEY = 'toolhouzz_budget_v1';
+  const pieColors = ['#4f46e5','#06b6d4','#f59e0b','#ef4444','#22c55e','#8b5cf6','#14b8a6','#f97316','#eab308','#3b82f6','#10b981'];
+
+  // ---------- UI wiring
+  $('addItemBtn').onclick = () => addItemFromForm();
+  $('saveBtn').onclick = save;
+  $('resetBtn').onclick = () => { if(confirm('Clear all data?')) { localStorage.removeItem(STORE_KEY); location.reload(); }};
+  $('copyBtn').onclick = copySummary;
+  $('income').addEventListener('input', () => { state.income = num($('income').value); compute(); });
+  $('goal').addEventListener('input', () => { state.goal = num($('goal').value); compute(); });
+
+  // Autofill: when name typed, set Type automatically
+  $('itemName').addEventListener('input', () => {
+    const v = $('itemName').value.trim().toLowerCase();
+    if (NAME_KIND[v]) $('itemKind').value = NAME_KIND[v];
+    else {
+      for (const key of Object.keys(NAME_KIND)){
+        if (v.includes(key)){ $('itemKind').value = NAME_KIND[key]; break; }
+      }
+    }
+  });
+  // Enter to add
+  $('itemAmount').addEventListener('keydown', e => { if(e.key==='Enter') { e.preventDefault(); addItemFromForm(); } });
+
+  function addItemFromForm(){
+    const name = $('itemName').value.trim() || 'Untitled';
+    const amount = num($('itemAmount').value);
+    const kind = $('itemKind').value;
+    state.items.push({ id: crypto.randomUUID(), name, amount, kind });
+    $('itemName').value = ''; $('itemAmount').value = '';
+    renderItems(); compute();
+  }
+
+  function removeItem(id){
+    const i = state.items.findIndex(x => x.id === id);
+    if (i>=0){ state.items.splice(i,1); renderItems(); compute(); }
+  }
+
+  function changeKind(id, kind){
+    const it = state.items.find(x => x.id === id);
+    if (it){ it.kind = kind; compute(); }
+  }
+
+  function changeAmount(id, amt){
+    const it = state.items.find(x => x.id === id);
+    if (it){ it.amount = num(amt); compute(); }
+  }
+
+  function changeName(id, name){
+    const it = state.items.find(x => x.id === id);
+    if (it){ it.name = name; compute(); }
+  }
+
+  function renderItems(){
+    const tbody = $('itemsTable').querySelector('tbody');
+    tbody.innerHTML = '';
+    for (const it of state.items){
+      const tr = document.createElement('tr');
+
+      const tdName = document.createElement('td');
+      const nameInput = document.createElement('input');
+      nameInput.value = it.name; nameInput.className = 'search';
+      nameInput.oninput = e => changeName(it.id, e.target.value);
+      tdName.append(nameInput);
+
+      const tdKind = document.createElement('td');
+      const sel = document.createElement('select');
+      sel.className = 'search';
+      sel.innerHTML = `
+        <option value="need">Need</option>
+        <option value="want">Want</option>
+        <option value="saving">Save</option>`;
+      sel.value = it.kind;
+      sel.onchange = e => changeKind(it.id, e.target.value);
+      tdKind.append(sel);
+
+      const tdAmt = document.createElement('td'); tdAmt.className='amountCell';
+      const amt = document.createElement('input');
+      amt.type = 'number'; amt.inputMode='decimal'; amt.className='search';
+      amt.value = it.amount ? String(it.amount) : '';
+      amt.placeholder = '0';
+      amt.oninput = e => changeAmount(it.id, e.target.value);
+      tdAmt.append(amt);
+
+      const tdAct = document.createElement('td');
+      const del = document.createElement('button'); del.className='btn'; del.textContent='Delete';
+      del.onclick = () => removeItem(it.id);
+      tdAct.append(del);
+
+      tr.append(tdName, tdKind, tdAmt, tdAct);
+      tbody.append(tr);
+    }
+  }
+
+  // ---------- Compute & Charts
+  let pie, bar;
+  Chart.register(ChartDataLabels);
+
+  function compute(){
+    const income = num($('income').value);
+    const goal = num($('goal').value);
+    state.income = income; state.goal = goal;
+
+    const totals = {
+      need: state.items.filter(i=>i.kind==='need').reduce((s,i)=>s+num(i.amount),0),
+      want: state.items.filter(i=>i.kind==='want').reduce((s,i)=>s+num(i.amount),0),
+      saving: state.items.filter(i=>i.kind==='saving').reduce((s,i)=>s+num(i.amount),0),
+    };
+    const expenses = totals.need + totals.want + totals.saving;
+    const currentSavings = Math.max(0, income - expenses);
+    const gap = Math.max(0, goal - currentSavings);
+
+    // KPIs
+    $('kpiIncome').textContent = money(income);
+    $('kpiExp').textContent = money(expenses);
+    $('kpiSave').textContent = money(currentSavings);
+    $('kpiGap').textContent = goal ? money(gap) : '—';
+
+    // Chips
+    const nP = income? totals.need/income : 0;
+    const wP = income? totals.want/income : 0;
+    const sP = income? (totals.saving + Math.max(0, income - expenses))/income : 0;
+    $('chipNeed').textContent = (nP*100).toFixed(0)+'%';
+    $('chipWant').textContent = (wP*100).toFixed(0)+'%';
+    $('chipSave').textContent = (sP*100).toFixed(0)+'%';
+
+    // Pie by item name
+    const byName = {};
+    for (const it of state.items){
+      const k = it.name || 'Misc';
+      byName[k] = (byName[k]||0) + num(it.amount);
+    }
+    const labels = Object.keys(byName).filter(k=>byName[k]>0);
+    const data = labels.map(k=>byName[k]);
+
+    drawPie(labels, data);
+    drawBar({needP:nP, wantP:wP, savingP:sP});
+
+    // Advice
+    $('adviceBox').innerHTML = buildAdvice(totals, income, goal, currentSavings, gap);
+
+    $('status').textContent = '';
+  }
+
+  function drawPie(labels, data){
+    const ctx = $('pieChart').getContext('2d');
+    if (pie) pie.destroy();
+    pie = new Chart(ctx, {
+      type:'doughnut',
+      data:{ labels, datasets:[{ data, backgroundColor: labels.map((_,i)=> pieColors[i%pieColors.length]) }] },
+      options:{
+        maintainAspectRatio:false,
+        cutout:'55%',
+        layout:{padding:{top:8,bottom:8,left:8,right:8}},
+        plugins:{
+          legend:{ position:'bottom', labels:{ font:{weight:'800'} } },
+          datalabels:{
+            formatter:(v,ctx)=>{
+              const sum = ctx.chart.data.datasets[0].data.reduce((a,b)=>a+b,0) || 1;
+              const p = Math.round((v/sum)*100);
+              return p>=5 ? p+'%' : '';
+            },
+            color:'#111',
+            backgroundColor:'rgba(255,255,255,.9)',
+            borderColor:'rgba(17,24,39,.1)',
+            borderWidth:1,
+            borderRadius:6,
+            padding:4,
+            font:{weight:'800',size:12},
+            clamp:true, clip:false
+          },
+          tooltip:{ callbacks:{ label:(c)=> `${c.label}: ${money(c.parsed)}` } }
+        }
+      }
+    });
+  }
+
+  function drawBar({needP, wantP, savingP}){
+    const ctx = $('barChart').getContext('2d');
+    if (bar) bar.destroy();
+    bar = new Chart(ctx, {
+      type:'bar',
+      data:{
+        labels:['Needs','Wants','Savings'],
+        datasets:[
+          { label:'Your %', data:[needP*100, wantP*100, savingP*100], backgroundColor:['#4f46e5','#f59e0b','#22c55e'] },
+          { label:'50/30/20 %', data:[50,30,20], backgroundColor:'#e5e7eb' }
+        ]
+      },
+      options:{
+        maintainAspectRatio:false,
+        layout:{padding:{right:24,top:4}},
+        scales:{
+          y:{ beginAtZero:true, max:100, ticks:{ callback:(v)=>v+'%', font:{weight:'700'} } },
+          x:{ ticks:{ font:{weight:'800'} } }
+        },
+        plugins:{
+          legend:{ position:'bottom', labels:{ font:{weight:'800'} } },
+          datalabels:{
+            anchor:'end', align:'end', offset:6,
+            formatter:(v)=>`${Math.round(v)}%`,
+            color:'#111', font:{weight:'800',size:12},
+            clamp:true, clip:false
+          },
+          tooltip:{ callbacks:{ label:(c)=> `${c.dataset.label}: ${Math.round(c.parsed.y)}%` } }
+        }
+      }
+    });
+  }
+
+  // ---------- Advice logic
+  function buildAdvice(t, income, goal, currentSavings, gap){
+    const fmt = (x)=> `<strong>${money(x)}</strong>`;
+    const lines = [];
+    if (!income) return `<div class="muted">Enter your income to see insights.</div>`;
+    const total = t.need + t.want + t.saving;
+
+    if (total > income) lines.push(`You're overspending by ${fmt(total - income)} this month.`);
+    else lines.push(`Great—you're within your means. You have ${fmt(income - total)} left after expenses.`);
+
+    if (goal){
+      if (currentSavings >= goal) lines.push(`You're meeting your monthly goal of ${fmt(goal)}. Nice work!`);
+      else lines.push(`You're short of your goal by ${fmt(gap)}. Trim expenses or boost income to hit it.`);
+    }
+
+    const capNeed = 0.50*income, capWant = 0.30*income, targetSave = 0.20*income;
+    if (t.need > capNeed) lines.push(`Needs are high by ${fmt(t.need - capNeed)} vs the 50% guide.`);
+    if (t.want > capWant) lines.push(`Wants exceed 30% by ${fmt(t.want - capWant)}. Look at entertainment, dining out, and subscriptions.`);
+    if (currentSavings < targetSave) lines.push(`You're saving ${fmt(currentSavings)} (${pct(currentSavings/income)}). Aim for ${fmt(targetSave)} (${pct(0.2)}).`);
+
+    const wants = state.items.filter(i=>i.kind==='want' && num(i.amount)>0)
+      .sort((a,b)=> num(b.amount)-num(a.amount)).slice(0,3);
+    if (wants.length){
+      const cut10 = wants.map(w=> `${w.name}: cut ${fmt(0.10* w.amount)}`).join(' • ');
+      lines.push(`Quick wins (10% trim): ${cut10}.`);
+    }
+
+    return `
+      <ul style="margin:0;padding-left:18px">
+        ${lines.map(l=> `<li style="margin:6px 0">${l}</li>`).join('')}
+      </ul>
+    `;
+  }
+
+  // ---------- Save / Load / Copy
+  function save(){
+    const payload = JSON.stringify(state);
+    localStorage.setItem(STORE_KEY, payload);
+    $('status').textContent = 'Saved.';
+  }
+
+  function load(){
+    try{
+      const s = localStorage.getItem(STORE_KEY);
+      if (!s) return;
+      const obj = JSON.parse(s);
+      if (obj && typeof obj === 'object'){
+        state.income = num(obj.income);
+        state.goal = num(obj.goal);
+        state.items = Array.isArray(obj.items) ? obj.items.map(it => ({
+          id: it.id || crypto.randomUUID(),
+          name: it.name || 'Item',
+          amount: num(it.amount),
+          kind: (it.kind==='need'||it.kind==='want'||it.kind==='saving') ? it.kind : 'need'
+        })) : [];
+        $('income').value = state.income || '';
+        $('goal').value = state.goal || '';
+        renderItems();
+      }
+    }catch{}
+  }
+
+  async function copySummary(){
+    const totals = {
+      need: state.items.filter(i=>i.kind==='need').reduce((s,i)=>s+num(i.amount),0),
+      want: state.items.filter(i=>i.kind==='want').reduce((s,i)=>s+num(i.amount),0),
+      saving: state.items.filter(i=>i.kind==='saving').reduce((s,i)=>s+num(i.amount),0),
+    };
+    const income = state.income;
+    const exp = totals.need+totals.want+totals.saving;
+    const currentSavings = Math.max(0, income-exp);
+    const text = [
+      `Income: ${money(income)}`,
+      `Expenses: ${money(exp)}`,
+      `- Needs: ${money(totals.need)}`,
+      `- Wants: ${money(totals.want)}`,
+      `- Save/Debt: ${money(totals.saving)}`,
+      `Current Savings: ${money(currentSavings)}`,
+      state.goal ? `Goal: ${money(state.goal)}` : '',
+    ].filter(Boolean).join('\n');
+    try{
+      await navigator.clipboard.writeText(text);
+      $('status').textContent = 'Summary copied.';
+    }catch{
+      $('status').textContent = 'Copy failed (permissions).';
+    }
+  }
+
+  // ---------- Init
+  (function init(){
+    load();
+    compute();
+    const y = $('year'); if (y) y.textContent = new Date().getFullYear();
+  })();
+  </script>
+</body>
+</html>

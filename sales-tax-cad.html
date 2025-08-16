@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sales Tax Calculator Canada – GST, HST & PST by Province/Territory | ToolHouzz</title>
+  <meta name="description" content="Use our free Canada Sales Tax Calculator to instantly get GST, HST, and PST totals for any province or territory. Enter your amount, see the tax breakdown, total cost, and even edit rates manually. Perfect for shoppers, businesses, and invoicing.">
+  <link rel="canonical" href="https://toolhouzz.com/sales-tax-cad.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free Canada Sales Tax Calculator – GST, HST & PST Rates">
+  <meta property="og:description" content="Get instant GST, HST, and PST totals by province or territory in Canada. Includes editable tax rates.">
+  <meta property="og:url" content="https://toolhouzz.com/sales-tax-cad.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Canada Sales Tax Calculator – ToolHouzz">
+  <meta name="twitter:description" content="Instantly calculate GST, HST, and PST for any Canadian province or territory. Tax breakdown and editable rates.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&family=Playfair+Display:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="th-layout.css">
+  <script defer src="th-layout.js"></script>
+  <style>
+    .kpi{border:1px solid var(--border-strong);border-radius:12px;padding:10px 12px;background:#fff}
+    .chartWrap{height:260px;margin-top:12px}
+    .legendBox{display:flex;gap:14px;flex-wrap:wrap;margin-top:8px}
+    .legendItem{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:999px;padding:6px 10px;background:#fff}
+    .info-card{border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff}
+    .subhead{font-weight:900;margin:10px 0 6px}
+    .try-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .rateRow{display:flex;gap:8px;align-items:end}
+  </style>
+</head>
+<body class="theme-light">
+  <section class="hero" style="padding:54px 22px 28px">
+    <div class="hero-inner">
+      <h1 class="hero-title">Sales Tax Calculator (CAD)</h1>
+      <p class="hero-sub">Pick a province/territory, enter amount, optionally <b>edit the rate</b>, and see tax & total.</p>
+    </div>
+  </section>
+
+  <section class="tools">
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:16px;max-width:1100px">
+      <div class="card">
+        <div class="row">
+          <div>
+            <label>Province / Territory</label>
+            <select id="prov" class="search">
+              <option value="BC">British Columbia (GST+PST)</option>
+              <option value="AB">Alberta (GST)</option>
+              <option value="SK">Saskatchewan (GST+PST)</option>
+              <option value="MB">Manitoba (GST+PST)</option>
+              <option value="ON">Ontario (HST)</option>
+              <option value="QC">Quebec (GST+QST)</option>
+              <option value="NB">New Brunswick (HST)</option>
+              <option value="NS">Nova Scotia (HST)</option>
+              <option value="NL">Newfoundland & Labrador (HST)</option>
+              <option value="PE">Prince Edward Island (HST)</option>
+              <option value="NT">Northwest Territories (GST)</option>
+              <option value="YT">Yukon (GST)</option>
+              <option value="NU">Nunavut (GST)</option>
+            </select>
+          </div>
+          <div><label>Amount (CAD)</label><input id="amt" class="search" type="number" inputmode="decimal" placeholder="e.g., 100" min="0"></div>
+        </div>
+
+        <div class="rateRow" style="margin-top:8px">
+          <div style="flex:1">
+            <label>Rate %</label>
+            <input id="rate" class="search" type="number" step="0.01" min="0" max="99" placeholder="e.g., 12">
+          </div>
+          <label class="checkbox" style="display:flex;gap:6px;align-items:center;margin-bottom:2px">
+            <input id="customRate" type="checkbox"> Edit rate manually
+          </label>
+        </div>
+
+        <div class="toolbar" style="margin-top:10px"><button class="btn primary" id="calc">Calculate</button></div>
+
+        <div class="kpi" style="margin-top:12px">
+          <div><b>Rate:</b> <span id="rateDisp">—</span> • <b>Tax:</b> <span id="tax">—</span> • <b>Total:</b> <span id="total">—</span></div>
+        </div>
+
+        <div class="chartWrap"><canvas id="taxChart"></canvas></div>
+        <div class="legendBox" id="legendBox"></div>
+
+        <div class="info-card" style="margin-top:10px">
+          <div class="subhead">Tip</div>
+          <p class="muted">Toggle <b>Edit rate manually</b> to override the province’s default rate — handy for special items or if rates change.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="info-card">
+          <div class="subhead">Try more tools</div>
+          <div class="try-grid">
+            <a class="card" href="salary-calculator.html"><div class="icon"><img class="icon-img" src="assets/icons/budget.svg" alt=""></div><h3>Salary</h3></a>
+            <a class="card" href="retirement-calculator.html"><div class="icon"><img class="icon-img" src="assets/icons/loan.svg" alt=""></div><h3>Retirement</h3></a>
+            <a class="card" href="percentage-calculator.html"><div class="icon"><img class="icon-img" src="assets/icons/scale.svg" alt=""></div><h3>Percentage</h3></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  <script>
+    const $=id=>document.getElementById(id);
+    let chart;
+    const money=n=>isFinite(n)?n.toLocaleString(navigator.language,{style:'currency',currency:'CAD'}):'—';
+    const RATES={ AB:0.05, BC:0.12, SK:0.11, MB:0.12, ON:0.13, NB:0.15, NS:0.15, NL:0.15, PE:0.15, QC:0.14975, NT:0.05, YT:0.05, NU:0.05 };
+
+    function syncRateFromProv(){
+      if($('customRate').checked) return; // don't override manual
+      const p=$('prov').value; const r=(RATES[p]||0)*100;
+      $('rate').value = r.toFixed(2);
+    }
+
+    function legendItem(name, value){
+      const div=document.createElement('div'); div.className='legendItem';
+      const dot=document.createElement('span'); dot.style.width='10px'; dot.style.height='10px'; dot.style.borderRadius='999px'; dot.style.display='inline-block';
+      div.append(dot, document.createTextNode(`${name}: ${value}`));
+      return {div, dot};
+    }
+
+    function draw(subtotal, tax){
+      const ctx=$('taxChart').getContext('2d');
+      if(chart) chart.destroy();
+      chart=new Chart(ctx,{type:'doughnut',data:{labels:['Subtotal','Tax'],datasets:[{data:[subtotal,tax]}]},options:{maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+      // Custom legend with values
+      const lb=$('legendBox'); lb.innerHTML='';
+      const a=legendItem('Subtotal', money(subtotal));
+      const b=legendItem('Tax', money(tax));
+      lb.append(a.div,b.div);
+      // Match chart colors
+      const colors = chart.data.datasets[0].backgroundColor || chart.getDatasetMeta(0).controller.getStyle(0).backgroundColor;
+      // Chart.js may compute default colors; ensure we fetch actual
+      a.dot.style.background = colors?.[0] || '#ccc';
+      b.dot.style.background = colors?.[1] || '#999';
+    }
+
+    function go(){
+      const a=+$('amt').value||0;
+      const r=(+$('rate').value||0)/100;
+      const tax=a*r, total=a+tax;
+      $('rateDisp').textContent=(r*100).toFixed(2)+'%';
+      $('tax').textContent=money(tax);
+      $('total').textContent=money(total);
+      draw(a, tax);
+    }
+
+    $('prov').onchange = ()=>{ syncRateFromProv(); go(); };
+    $('customRate').onchange = ()=>{ syncRateFromProv(); $('rate').disabled = !$('customRate').checked; go(); };
+    $('rate').oninput = go;
+    $('amt').oninput = go;
+    $('calc').onclick=go;
+
+    // init
+    syncRateFromProv(); go();
+  </script>
+</body>
+</html>

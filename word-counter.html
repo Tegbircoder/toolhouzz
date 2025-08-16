@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free Word & Readability Counter – Live Word Count, Reading Time & Text Score | ToolHouzz</title>
+  <meta name="description" content="Use our free Word & Readability Counter to get live word and character counts, estimated reading time, and readability scores (Flesch Reading Ease & Flesch-Kincaid Grade Level). Perfect for writers, students, bloggers, and SEO content creators.">
+  <link rel="canonical" href="https://toolhouzz.com/word-counter.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free Word & Readability Counter – Writing & SEO Tool">
+  <meta property="og:description" content="Instantly see word count, character count, reading time, and Flesch/FK readability scores. Great for writers, students, and bloggers.">
+  <meta property="og:url" content="https://toolhouzz.com/word-counter.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Word & Readability Counter – ToolHouzz">
+  <meta name="twitter:description" content="Live word/character counts, reading time, and readability scores for writers, students, and bloggers.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&family=Playfair+Display:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="th-layout.css" />
+  <style>
+    .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:10px}
+    .stat{background:#fff;border:1px solid var(--border-strong);border-radius:12px;padding:12px}
+    .stat b{font-size:20px}
+    textarea{min-height:260px}
+    
+  </style>
+</head>
+<body class="theme-light">
+  <!-- Header injected by th-layout.js -->
+
+  <section class="tool-hero" data-theme="cyan">
+    <div class="hero-inner">
+      <h1 class="hero-title">Word/Character Counter + Readability</h1>
+      <p class="hero-sub">Live counts, reading time, and Flesch readability scores.</p>
+      <a class="btn primary" href="#tool" style="margin-top:14px">Start</a>
+    </div>
+  </section>
+
+  <section id="tool" class="tools">
+    <div class="grid" style="grid-template-columns:1fr;max-width:980px">
+      <div class="card">
+        <label>Text</label>
+        <textarea id="txt" class="search" placeholder="Paste or type here…"></textarea>
+        <div class="stats">
+          <div class="stat"><div>Words</div><b id="w">0</b></div>
+          <div class="stat"><div>Characters</div><b id="c">0</b></div>
+          <div class="stat"><div>Sentences</div><b id="s">0</b></div>
+          <div class="stat"><div>Paragraphs</div><b id="p">0</b></div>
+          <div class="stat"><div>Reading time</div><b id="t">0 min</b></div>
+          <div class="stat"><div>Flesch Reading Ease</div><b id="fre">—</b></div>
+          <div class="stat"><div>Flesch-Kincaid Grade</div><b id="fk">—</b></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn" id="copy">Copy</button>
+          <button class="btn" id="download">Download .txt</button>
+          <span class="muted" id="note"></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer injected by th-layout.js -->
+  <script src="app.js"></script>
+  <script>
+    const $=id=>document.getElementById(id);
+
+    function countSyllables(word){
+      word = (word||'').toLowerCase().replace(/[^a-z]/g,'');
+      if (!word) return 0;
+      if (word.length<=3) return 1;
+      word = word.replace(/e$/,'');
+      const groups = (word.match(/[aeiouy]+/g)||[]).length;
+      return Math.max(1, groups);
+    }
+
+    function analyze(text){
+      const chars = text.length;
+      const words = (text.trim().match(/\b[\w’'-]+\b/g)||[]).length;
+      const sentences = (text.match(/[.!?]+(?:\s|$)/g)||[]).length || (words?1:0);
+      const paragraphs = (text.trim().split(/\n{2,}|\r{2,}/g).filter(x=>x.trim()).length) || (words?1:0);
+
+      let syl=0; (text.toLowerCase().match(/\b[\w’'-]+\b/g)||[]).forEach(w=> syl += countSyllables(w));
+      const wpm = 200, readMin = Math.max(1, Math.round(words/wpm));
+
+      const ASL = words && sentences ? words/sentences : 0;
+      const ASW = words ? syl/words : 0;
+      const FRE = 206.835 - 1.015*ASL - 84.6*ASW;
+      const FK  = 0.39*ASL + 11.8*ASW - 15.59;
+
+      return {chars, words, sentences, paragraphs, readMin, FRE, FK};
+    }
+
+    function update(){
+      const t = $('txt').value;
+      const r = analyze(t);
+      $('c').textContent = r.chars;
+      $('w').textContent = r.words;
+      $('s').textContent = r.sentences;
+      $('p').textContent = r.paragraphs;
+      $('t').textContent = r.words ? `${r.readMin} min` : '0 min';
+      $('fre').textContent = isFinite(r.FRE)? r.FRE.toFixed(1) : '—';
+      $('fk').textContent  = isFinite(r.FK)? r.FK.toFixed(1)   : '—';
+    }
+    $('txt').addEventListener('input', update); update();
+
+    $('copy').onclick = ()=>{ $('txt').select(); document.execCommand('copy'); $('note').textContent='Copied.'; setTimeout(()=>$('note').textContent='',1500); };
+    $('download').onclick = ()=>{
+      const blob=new Blob([$('txt').value||''],{type:'text/plain'}); const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob); a.download='text.txt'; document.body.appendChild(a); a.click(); a.remove();
+    };
+  </script>
+  <script src="th-layout.js"></script>
+</body>
+</html>

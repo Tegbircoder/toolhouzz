@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free PDF417 Decoder – Read Barcodes & Unique ID Numbers Online | ToolHouzz</title>
+  <meta name="description" content="Instantly decode a PDF417 barcode or enter a unique ID number to reveal stored information. Works entirely in your browser – fast, private, and secure. No uploads required.">
+  <link rel="canonical" href="https://toolhouzz.com/genetic-barcode-reader.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free PDF417 Barcode & Unique ID Decoder">
+  <meta property="og:description" content="Decode PDF417 barcodes or unique ID numbers instantly to see stored details. Private, fast, and browser-based.">
+  <meta property="og:url" content="https://toolhouzz.com/genetic-barcode-reader.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free PDF417 Decoder – ToolHouzz">
+  <meta name="twitter:description" content="Read PDF417 barcodes or decode unique ID numbers instantly. Private, secure, and no uploads needed.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+
+  <!-- Global sticky header + footer (same as BMI page) -->
+  <link rel="stylesheet" href="th-layout.css">
+  <script defer src="th-layout.js"></script>
+
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--ink:#0f172a;--muted:#64748b;--border:#e5e7eb;--border-strong:#d1d5db}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    a{color:inherit;text-decoration:none}
+
+    .hero{padding:54px 22px 28px;text-align:center}
+    .hero-title{margin:0;font-weight:900;font-size:44px}
+    .hero-sub{margin:8px 0 0;color:#475569}
+    .hero .hero-sub strong{color:#4f46e5}
+
+    .tools{display:flex;justify-content:center;padding:14px 16px 28px}
+    .grid{width:100%;max-width:1000px;display:grid;gap:12px}
+    .card{background:#fff;border:1.5px solid var(--border-strong);border-radius:16px;padding:16px}
+    .tool-title{display:flex;align-items:center;gap:10px;margin:0 0 8px;font-size:18px;font-weight:900}
+    .muted{color:var(--muted)}
+
+    label{display:block;font-weight:800;margin:0 0 6px 2px;font-size:12px;color:#6b7280}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .row-1{display:grid;grid-template-columns:1fr;gap:12px}
+    .input{width:100%;height:44px;padding:0 12px;border-radius:12px;border:1.5px solid var(--border-strong);background:#fff;outline:none}
+    .input:focus{border-color:#818cf8;box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+    textarea.input{height:auto;padding:10px 12px;min-height:120px;resize:vertical}
+
+    .toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .btn{height:44px;padding:0 16px;border-radius:12px;border:1.5px solid var(--border-strong);background:#fff;font-weight:800;cursor:pointer}
+    .btn.primary{background:#16a34a;color:#fff;border-color:#16a34a}
+    .btn.primary:hover{filter:brightness(1.05)}
+    .btn.ghost{background:#fbfcff}
+
+    .soft{background:#fbfcff;border:1px solid var(--border);border-radius:12px;padding:12px}
+
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .kv{font-size:14px}
+    .kv strong{font-weight:800}
+    .kv span{color:#111}
+
+    /* Message toast */
+    .toast{
+      position:fixed;top:50%;left:50%;
+      transform:translate(-50%,-50%);
+      background:#ef4444;color:#fff;
+      padding:14px 18px;border-radius:12px;
+      box-shadow:0 10px 30px rgba(0,0,0,.15);
+      z-index:9999;opacity:1;transition:transform .25s ease,opacity .25s ease
+    }
+    .toast.fade{transform:translate(-50%,-48%);opacity:0}
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1 class="hero-title">Genetic Barcode Reader</h1>
+    <p class="hero-sub">Paste your <strong>Unique Number</strong> (or the full encoded string) to decode your saved details.</p>
+  </section>
+
+  <!-- Main Tool -->
+  <section class="tools">
+    <div class="grid">
+      <div class="card">
+        <div class="tool-title" style="justify-content:space-between">
+          <span>Decode Your Unique Number</span>
+          <a href="genetic-barcode.html" class="btn">← Back to Generator</a>
+        </div>
+
+        <div class="row-1" style="margin-top:6px">
+          <div>
+            <label for="decodeInput">Paste Unique Number (or Encoded String)</label>
+            <textarea id="decodeInput" class="input" placeholder="Paste the unique number here to decode it"></textarea>
+            <div class="toolbar" style="margin-top:8px">
+              <button id="decodeButton" class="btn primary wide">Decode Data</button>
+              <span class="muted" style="margin-left:auto">The generator saved your data to local storage under your unique number.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="soft" style="margin-top:14px">
+          <div style="font-weight:800;margin-bottom:8px">Decoded Information</div>
+          <div id="decodedResults" class="grid-2 kv">
+            <div><strong>Full Name:</strong> <span id="d_fullName"></span></div>
+            <div><strong>Father's Name:</strong> <span id="d_fatherName"></span></div>
+            <div><strong>Mother's Name:</strong> <span id="d_motherName"></span></div>
+            <div><strong>Date of Birth:</strong> <span id="d_dob"></span></div>
+            <div><strong>Time of Birth:</strong> <span id="d_tob"></span></div>
+            <div><strong>City of Birth:</strong> <span id="d_city"></span></div>
+            <div><strong>Country of Birth:</strong> <span id="d_country"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // === Functionality preserved exactly (IDs, logic, behavior) ===
+    const DELIMITER = '|';
+
+    document.getElementById('decodeButton').addEventListener('click', function() {
+      const inputValue = document.getElementById('decodeInput').value.trim();
+      if (!inputValue) { showMessageBox("Please paste a unique number or encoded string to decode."); clearDecoded(); return; }
+
+      let encodedString;
+      if (!inputValue.includes(DELIMITER)) {
+          try {
+              encodedString = localStorage.getItem(inputValue);
+              if (!encodedString) { showMessageBox("No data found for this unique number."); clearDecoded(); return; }
+          } catch (e) {
+              console.error("Failed to retrieve from local storage: ", e);
+              showMessageBox("An error occurred while retrieving data."); clearDecoded(); return;
+          }
+      } else {
+          encodedString = inputValue;
+      }
+
+      const decodedArray = encodedString.split(DELIMITER);
+      if (decodedArray.length !== 8) { showMessageBox("Invalid data format. Please ensure it's a valid encoded string."); clearDecoded(); return; }
+
+      document.getElementById('d_fullName').textContent   = decodedArray[1];
+      document.getElementById('d_fatherName').textContent = decodedArray[2];
+      document.getElementById('d_motherName').textContent = decodedArray[3];
+      document.getElementById('d_dob').textContent        = decodedArray[4];
+      document.getElementById('d_tob').textContent        = decodedArray[5];
+      document.getElementById('d_city').textContent       = decodedArray[6];
+      document.getElementById('d_country').textContent    = decodedArray[7];
+    });
+
+    function clearDecoded(){
+      ['d_fullName','d_fatherName','d_motherName','d_dob','d_tob','d_city','d_country'].forEach(id=>document.getElementById(id).textContent='');
+    }
+
+    function showMessageBox(message) {
+      const el = document.createElement('div');
+      el.className = 'toast';
+      el.textContent = message;
+      document.body.appendChild(el);
+      setTimeout(()=>{ el.classList.add('fade'); }, 2200);
+      el.addEventListener('transitionend', ()=> el.remove());
+    }
+
+    // Footer year (kept as in your original)
+    const yEl = document.getElementById('year');
+    if (yEl) yEl.textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

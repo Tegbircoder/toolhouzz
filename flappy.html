@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Play Flappy Online – Tap to Fly & Beat Your High Score | ToolHouzz</title>
+  <meta name="description" content="Play our free Flappy-style mini game online. Tap or click to keep your bird flying, dodge obstacles, and beat your high score. Fun, fast, and addictive – works on desktop and mobile.">
+  <link rel="canonical" href="https://toolhouzz.com/flappy.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free Flappy Game – Tap to Fly & Score High">
+  <meta property="og:description" content="Tap or click to keep flying, dodge obstacles, and beat your best score. Fun and addictive – play online now.">
+  <meta property="og:url" content="https://toolhouzz.com/flappy.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Play Flappy Online – ToolHouzz">
+  <meta name="twitter:description" content="Flappy-style game – tap or click to fly, avoid obstacles, and beat your score. Play free online.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Header/Footer layout styles -->
+  <link rel="stylesheet" href="th-layout.css" />
+  <style>.nav-right{gap:14px}</style>
+</head>
+<body class="theme-light">
+  <!-- Header is injected by th-layout.js -->
+
+  <section class="tool-hero" data-theme="indigo">
+    <div class="hero-inner">
+      <h1 class="hero-title">Flappy</h1>
+      <p class="hero-sub">Tap / click / Space to flap. Fly through the gaps!</p>
+    </div>
+  </section>
+
+  <section class="tools">
+    <div class="grid" style="grid-template-columns:1fr;max-width:800px">
+      <div class="card" style="display:grid;gap:12px;justify-items:center">
+        <canvas id="cv" width="420" height="560" style="border:1.5px solid var(--border-strong);border-radius:12px;background:linear-gradient(#87ceeb,#a0e1ff)"></canvas>
+        <div style="display:flex;gap:10px;align-items:center">
+          <button class="btn primary" id="startBtn">▶ Start</button>
+          <div class="muted" id="score">Score: 0</div>
+          <div class="muted" id="best">Best: 0</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer is injected by th-layout.js -->
+
+  <script src="app.js"></script>
+  <script>
+    const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+    const startBtn=document.getElementById('startBtn'), scoreEl=document.getElementById('score'), bestEl=document.getElementById('best');
+    let bird, vel, pipes, t, running=false, score=0, best=Number(localStorage.getItem('flappyBest')||0), nextGap=0;
+    bestEl.textContent='Best: '+best;
+
+    function reset(){
+      bird={x:120, y:cv.height/2, r:14};
+      vel=0; pipes=[]; t=0; score=0; nextGap=0;
+    }
+    function spawnPipe(){
+      const gap=130, min=80, max=cv.height-80-gap;
+      const topH = Math.floor(min + Math.random()*(max-min));
+      pipes.push({x:cv.width+40, w:60, top:topH, gap:gap, passed:false});
+    }
+    function flap(){ vel=-7.5; }
+    function start(){ reset(); running=true; loop(); }
+    function end(){ running=false; localStorage.setItem('flappyBest', String(Math.max(best, score))); best=Number(localStorage.getItem('flappyBest')); bestEl.textContent='Best: '+best; }
+
+    function collide(p){
+      if(bird.x+bird.r > p.x && bird.x-bird.r < p.x+p.w){
+        if(bird.y-bird.r < p.top || bird.y+bird.r > p.top+p.gap) return true;
+      }
+      return false;
+    }
+
+    function loop(){
+      if(!running) return;
+      requestAnimationFrame(loop);
+      vel += 0.4; bird.y += vel;
+      t+=1; if(t%90===0) spawnPipe();
+      pipes.forEach(p=>p.x-=2.8);
+      pipes = pipes.filter(p=>p.x+p.w>0);
+
+      if(bird.y-bird.r<0 || bird.y+bird.r>cv.height) return end();
+      for(const p of pipes){ if(collide(p)) return end(); if(!p.passed && p.x+p.w<bird.x){ p.passed=true; score++; scoreEl.textContent='Score: '+score; } }
+
+      ctx.clearRect(0,0,cv.width,cv.height);
+      ctx.fillStyle='#8ed081'; ctx.fillRect(0, cv.height-24, cv.width, 24);
+      ctx.fillStyle='#34d399';
+      pipes.forEach(p=>{
+        ctx.fillRect(p.x, 0, p.w, p.top);
+        ctx.fillRect(p.x, p.top+p.gap, p.w, cv.height-(p.top+p.gap)-24);
+      });
+      ctx.fillStyle='#fbbf24'; ctx.beginPath(); ctx.arc(bird.x,bird.y,bird.r,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#111'; ctx.beginPath(); ctx.arc(bird.x+5,bird.y-4,3,0,Math.PI*2); ctx.fill();
+    }
+    startBtn.onclick=()=>{ if(!running){ start(); } };
+    cv.addEventListener('pointerdown', flap);
+    window.addEventListener('keydown', e=>{ if(e.code==='Space') flap(); });
+  </script>
+
+  <!-- Injects the standard header + footer -->
+  <script src="th-layout.js"></script>
+</body>
+</html>

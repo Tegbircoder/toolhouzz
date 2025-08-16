@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free Salary Calculator – Convert Annual, Monthly, Weekly, Daily & Hourly Pay | ToolHouzz</title>
+  <meta name="description" content="Quickly convert your salary between annual, monthly, weekly, daily, and hourly rates with our free Salary Calculator. Compare pay offers, budget your income, and see gross pay instantly. Perfect for job seekers, freelancers, and employees.">
+  <link rel="canonical" href="https://toolhouzz.com/salary-calculator.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free Salary Calculator – Pay Conversion Tool">
+  <meta property="og:description" content="Convert your salary between annual, monthly, weekly, daily, and hourly pay instantly. Great for budgeting and comparing job offers.">
+  <meta property="og:url" content="https://toolhouzz.com/salary-calculator.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Salary Calculator – ToolHouzz">
+  <meta name="twitter:description" content="Convert annual ↔ monthly ↔ weekly ↔ daily ↔ hourly pay instantly. Perfect for budgeting and job offer comparisons.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="th-layout.css">
+  <script defer src="th-layout.js"></script>
+  <style>.kpi{border:1px solid var(--border-strong);border-radius:12px;padding:10px 12px;background:#fff}.chartWrap{height:320px;margin-top:12px}</style>
+</head>
+<body class="theme-light">
+  <section class="hero" style="padding:54px 22px 28px">
+    <div class="hero-inner">
+      <h1 class="hero-title">Salary Calculator</h1>
+      <p class="hero-sub">Convert annual ↔ monthly ↔ weekly ↔ daily ↔ hourly (gross). Choose your hours/week & days/week.</p>
+    </div>
+  </section>
+
+  <section class="tools">
+    <div class="grid" style="grid-template-columns:1fr;max-width:900px">
+      <div class="card">
+        <div class="row">
+          <div><label>Amount</label><input id="amount" class="search" type="number" inputmode="decimal" placeholder="e.g., 65000"></div>
+          <div><label>Basis</label>
+            <select id="basis" class="search">
+              <option value="year" selected>Per Year</option>
+              <option value="month">Per Month</option>
+              <option value="week">Per Week</option>
+              <option value="day">Per Day</option>
+              <option value="hour">Per Hour</option>
+            </select>
+          </div>
+          <div><label>Hours / week</label><input id="hweek" class="search" type="number" value="40"></div>
+          <div><label>Days / week</label><input id="dweek" class="search" type="number" value="5"></div>
+        </div>
+        <div class="toolbar" style="margin-top:10px">
+          <button class="btn primary" id="calc">Calculate</button>
+          <span id="status" class="muted" style="margin-left:auto"></span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin-top:12px">
+          <div class="kpi"><label>Year</label><div id="y">—</div></div>
+          <div class="kpi"><label>Month</label><div id="mo">—</div></div>
+          <div class="kpi"><label>Week</label><div id="w">—</div></div>
+          <div class="kpi"><label>Day</label><div id="d">—</div></div>
+          <div class="kpi"><label>Hour</label><div id="h">—</div></div>
+        </div>
+        <div class="chartWrap"><canvas id="salChart"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  <script>
+    const $=id=>document.getElementById(id);
+    let chart;
+    const money=n=>isFinite(n)?n.toLocaleString(navigator.language,{style:'currency',currency:'CAD'}):'—';
+    function compute(){
+      const amt=+$('amount').value||0, basis=$('basis').value, hweek=+$('hweek').value||40, dweek=+$('dweek').value||5;
+      if(!amt){['y','mo','w','d','h'].forEach(i=>$(i).textContent='—'); draw([0,0,0,0,0]); return;}
+      const weeks=52, months=12;
+      let year;
+      if(basis==='year') year=amt;
+      if(basis==='month') year=amt*months;
+      if(basis==='week') year=amt*weeks;
+      if(basis==='day') year=amt*dweek*weeks;
+      if(basis==='hour') year=amt*hweek*weeks;
+      const week=year/weeks, month=year/months, day=week/dweek, hour=week/hweek;
+      $('y').textContent=money(year);
+      $('mo').textContent=money(month);
+      $('w').textContent=money(week);
+      $('d').textContent=money(day);
+      $('h').textContent=money(hour);
+      $('status').textContent='Gross amounts (no tax/benefits).';
+      draw([year,month,week,day,hour]);
+    }
+    function draw(vals){
+      const ctx=$('salChart').getContext('2d');
+      if(chart) chart.destroy();
+      chart=new Chart(ctx,{
+        type:'bar',
+        data:{labels:['Year','Month','Week','Day','Hour'],datasets:[{label:'Gross pay (CAD)', data:vals}]},
+        options:{maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}, scales:{y:{beginAtZero:true}}}
+      });
+    }
+    $('calc').onclick=compute; compute();
+  </script>
+</body>
+</html>

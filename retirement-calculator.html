@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free Retirement Calculator – Plan Savings, Growth & Inflation-Adjusted Income | ToolHouzz</title>
+  <meta name="description" content="Use our free Retirement Calculator to project your future savings with monthly contributions, investment growth rate, and inflation. See results in both nominal and real dollars to plan a secure retirement. Ideal for pension planning, 401(k), RRSP, and personal investments.">
+  <link rel="canonical" href="https://toolhouzz.com/retirement-calculator.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free Retirement Calculator – Savings & Inflation Planning">
+  <meta property="og:description" content="Project your retirement nest egg with monthly contributions, growth rate, and inflation. See results in real and nominal dollars.">
+  <meta property="og:url" content="https://toolhouzz.com/retirement-calculator.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Retirement Calculator – ToolHouzz">
+  <meta name="twitter:description" content="Plan your retirement savings with growth and inflation projections. Perfect for pension, 401(k), and investment planning.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="th-layout.css">
+  <script defer src="th-layout.js"></script>
+  <style>
+    .kpi{border:1px solid var(--border-strong);border-radius:12px;padding:10px 12px;background:#fff}
+    .chartWrap{height:360px;margin-top:12px}
+    .info-card{border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff}
+    .subhead{font-weight:900;margin:10px 0 6px}
+    .try-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+  </style>
+</head>
+<body class="theme-light">
+  <section class="hero" style="padding:54px 22px 28px">
+    <div class="hero-inner">
+      <h1 class="hero-title">Retirement Calculator</h1>
+      <p class="hero-sub">Project your nest egg with monthly contribution, growth, and inflation — in both nominal and today’s dollars.</p>
+    </div>
+  </section>
+
+  <section class="tools">
+    <div class="grid" style="grid-template-columns:1.1fr 1fr;gap:16px;max-width:1100px">
+      <div class="card">
+        <div class="row">
+          <div><label>Current age</label><input id="age" class="search" type="number" value="25" min="10" max="80"></div>
+          <div><label>Retirement age</label><input id="rAge" class="search" type="number" value="65" min="30" max="90"></div>
+          <div><label>Current savings (CAD)</label><input id="cur" class="search" type="number" value="0" min="0"></div>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <div><label>Monthly contribution (CAD)</label><input id="cont" class="search" type="number" value="500" min="0"></div>
+          <div><label>Annual return %</label><input id="ret" class="search" type="number" value="6" step="0.1"></div>
+          <div><label>Inflation %</label><input id="inf" class="search" type="number" value="2" step="0.1"></div>
+        </div>
+        <div class="toolbar" style="margin-top:10px"><button class="btn primary" id="calc">Calculate</button></div>
+
+        <div class="chartWrap"><canvas id="growChart"></canvas></div>
+
+        <div class="info-card" style="margin-top:12px">
+          <div class="subhead">What this calculator means</div>
+          <p class="muted">We estimate how your money could grow if you invest <b>monthly</b> until retirement. You’ll see the future value in raw (“nominal”) dollars and also adjusted for <b>inflation</b> (what that amount may feel like in today’s CAD).</p>
+
+          <div class="subhead">How to study the graph</div>
+          <ul class="muted" style="margin:0;padding-left:18px">
+            <li><b>Nominal</b> curve: shows total dollars in the future, no inflation adjustment.</li>
+            <li><b>Today’s CAD</b>: the same money divided by cumulative inflation — easier to compare with today’s prices.</li>
+            <li><b>Try sliders</b>: increase monthly contribution, or lower inflation/raise returns to see sensitivity.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="kpi"><label>Future value (nominal)</label><div id="fv">—</div></div>
+        <div class="kpi" style="margin-top:10px"><label>Future value in today’s CAD</label><div id="real">—</div></div>
+        <div class="kpi" style="margin-top:10px"><label>Years to invest</label><div id="yrs">—</div></div>
+
+        <div class="info-card" style="margin-top:12px">
+          <div class="subhead">Try more tools</div>
+          <div class="try-grid">
+            <a class="card" href="salary-calculator.html"><div class="icon"><img class="icon-img" src="assets/icons/budget.svg" alt=""></div><h3>Salary</h3></a>
+            <a class="card" href="sales-tax-cad.html"><div class="icon"><img class="icon-img" src="assets/icons/scale.svg" alt=""></div><h3>Sales Tax (CAD)</h3></a>
+            <a class="card" href="percentage-calculator.html"><div class="icon"><img class="icon-img" src="assets/icons/scale.svg" alt=""></div><h3>Percentage</h3></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  <script>
+    const $=id=>document.getElementById(id);
+    let chart;
+    const money=n=>isFinite(n)?n.toLocaleString(navigator.language,{style:'currency',currency:'CAD'}):'—';
+    function fvMonthly(PV, PMT, r, n){ const i=r/12; return i===0 ? PV + PMT*n : PV*Math.pow(1+i,n)+PMT*((Math.pow(1+i,n)-1)/i); }
+    function compute(){
+      const age=+$('age').value||0, rAge=+$('rAge').value||0, cur=+$('cur').value||0;
+      const cont=+$('cont').value||0, ret=(+$('ret').value||0)/100, inf=(+$('inf').value||0)/100;
+      const years=Math.max(0, rAge-age);
+      const labels=[...Array(years+1)].map((_,i)=>i);
+      const nominal=[], real=[];
+      for(let y=0;y<=years;y++){
+        const fv=fvMonthly(cur, cont, ret, y*12);
+        nominal.push(fv);
+        real.push(fv/Math.pow(1+inf,y));
+      }
+      $('yrs').textContent=years;
+      $('fv').textContent=money(nominal.at(-1));
+      $('real').textContent=money(real.at(-1));
+      draw(labels, nominal, real);
+    }
+    function draw(labels, nominal, real){
+      const ctx=$('growChart').getContext('2d');
+      if(chart) chart.destroy();
+      chart=new Chart(ctx,{
+        type:'line',
+        data:{labels, datasets:[
+          {label:'Nominal', data:nominal},
+          {label:'Today’s CAD', data:real}
+        ]},
+        options:{maintainAspectRatio:false, plugins:{legend:{position:'bottom'}}, scales:{y:{beginAtZero:true}}}
+      });
+    }
+    $('calc').onclick=compute; compute();
+  </script>
+</body>
+</html>

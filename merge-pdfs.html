@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free Merge PDFs Tool – Combine Multiple PDF Files Online | ToolHouzz</title>
+  <meta name="description" content="Easily combine multiple PDF files into one with our free Merge PDFs tool. Works entirely in your browser for privacy – no uploads required. Fast, secure, and perfect for documents, reports, and forms.">
+  <link rel="canonical" href="https://toolhouzz.com/merge-pdfs.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free Merge PDFs – Fast & Secure PDF Combiner">
+  <meta property="og:description" content="Combine multiple PDFs into one file instantly in your browser. 100% private, no uploads, and completely free.">
+  <meta property="og:url" content="https://toolhouzz.com/merge-pdfs.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Merge PDFs Tool – ToolHouzz">
+  <meta name="twitter:description" content="Merge PDF files instantly in your browser – no uploads, fully private, and free.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="th-layout.css" />
+  <style>.nav-right{gap:14px}</style>
+</head>
+<body class="theme-light">
+  <section class="tool-hero" data-theme="fuchsia">
+    <div class="hero-inner">
+      <h1 class="hero-title">Merge PDFs</h1>
+      <p class="hero-sub">Combine multiple PDFs into one. Reorder pages, keep or reset metadata — all locally.</p>
+      <a class="btn primary" href="#tool" style="margin-top:14px">Start</a>
+    </div>
+  </section>
+
+  <section id="tool" class="tools" style="padding:20px 22px 10px">
+    <div class="grid" style="grid-template-columns:1fr;max-width:900px">
+      <div class="card">
+        <div style="display:grid;gap:12px;grid-template-columns:1fr 1fr">
+          <div>
+            <label style="display:block;margin:0 0 6px">Output filename</label>
+            <input id="outName" class="search" placeholder="merged.pdf" value="merged.pdf">
+          </div>
+          <div>
+            <label style="display:block;margin:0 0 6px">Keep metadata</label>
+            <select id="keepMeta" class="search" style="height:44px">
+              <option value="yes" selected>Yes</option>
+              <option value="no">No (use ToolHouzz)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="dropzone" class="dropzone" style="margin-top:14px;border-radius:12px;padding:18px;background:var(--panel);text-align:center">
+          <p style="margin:0 0 10px"><strong>Drop PDF files here</strong> or click to select</p>
+          <input id="fileInput" type="file" accept="application/pdf" multiple style="display:none" />
+          <button class="btn" id="browseBtn" type="button">Choose PDFs</button>
+          <div style="font-size:12px;color:var(--muted);margin-top:8px">Tip: reorder below with ↑ ↓</div>
+        </div>
+
+        <div id="list" style="margin-top:14px;display:grid;gap:10px"></div>
+
+        <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+          <button class="btn" id="clearBtn" type="button">Clear</button>
+          <button class="btn primary" id="mergeBtn" type="button">Merge PDFs</button>
+          <div id="status" style="align-self:center;color:var(--muted)"></div>
+        </div>
+      </div>
+
+      <div class="info-card" style="margin-top:12px">
+        <h3>How to use</h3>
+        <ol class="tip-list">
+          <li>Drop your PDF files or click <strong>Choose PDFs</strong>.</li>
+          <li>Reorder with ↑ ↓. Set filename & metadata preference.</li>
+          <li>Click <strong>Merge PDFs</strong> to download the result.</li>
+        </ol>
+        <h3 style="margin-top:10px">Tips</h3>
+        <ul class="tip-list">
+          <li>Encrypted files are skipped (you’ll see a note).</li>
+          <li>Use <strong>Compress PDF</strong> if the merged file is large.</li>
+        </ul>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px">
+          <a class="link-card" href="pdf-split-reorder.html"><strong>Split & Reorder</strong><small>Pick pages fast</small><span>→</span></a>
+          <a class="link-card" href="compress-pdf.html"><strong>Compress PDF</strong><small>Shrink output</small><span>→</span></a>
+          <a class="link-card" href="image-to-pdf.html"><strong>Images → PDF</strong><small>Photos → PDF</small><span>→</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" crossorigin="anonymous"></script>
+  <script>
+    const state = { items: [] };
+    const $ = id => document.getElementById(id);
+    const list = $('list'), statusEl = $('status'), outNameEl = $('outName'), keepMetaEl = $('keepMeta');
+
+    function renderList(){
+      list.innerHTML = "";
+      state.items.forEach((it, i)=>{
+        const row = document.createElement('div');
+        row.className='list-item';
+        row.style.display='grid'; row.style.gridTemplateColumns='1fr auto';
+        row.style.alignItems='center'; row.style.gap='10px'; row.style.borderRadius='12px';
+        row.style.padding='8px 10px'; row.style.background='var(--panel)';
+
+        const meta = document.createElement('div');
+        meta.innerHTML = `<div style="font-weight:600">${it.file.name}</div>
+                          <div style="color:var(--muted);font-size:12px">${(it.bytes.length/1024).toFixed(1)} KB</div>`;
+
+        const acts = document.createElement('div'); acts.style.display='flex'; acts.style.gap='8px';
+        const up = document.createElement('button'); up.className='btn'; up.textContent='↑';
+        const down = document.createElement('button'); down.className='btn'; down.textContent='↓';
+        const del = document.createElement('button'); del.className='btn'; del.textContent='✕';
+        up.onclick=()=>{ if(i>0){ [state.items[i-1], state.items[i]]=[state.items[i], state.items[i-1]]; renderList(); }};
+        down.onclick=()=>{ if(i<state.items.length-1){ [state.items[i+1], state.items[i]]=[state.items[i], state.items[i+1]]; renderList(); }};
+        del.onclick=()=>{ state.items.splice(i,1); renderList(); };
+        acts.append(up,down,del);
+
+        row.append(meta, acts); list.append(row);
+      });
+    }
+
+    function readFileAsUint8Array(file){
+      return new Promise((resolve, reject)=>{
+        const fr = new FileReader();
+        fr.onload = ()=> resolve(new Uint8Array(fr.result));
+        fr.onerror = reject; fr.readAsArrayBuffer(file);
+      });
+    }
+
+    // --- FIX: prevent double-open ---
+    $('browseBtn').addEventListener('click', (e)=>{ e.stopPropagation(); $('fileInput').click(); });
+    const dz = $('dropzone');
+    dz.addEventListener('click', (e)=>{ if (e.target.closest('button')) return; $('fileInput').click(); });
+
+    $('fileInput').onchange = async e=>{
+      const files = [...e.target.files].filter(f=>f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf'));
+      for (const f of files){ state.items.push({ file:f, bytes: await readFileAsUint8Array(f) }); }
+      renderList(); e.target.value="";
+    };
+
+    ['dragenter','dragover'].forEach(ev=> dz.addEventListener(ev, e=>{ e.preventDefault(); dz.style.borderColor='var(--border-stronger)'; }));
+    ['dragleave','drop'].forEach(ev=> dz.addEventListener(ev, e=>{ e.preventDefault(); dz.style.borderColor='var(--border-strong)'; }));
+    dz.addEventListener('drop', async e=>{
+      const files = [...e.dataTransfer.files].filter(f=>f.type==='application/pdf'||f.name.toLowerCase().endsWith('.pdf'));
+      for (const f of files){ state.items.push({ file:f, bytes: await readFileAsUint8Array(f) }); }
+      renderList();
+    });
+
+    $('mergeBtn').onclick = async ()=>{
+      if (state.items.length < 2){ statusEl.textContent="Add at least two PDF files."; return; }
+      statusEl.textContent = "Merging…";
+
+      const { PDFDocument } = PDFLib;
+      const outPdf = await PDFDocument.create();
+
+      if (keepMetaEl.value === 'no'){
+        outPdf.setTitle('Merged PDF'); outPdf.setAuthor('ToolHouzz');
+        outPdf.setCreator('ToolHouzz Merge PDFs'); outPdf.setProducer('ToolHouzz');
+      }
+
+      for (const item of state.items){
+        try{
+          const src = await PDFDocument.load(item.bytes, { ignoreEncryption:true });
+          const pages = await outPdf.copyPages(src, src.getPageIndices());
+          pages.forEach(p=> outPdf.addPage(p));
+        }catch(err){
+          console.error(err);
+          statusEl.textContent = `Skipped an encrypted/invalid PDF: ${item.file.name}`;
+        }
+      }
+
+      const bytes = await outPdf.save();
+      const blob = new Blob([bytes], { type:'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const name = (outNameEl.value || 'merged.pdf').trim().replace(/[/\\?%*:|"<>]/g,'_') || 'merged.pdf';
+
+      const a = document.createElement('a'); a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+
+      statusEl.textContent = "Done! Your merged PDF was downloaded.";
+    };
+
+    $('clearBtn').onclick = ()=>{ state.items=[]; renderList(); statusEl.textContent=""; };
+  </script>
+
+  <script src="th-layout.js"></script>
+</body>
+</html>

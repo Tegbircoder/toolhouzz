@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Free Split & Reorder PDF Tool – Rearrange or Extract Pages Online | ToolHouzz</title>
+  <meta name="description" content="Easily split, extract, or reorder pages in a PDF with our free online tool. Use simple drag-and-drop to rearrange pages instantly. Works entirely in your browser for privacy – no uploads required.">
+  <link rel="canonical" href="https://toolhouzz.com/pdf-split-reorder.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free Split & Reorder PDF – Fast & Secure">
+  <meta property="og:description" content="Split, extract, or rearrange PDF pages with simple drag-and-drop. 100% private and fast, works in your browser.">
+  <meta property="og:url" content="https://toolhouzz.com/pdf-split-reorder.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Split & Reorder PDF – ToolHouzz">
+  <meta name="twitter:description" content="Rearrange or split PDF pages instantly with drag-and-drop. Private, fast, and free.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/logo.png">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="th-layout.css">
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--ink:#0f172a;--muted:#64748b;--border:#e5e7eb;--border-strong:#d1d5db;--accent:#6366f1}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    a{color:inherit;text-decoration:none}
+    .tool-hero{padding:56px 22px 26px;text-align:center;background:linear-gradient(180deg,#eef2ff,transparent)}
+    .hero-title{margin:0;font-weight:900;font-size:clamp(38px,7vw,58px)}
+    .hero-sub{margin:8px 0 0;color:#475569}
+    .tools{display:flex;justify-content:center;padding:18px 16px 30px}
+    .grid{width:100%;max-width:1100px;display:grid;gap:14px;grid-template-columns:1fr}
+    .card{background:#fff;border:1.5px solid var(--border-strong);border-radius:16px;padding:14px}
+    label{display:block;font-weight:800;margin:0 0 6px 2px;font-size:12px;color:#6b7280}
+    .search{width:100%;height:44px;padding:0 12px;border-radius:12px;border:1.5px solid var(--border-strong);background:#fff;outline:none}
+    .search:focus{border-color:#818cf8;box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+    .btn{height:40px;padding:0 14px;border-radius:12px;border:1.5px solid var(--border-strong);background:#fff;font-weight:800;cursor:pointer}
+    .btn.primary{background:#4f46e5;color:#fff;border-color:#4f46e5}.btn.primary:hover{filter:brightness(1.05)}
+    .dropzone{border:1.5px dashed var(--border-strong);border-radius:14px;padding:22px 14px;text-align:center;background:linear-gradient(180deg,#f8fafc,#fff)}
+    .list{display:grid;gap:10px;margin-top:12px}
+    .page-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;border:1px solid var(--border);border-radius:12px;background:#fbfcff;padding:8px}
+    .thumb{width:96px;height:128px;background:#fff;border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .thumb canvas{width:100%;height:100%}
+    .meta{display:flex;align-items:center;gap:12px}
+    .meta .title{font-weight:800}
+    .controls{display:flex;gap:6px;align-items:center}
+    .badge{font-size:12px;color:#334155;background:#eef2ff;border:1px solid #e0e7ff;border-radius:999px;padding:4px 8px}
+    .handle{cursor:grab}
+    .tip-list{margin:10px 0 0 18px}
+    .link-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+    .link-card{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:#fff}
+    small{color:var(--muted)}
+  </style>
+</head>
+<body class="theme-light">
+  <!-- Header & footer are injected by th-layout.js -->
+
+  <section class="tool-hero">
+    <h1 class="hero-title">Split &amp; Reorder PDF</h1>
+    <p class="hero-sub">Pick pages, drag to reorder, and export — all locally in your browser.</p>
+    <p class="hero-sub" style="font-weight:700;margin-top:8px;color:#475569">Start</p>
+  </section>
+
+  <section class="tools">
+    <div class="grid">
+      <div class="card">
+        <div style="display:grid;grid-template-columns:1fr 300px;gap:12px;align-items:end">
+          <div>
+            <label>Output base name</label>
+            <input id="outBase" class="search" value="document">
+          </div>
+          <div>
+            <label>Export mode</label>
+            <select id="mode" class="search" style="height:44px">
+              <option value="one" selected>Selected pages → 1 PDF</option>
+              <option value="each">Each selected page → separate PDFs</option>
+              <option value="split-all">Split all pages → separate PDFs</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="dropzone" class="dropzone" style="margin-top:12px">
+          <p style="margin:0 0 8px"><strong>Drop a PDF here</strong> or click to select</p>
+          <input id="fileInput" type="file" accept="application/pdf" style="display:none">
+          <button class="btn" id="browseBtn" type="button">Choose PDF</button>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px">Large PDFs are supported (processed locally).</div>
+        </div>
+
+        <div id="fileMeta" style="margin-top:10px;color:#334155"></div>
+
+        <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn" id="selectAll" type="button">Select all</button>
+          <button class="btn" id="selectNone" type="button">Select none</button>
+          <button class="btn" id="invertSelect" type="button">Invert</button>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button class="btn" id="clearBtn" type="button">Clear</button>
+            <button class="btn primary" id="exportBtn" type="button">Export</button>
+          </div>
+        </div>
+
+        <div id="pages" class="list"></div>
+
+        <div id="status" style="margin-top:10px;color:#64748b"></div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 6px">How to use</h3>
+        <ol class="tip-list">
+          <li>Drop a PDF or click <strong>Choose PDF</strong>.</li>
+          <li>Use the checkboxes to select pages. Drag a page row (or use ↑ ↓ ↤ ↦) to change order.</li>
+          <li>Choose an <strong>Export mode</strong> and click <strong>Export</strong>.</li>
+        </ol>
+        <h3 style="margin:12px 0 6px">Tips</h3>
+        <ul class="tip-list">
+          <li>Thumbnails are rendered on the fly — big PDFs may take a moment.</li>
+          <li>“Split all” ignores the page checkboxes and exports every page.</li>
+          <li>If a file is encrypted, it can’t be opened in the browser.</li>
+        </ul>
+        <div class="link-grid" style="margin-top:10px">
+          <a class="link-card" href="merge-pdfs.html"><strong>Merge PDFs</strong><small>Combine files</small><span>→</span></a>
+          <a class="link-card" href="compress-pdf.html"><strong>Compress PDF</strong><small>Make files smaller</small><span>→</span></a>
+          <a class="link-card" href="image-to-pdf.html"><strong>Images → PDF</strong><small>Build a PDF from photos</small><span>→</span></a>
+          <a class="link-card" href="pdf-to-images.html"><strong>PDF → Images</strong><small>Export each page as PNG/JPG</small><span>→</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- libs -->
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.10.111/build/pdf.min.js"></script>
+
+  <script>
+    (() => {
+      const $ = id => document.getElementById(id);
+
+      const state = { pdf: null, numPages: 0, order: [], selected: [], pageThumbs: [] };
+
+      if (window['pdfjsLib']) {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.10.111/build/pdf.worker.min.js';
+      }
+
+      function setStatus(msg){ $('status').textContent = msg || ''; }
+
+      // --- FIX: prevent double-open ---
+      $('browseBtn').addEventListener('click', (e)=>{ e.stopPropagation(); $('fileInput').click(); });
+      const dz = $('dropzone');
+      dz.addEventListener('click', (e)=>{ if (e.target.closest('button')) return; $('fileInput').click(); });
+
+      $('fileInput').onchange = e=>{
+        const f = e.target.files[0];
+        if (f) loadPdfFile(f);
+        e.target.value = '';
+      };
+
+      ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e=>{e.preventDefault(); dz.style.borderColor='#c7d2fe';}));
+      ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e=>{e.preventDefault(); dz.style.borderColor='var(--border-strong)';}));
+      dz.addEventListener('drop', e=>{
+        const f = e.dataTransfer.files[0];
+        if (f) loadPdfFile(f);
+      });
+
+      async function loadPdfFile(file){
+        setStatus('Loading PDF…');
+        $('pages').innerHTML = '';
+        state.pdf = null; state.order = []; state.selected = []; state.pageThumbs = [];
+
+        const buf = await file.arrayBuffer();
+        $('fileMeta').textContent = `File: ${file.name}`;
+
+        const pdf = await pdfjsLib.getDocument({data: buf}).promise;
+        state.numPages = pdf.numPages;
+        state.pdf = pdf;
+
+        state.order = Array.from({length: pdf.numPages}, (_,i)=>i+1);
+        state.selected = Array.from({length: pdf.numPages}, ()=>true);
+
+        setStatus('Rendering thumbnails…');
+
+        for (let i=1;i<=pdf.numPages;i++){
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({scale: 0.25});
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d', {alpha:false});
+          canvas.width = Math.floor(viewport.width); canvas.height = Math.floor(viewport.height);
+          await page.render({canvasContext: ctx, viewport}).promise;
+          state.pageThumbs[i] = canvas;
+
+          addPageRow(i, canvas);
+          setStatus(`Rendered ${i}/${pdf.numPages}…`);
+        }
+        setStatus('Ready.');
+      }
+
+      function addPageRow(pageNum, canvas){
+        const row = document.createElement('div');
+        row.className = 'page-row'; row.draggable = true; row.dataset.page = pageNum;
+
+        const left = document.createElement('div');
+        left.className = 'thumb'; left.appendChild(canvas);
+
+        const meta = document.createElement('div'); meta.className='meta';
+        meta.innerHTML = `
+          <label style="display:flex;align-items:center;gap:8px;margin:0">
+            <input type="checkbox" class="sel" data-page="${pageNum}" checked>
+            <span class="title">Page ${pageNum}</span>
+            <span class="badge" id="badge-${pageNum}">#${pageNum} in order</span>
+          </label>`;
+
+        const ctrls = document.createElement('div'); ctrls.className='controls';
+        ctrls.innerHTML = `
+          <button class="btn handle" title="Drag">↕</button>
+          <button class="btn" data-act="up" title="Move up">↑</button>
+          <button class="btn" data-act="down" title="Move down">↓</button>
+          <button class="btn" data-act="first" title="Move to start">⟵</button>
+          <button class="btn" data-act="last" title="Move to end">⟶</button>`;
+
+        row.append(left, meta, ctrls);
+        $('pages').append(row);
+
+        row.querySelector('.sel').onchange = e=>{
+          const p = +e.target.dataset.page;
+          state.selected[p-1] = e.target.checked;
+        };
+
+        ctrls.addEventListener('click', e=>{
+          if(!e.target.dataset.act) return;
+          e.preventDefault();
+          movePage(pageNum, e.target.dataset.act);
+        });
+
+        row.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', pageNum); e.dataTransfer.effectAllowed='move'; });
+        row.addEventListener('dragover', e=>{ e.preventDefault(); e.dataTransfer.dropEffect='move'; });
+        row.addEventListener('drop', e=>{
+          e.preventDefault();
+          const from = +e.dataTransfer.getData('text/plain'); const to = +row.dataset.page;
+          reorder(from, to);
+        });
+      }
+
+      function refreshBadges(){
+        const order = state.order;
+        order.forEach((p, idx)=>{
+          const badge = $('badge-'+p);
+          if (badge) badge.textContent = `#${idx+1} in order`;
+          const row = document.querySelector(`.page-row[data-page="${p}"]`);
+          if(row) row.parentNode.appendChild(row);
+        });
+      }
+
+      function movePage(p, act){
+        const idx = state.order.indexOf(p);
+        if(idx<0) return;
+        if(act==='up' && idx>0){ [state.order[idx-1], state.order[idx]]=[state.order[idx], state.order[idx-1]]; }
+        if(act==='down' && idx<state.order.length-1){ [state.order[idx+1], state.order[idx]]=[state.order[idx], state.order[idx+1]]; }
+        if(act==='first'){ state.order.splice(idx,1); state.order.unshift(p); }
+        if(act==='last'){ state.order.splice(idx,1); state.order.push(p); }
+        refreshBadges();
+      }
+
+      function reorder(fromPage, toPage){
+        const arr = state.order;
+        const fromIdx = arr.indexOf(fromPage);
+        const toIdx = arr.indexOf(toPage);
+        if(fromIdx<0||toIdx<0||fromIdx===toIdx) return;
+        arr.splice(fromIdx,1); arr.splice(toIdx,0,fromPage);
+        refreshBadges();
+      }
+
+      $('selectAll').onclick = ()=>{state.selected = state.selected.map(()=>true); document.querySelectorAll('.sel').forEach(c=>c.checked=true);};
+      $('selectNone').onclick = ()=>{state.selected = state.selected.map(()=>false); document.querySelectorAll('.sel').forEach(c=>c.checked=false);};
+      $('invertSelect').onclick = ()=>{state.selected = state.selected.map(v=>!v); document.querySelectorAll('.sel').forEach(c=>c.checked=!c.checked);};
+      $('clearBtn').onclick = ()=>{$('pages').innerHTML=''; $('fileMeta').textContent=''; state.pdf=null; state.order=[]; state.selected=[]; setStatus('Cleared.');};
+
+      $('exportBtn').onclick = async ()=>{
+        if(!state.pdf){ setStatus('Load a PDF first.'); return; }
+        const mode = $('mode').value;
+        setStatus('Exporting…');
+
+        const loadingTask = state.pdf;
+        const docData = await loadingTask.getData();
+
+        const { PDFDocument } = PDFLib;
+        const source = await PDFDocument.load(docData, { ignoreEncryption:true });
+
+        const chosenOrder = state.order.filter((p,i)=> state.selected[i] || mode==='split-all');
+
+        if (mode === 'one') {
+          if (chosenOrder.length === 0){ setStatus('Select at least one page.'); return; }
+          const out = await PDFDocument.create();
+          const pages = await out.copyPages(source, chosenOrder.map(p=>p-1));
+          pages.forEach(p=> out.addPage(p));
+          const bytes = await out.save();
+          downloadBlob(new Blob([bytes],{type:'application/pdf'}), sanitizeName($('outBase').value || 'document') + '_selected.pdf');
+          setStatus('Done. Downloaded your PDF.');
+        } else {
+          for (let i=0;i<(mode==='split-all'?state.order.length:chosenOrder.length);i++){
+            const pageNum = (mode==='split-all'? state.order[i] : chosenOrder[i]);
+            const out = await PDFDocument.create();
+            const [page] = await out.copyPages(source, [pageNum-1]);
+            out.addPage(page);
+            const bytes = await out.save();
+            const name = sanitizeName($('outBase').value || 'document') + `_p${pageNum}.pdf`;
+            downloadBlob(new Blob([bytes],{type:'application/pdf'}), name);
+            await delay(60);
+          }
+          setStatus('Done. Exported pages.');
+        }
+      };
+
+      function downloadBlob(blob, filename){
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+      }
+      const delay = ms=>new Promise(r=>setTimeout(r,ms));
+      const sanitizeName = s => (s||'').trim().replace(/[/\\?%*:|"<>]/g,'_') || 'document';
+    })();
+  </script>
+
+  <script src="th-layout.js"></script>
+</body>
+</html>

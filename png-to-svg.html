@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free PNG to SVG Converter (Batch) – Vectorize or Embed Images Online | ToolHouzz</title>
+  <meta name="description" content="Convert PNGs to SVGs in bulk with our free online PNG to SVG Converter. Vectorize or embed images, preview results, and download them as a ZIP – all processed securely in your browser with no uploads required.">
+  <link rel="canonical" href="https://toolhouzz.com/png-to-svg.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free PNG to SVG Converter – Batch Vectorization Tool">
+  <meta property="og:description" content="Vectorize or embed PNG images into SVG format. Batch preview, convert, and download as ZIP – 100% browser-based and private.">
+  <meta property="og:url" content="https://toolhouzz.com/png-to-svg.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Free PNG to SVG Converter – ToolHouzz">
+<meta name="twitter:description" content="Batch convert PNGs to SVGs. Vectorize or embed images in your browser – no uploads, private, and fast.">
+<meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="th-layout.css" />
+  <style>
+    .nav-right{gap:14px}
+    .grid{display:grid;gap:14px}
+    .card{background:var(--card,#fff);border:1px solid var(--border-strong,#d1d5db);border-radius:14px;padding:14px}
+    .info-card{background:var(--card,#fff);border:1px solid var(--border,#e5e7eb);border-radius:14px;padding:14px;overflow:visible}
+
+    /* Dropzone */
+    .dropzone{
+      position:relative;display:grid;gap:10px;place-items:center;min-height:160px;
+      border:2px dashed var(--border-strong);border-radius:14px;background:var(--panel,#f8fafc);
+      transition:border-color .15s ease, background .15s ease; cursor:pointer; outline:none;
+    }
+    .dropzone.is-dragover{border-color:#4f46e5;background:#eef2ff}
+    .dz-cta{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted,#6b7280)}
+    .dz-cta .big{font-weight:900;color:var(--ink,#0f172a)}
+    .dz-or{font-size:12px;color:var(--muted)}
+    .btn[disabled]{opacity:.55;cursor:not-allowed}
+
+    /* File list */
+    .file-list{display:grid;gap:10px}
+    .file-row{
+      display:grid;grid-template-columns:auto 1fr auto;gap:10px;
+      align-items:center;border:1px solid var(--border-strong);border-radius:12px;padding:8px 10px;background:#fff
+    }
+    .thumb{width:44px;height:44px;border-radius:8px;border:1px solid var(--border-strong);object-fit:cover;background:#fff}
+    .meta-name{font-weight:700;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+    .meta-sub{font-size:12px;color:var(--muted)}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .row-split{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+    @media (max-width:720px){ .row-split{grid-template-columns:1fr} }
+
+    /* Trace options */
+    #traceOpts{display:none}
+    #traceOpts.show{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    @media (max-width:720px){ #traceOpts.show{grid-template-columns:1fr 1fr} }
+    @media (max-width:520px){ #traceOpts.show{grid-template-columns:1fr} }
+
+    /* Previews */
+    .pane{overflow:auto;max-height:460px;border:1px dashed var(--border-strong);border-radius:12px;padding:10px;background:#fff}
+    .pane img, .pane svg{display:block;max-width:100%}
+    .spinner{width:16px;height:16px;border-radius:999px;border:2px solid var(--border-strong);border-top-color:#4f46e5;animation:sp 1s linear infinite}
+    @keyframes sp{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body class="theme-light">
+  <!-- Header injected by th-layout.js -->
+
+  <!-- Hero -->
+  <section class="tool-hero" data-theme="amber">
+    <div class="hero-inner">
+      <h1 class="hero-title">PNG → SVG (Batch)</h1>
+      <p class="hero-sub">Add multiple PNG files, then Embed (fast) or Trace (true vectors). 100% in your browser.</p>
+      <a class="btn primary" href="#tool" style="margin-top:14px">Start</a>
+    </div>
+  </section>
+
+  <!-- Tool -->
+  <section id="tool" class="tools" style="padding:20px 22px 10px">
+    <div class="grid" style="grid-template-columns:1fr;max-width:980px">
+      <div class="card">
+        <!-- Dropzone -->
+        <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload PNGs by dropping files or pressing Enter to browse">
+          <div class="dz-cta">
+            <div class="big">Drop PNGs here</div>
+            <div class="dz-or">or</div>
+            <button class="btn" id="browseBtn" type="button" aria-describedby="tip">Choose PNGs</button>
+            <div id="tip" style="font-size:12px;color:var(--muted)">Logos/flat art trace best (max 20 MB each).</div>
+          </div>
+          <input id="fileInput" type="file" accept="image/png" multiple
+                 style="position:absolute;inset:0;opacity:0;pointer-events:none" aria-hidden="true" />
+        </div>
+
+        <!-- Files -->
+        <div id="fileList" class="file-list" style="margin-top:12px"></div>
+
+        <!-- Controls -->
+        <div style="display:grid;gap:12px;margin-top:14px">
+          <div class="row-split">
+            <div>
+              <label style="display:block;margin:0 0 6px">Mode</label>
+              <select id="mode" class="search" style="height:44px">
+                <option value="embed" selected>Embed (fast; not real vector)</option>
+                <option value="trace">Trace (vectorize)</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block;margin:0 0 6px">Output filename (pattern)</label>
+              <input id="outName" class="search" placeholder="{base}.svg" value="{base}.svg" style="height:44px">
+              <div style="font-size:12px;color:var(--muted);margin-top:6px">
+                Use <code>{base}</code> for the original name without extension.
+              </div>
+            </div>
+          </div>
+
+          <div id="traceOpts">
+            <div>
+              <label style="display:block;margin:0 0 6px">Palette size</label>
+              <input id="colors" class="search" type="number" min="2" max="64" value="16">
+            </div>
+            <div>
+              <label style="display:block;margin:0 0 6px">Path Omit (0–1)</label>
+              <input id="pathomit" class="search" type="number" step="0.01" min="0" max="1" value="0.2">
+            </div>
+            <div>
+              <label style="display:block;margin:0 0 6px">Blur Radius (px)</label>
+              <input id="blur" class="search" type="number" min="0" max="2" step="0.5" value="0">
+            </div>
+          </div>
+
+          <div class="row">
+            <button class="btn" id="clearBtn" type="button">Clear All</button>
+            <button class="btn" id="previewBtn" type="button" disabled>Preview Selected</button>
+            <button class="btn primary" id="convertBtn" type="button" disabled>Convert & Download Selected</button>
+            <button class="btn" id="zipBtn" type="button" disabled>Download All as .zip</button>
+            <div id="status" aria-live="polite" style="align-self:center;color:var(--muted);display:flex;gap:8px;align-items:center"></div>
+          </div>
+
+          <!-- Previews -->
+          <div class="info-card" id="pngPreviewWrap" style="display:none">
+            <h3>PNG preview (selected)</h3>
+            <div id="pngPane" class="pane"></div>
+          </div>
+
+          <div class="info-card" id="svgPreviewWrap" style="display:none">
+            <h3>SVG preview (selected)</h3>
+            <div id="svgPane" class="pane"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-card" style="margin-top:12px">
+        <h3>How it works</h3>
+        <ol class="tip-list">
+          <li>Add one or more PNGs (drag & drop or button).</li>
+          <li>Select files in the list, choose <strong>Embed</strong> or <strong>Trace</strong>.</li>
+          <li>Preview and Download the selected ones — or Zip all.</li>
+        </ol>
+      </div>
+
+      <div class="info-card" style="margin-top:12px">
+        <h3>Try more tools</h3>
+        <div class="related-grid">
+          <a class="link-card" href="file-converter.html"><strong>File Converter</strong><small>Convert images, docs & more</small><span class="btn go">Open</span></a>
+          <a class="link-card" href="image-to-pdf.html"><strong>Images → PDF</strong><small>Make a clean PDF</small><span class="btn go">Open</span></a>
+          <a class="link-card" href="compress-pdf.html"><strong>Compress PDF</strong><small>Make big PDFs small</small><span class="btn go">Open</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ImageTracer for vectorization -->
+  <script src="https://unpkg.com/imagetracerjs@1.2.6/imagetracer_v1.2.6.min.js" crossorigin="anonymous"></script>
+  <!-- JSZip for “Download All as .zip” -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" crossorigin="anonymous"></script>
+
+  <script>
+    const $ = id => document.getElementById(id);
+
+    // Elements
+    const dz = $('dropzone'), fileInput = $('fileInput'), browseBtn = $('browseBtn');
+    const fileList = $('fileList');
+    const modeEl = $('mode'), outNameEl = $('outName');
+    const statusEl = $('status');
+    const previewBtn = $('previewBtn'), convertBtn = $('convertBtn'), zipBtn = $('zipBtn'), clearBtn = $('clearBtn');
+    const traceOpts = $('traceOpts'), colorsEl = $('colors'), pathomitEl = $('pathomit'), blurEl = $('blur');
+    const pngPreviewWrap = $('pngPreviewWrap'), pngPane = $('pngPane');
+    const svgPreviewWrap = $('svgPreviewWrap'), svgPane = $('svgPane');
+
+    // State
+    const MAX_SIZE = 20 * 1024 * 1024; // 20MB
+    /** files = [{file, id, dataURL, w, h, selected}] */
+    let files = [];
+    let lastSVGById = new Map();
+
+    // Helpers
+    const fmtBytes = b => b < 1024 ? b + ' B' : b < 1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB';
+    const setBusy = (on, msg='Working…') => { statusEl.innerHTML = on ? `<span class="spinner"></span><span>${msg}</span>` : ''; };
+    const setButtons = () => {
+      const any = files.length > 0;
+      const anySel = files.some(f => f.selected);
+      previewBtn.disabled = !anySel;
+      convertBtn.disabled = !anySel;
+      zipBtn.disabled = !any;
+    };
+    const updateTraceOpts = () => traceOpts.classList.toggle('show', modeEl.value === 'trace');
+    modeEl.addEventListener('change', updateTraceOpts); updateTraceOpts();
+
+    // Read helpers
+    const readAsDataURL = (file)=> new Promise((res,rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsDataURL(file); });
+    const dataURLToImage = (dataurl)=> new Promise((res,rej)=>{ const img=new Image(); img.onload=()=>res(img); img.onerror=rej; img.src=dataurl; });
+
+    // DOM render for file rows
+    function renderList(){
+      fileList.innerHTML = '';
+      files.forEach(f => {
+        const row = document.createElement('div');
+        row.className = 'file-row';
+        row.dataset.id = f.id;
+        row.innerHTML = `
+          <input type="checkbox" ${f.selected ? 'checked' : ''} aria-label="Select ${f.file.name}">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0">
+            <img class="thumb" alt="PNG thumbnail">
+            <div style="min-width:0">
+              <div class="meta-name" title="${f.file.name}">${f.file.name}</div>
+              <div class="meta-sub">${fmtBytes(f.file.size)} • ${f.w || '?'}×${f.h || '?'}px</div>
+            </div>
+          </div>
+          <div class="row" style="gap:6px">
+            <button class="btn" data-act="preview" type="button">Preview</button>
+            <button class="btn primary" data-act="convert" type="button">Convert</button>
+            <button class="btn" data-act="remove" type="button">Remove</button>
+          </div>
+        `;
+        row.querySelector('.thumb').src = f.dataURL || '';
+        row.querySelector('.thumb').alt = 'PNG thumbnail';
+        row.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
+          f.selected = e.target.checked; setButtons();
+        });
+        row.addEventListener('click', (e) => {
+          const act = e.target?.dataset?.act;
+          if (!act) return;
+          if (act === 'remove') { removeFile(f.id); }
+          if (act === 'preview') { previewFiles([f]); }
+          if (act === 'convert') { convertFiles([f]); }
+        });
+        fileList.appendChild(row);
+      });
+      setButtons();
+    }
+
+    function removeFile(id){
+      files = files.filter(x => x.id !== id);
+      lastSVGById.delete(id);
+      renderList();
+      // Clear previews if the selected one was removed
+      if (!files.some(f => f.selected)) {
+        pngPreviewWrap.style.display = 'none';
+        svgPreviewWrap.style.display = 'none';
+      }
+    }
+
+    // Add files
+    async function addFiles(list){
+      const toAdd = Array.from(list || []);
+      for (const f of toAdd){
+        if (!f) continue;
+        if (!(f.type.startsWith('image/png') || f.name.toLowerCase().endsWith('.png'))) continue;
+        if (f.size > MAX_SIZE) { continue; }
+        const id = Math.random().toString(36).slice(2,9);
+        const dataURL = await readAsDataURL(f);
+        const img = await dataURLToImage(dataURL);
+        files.push({ file: f, id, dataURL, w: img.naturalWidth || img.width, h: img.naturalHeight || img.height, selected: true });
+      }
+      renderList();
+    }
+
+    // Dropzone wiring
+    browseBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => { addFiles(e.target.files); e.target.value=''; });
+    ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('is-dragover'); }));
+    ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('is-dragover'); }));
+    dz.addEventListener('drop', e => addFiles(e.dataTransfer.files));
+    dz.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+
+    // Clear all
+    clearBtn.addEventListener('click', () => {
+      files = []; lastSVGById.clear(); renderList();
+      pngPreviewWrap.style.display = 'none'; svgPreviewWrap.style.display = 'none';
+      statusEl.textContent = '';
+    });
+
+    // Builders
+    async function buildEmbedSVG(f){
+      const w = f.w || 100, h = f.h || 100;
+      // White background rect helps avoid “transparent corner cutouts” in some viewers
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet">
+        <rect width="${w}" height="${h}" fill="white"/>
+        <image href="${f.dataURL}" width="${w}" height="${h}"/>
+      </svg>`;
+    }
+    async function buildTraceSVG(f){
+      const img = await dataURLToImage(f.dataURL);
+      const canvas = document.createElement('canvas');
+      canvas.width = f.w; canvas.height = f.h;
+      const ctx = canvas.getContext('2d');
+      if (+blurEl.value > 0) ctx.filter = `blur(${+blurEl.value}px)`;
+      ctx.drawImage(img, 0, 0);
+      const imagedata = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const opts = {
+        numberofcolors: Math.max(2, Math.min(64, +colorsEl.value||16)),
+        pathomit: Math.max(0, Math.min(1, +pathomitEl.value||0.2)),
+        ltres: 1, qtres: 1
+      };
+      return ImageTracer.imagedataToSVG(imagedata, opts);
+    }
+
+    function outNameFor(f){
+      const base = f.file.name.replace(/\.[^.]+$/,'');
+      const raw = outNameEl.value?.trim() || '{base}.svg';
+      return raw.replaceAll('{base}', base).replace(/[/\\?%*:|"<>]/g,'_');
+    }
+
+    function downloadBlob(name, blob){
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = name; a.style.display='none';
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+    }
+
+    async function previewFiles(list){
+      if (!list?.length) return;
+      setBusy(true, 'Rendering preview…');
+      try{
+        // Show only first selected in the panes to keep UI simple
+        const f = list[0];
+        pngPane.innerHTML = `<img alt="PNG preview" src="${f.dataURL}">`;
+        pngPreviewWrap.style.display = 'block';
+
+        const svg = (modeEl.value === 'embed') ? await buildEmbedSVG(f) : await buildTraceSVG(f);
+        lastSVGById.set(f.id, svg);
+        svgPane.innerHTML = svg;
+        svgPreviewWrap.style.display = 'block';
+        setBusy(false);
+      }catch(e){ console.error(e); setBusy(false); statusEl.textContent='Preview failed.'; }
+    }
+
+    async function convertFiles(list){
+      if (!list?.length) return;
+      setBusy(true, 'Converting…');
+      try{
+        for (const f of list){
+          const svg = (modeEl.value === 'embed') ? await buildEmbedSVG(f) : await buildTraceSVG(f);
+          lastSVGById.set(f.id, svg);
+          downloadBlob(outNameFor(f), new Blob([svg], {type:'image/svg+xml'}));
+        }
+        setBusy(false);
+        statusEl.textContent = 'Done.';
+      }catch(e){ console.error(e); setBusy(false); statusEl.textContent='Conversion failed.'; }
+    }
+
+    async function zipAll(){
+      if (!files.length) return;
+      setBusy(true, 'Zipping…');
+      try{
+        const zip = new JSZip();
+        for (const f of files){
+          const svg = lastSVGById.get(f.id) || (modeEl.value === 'embed' ? await buildEmbedSVG(f) : await buildTraceSVG(f));
+          lastSVGById.set(f.id, svg);
+          zip.file(outNameFor(f), svg);
+        }
+        const blob = await zip.generateAsync({type:'blob'});
+        downloadBlob('svgs.zip', blob);
+        setBusy(false); statusEl.textContent='Zip ready.';
+      }catch(e){ console.error(e); setBusy(false); statusEl.textContent='Zip failed.'; }
+    }
+
+    // Bulk buttons
+    previewBtn.addEventListener('click', () => previewFiles(files.filter(f => f.selected)));
+    convertBtn.addEventListener('click', () => convertFiles(files.filter(f => f.selected)));
+    zipBtn.addEventListener('click', zipAll);
+
+    // Initial buttons state
+    setButtons();
+  </script>
+
+  <!-- Inject standard header + footer -->
+  <script src="th-layout.js"></script>
+</body>
+</html>

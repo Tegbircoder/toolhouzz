@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free Unit Converter – Length, Weight, Temperature, Volume & Area | ToolHouzz</title>
+  <meta name="description" content="Use our free Unit Converter to instantly convert length, weight, temperature, volume, and area. Includes quick presets, detailed results table, and supports metric & imperial units. Perfect for students, professionals, and everyday use.">
+  <link rel="canonical" href="https://toolhouzz.com/unit-converter.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz"> 
+  <meta property="og:title" content="Free Unit Converter – Metric & Imperial Measurements">
+  <meta property="og:description" content="Instantly convert length, weight, temperature, volume, and area with quick presets and detailed results. Supports metric and imperial units.">
+  <meta property="og:url" content="https://toolhouzz.com/unit-converter.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Unit Converter – ToolHouzz">
+  <meta name="twitter:description" content="Quickly convert between metric & imperial units for length, weight, temperature, volume, and area. Free, fast, and mobile-friendly.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="description" content="Convert length, weight, temperature, volume, and area instantly. Clean UI with quick presets and a full table of all units.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="th-layout.css" />
+  <style>
+    .hero{background:
+      radial-gradient(900px 360px at 10% -20%, rgba(59,130,246,.12), transparent 60%),
+      radial-gradient(700px 260px at 90% -20%, rgba(34,197,94,.10), transparent 60%),
+      linear-gradient(#f9fbff,#f6f9ff)}
+    .chip{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid var(--border);background:#f3f6ff;font-size:12px}
+    .helper{color:var(--muted);font-size:13px}
+    .link-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+    .link-card{display:grid;gap:6px;padding:14px;border-radius:12px;border:1.5px solid var(--border-strong);background:#fff}
+    .link-card small{color:var(--muted)}
+    .nav-right{gap:14px}
+  </style>
+</head>
+<body class="theme-light">
+  <!-- Header injected by th-layout.js -->
+
+  <section class="hero" style="padding:60px 22px 26px">
+    <div class="hero-inner">
+      <h1 class="hero-title">Instant <span class="accent">Unit Converter</span></h1>
+      <p class="hero-sub">Length • Weight • Temperature • Volume • Area — with quick presets and a full results table.</p>
+      <div style="margin-top:10px">
+        <span class="chip">No sign-up</span>
+        <span class="chip">Works offline (after load)</span>
+        <span class="chip">One-click copy</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="tools" style="padding:20px 22px 10px">
+    <div class="grid" style="grid-template-columns:1fr;max-width:1000px">
+      <div class="card">
+
+        <div style="display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr;align-items:end">
+          <div>
+            <label>Category</label>
+            <select id="cat" class="search" style="height:44px"></select>
+          </div>
+          <div class="helper" id="catLabel"></div>
+
+          <div style="justify-self:end">
+            <label>Quick presets</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn" type="button" data-preset="km-mi">km→mi</button>
+              <button class="btn" type="button" data-preset="kg-lb">kg→lb</button>
+              <button class="btn" type="button" data-preset="C-F">°C→°F</button>
+              <button class="btn" type="button" data-preset="L-gal">L→gal</button>
+              <button class="btn" type="button" data-preset="m2-ft2">m²→ft²</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;display:grid;gap:12px;grid-template-columns:1fr 1fr">
+          <div>
+            <label>From</label>
+            <div style="display:grid;gap:8px;grid-template-columns:1fr 1fr">
+              <input id="fromVal" class="search" value="1" inputmode="decimal" />
+              <select id="fromUnit" class="search" style="height:44px"></select>
+            </div>
+          </div>
+          <div>
+            <label>To</label>
+            <div style="display:grid;gap:8px;grid-template-columns:1fr 1fr">
+              <input id="toVal" class="search" readonly />
+              <select id="toUnit" class="search" style="height:44px"></select>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
+          <button class="btn" id="swapBtn" type="button">Swap ↔</button>
+          <button class="btn" id="copyBtn" type="button">Copy Result</button>
+          <span class="helper" id="status" style="margin-left:auto"></span>
+        </div>
+
+        <h3 style="margin:16px 0 8px">All conversions (from the “From” value)</h3>
+        <div style="overflow:auto;border:1px solid var(--border);border-radius:12px">
+          <table style="width:100%;border-collapse:collapse">
+            <thead style="background:var(--panel)">
+              <tr>
+                <th style="text-align:left;padding:10px;border-bottom:1px solid var(--border)">Unit</th>
+                <th style="text-align:right;padding:10px;border-bottom:1px solid var(--border)">Value</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+
+        <details style="margin-top:14px" class="help">
+          <summary style="font-weight:800;cursor:pointer">How to use this converter</summary>
+          <div style="color:var(--muted);padding-top:8px">
+            <ol style="margin:0 0 8px 18px">
+              <li>Pick a <strong>Category</strong> (e.g., Length).</li>
+              <li>Enter a number and choose <strong>From</strong> and <strong>To</strong> units.</li>
+              <li>Use <strong>Swap</strong> to flip directions, or <strong>Copy</strong> to put the result on your clipboard.</li>
+            </ol>
+            <div class="helper">Tip: the table updates live and shows every unit in the chosen category.</div>
+          </div>
+        </details>
+      </div>
+
+      <div class="card" style="background:#fbfcff">
+        <h2 class="tool-title">Try more tools</h2>
+        <div class="link-cards">
+          <a class="link-card" href="bmi.html">
+            <strong>BMI Calculator</strong><small>Find your category in 10 seconds.</small>
+          </a>
+          <a class="link-card" href="age.html">
+            <strong>Live Age</strong><small>See your age ticking in seconds.</small>
+          </a>
+          <a class="link-card" href="loan.html">
+            <strong>Loan Calculator</strong><small>Extra payments = years saved.</small>
+          </a>
+          <a class="link-card" href="mortgage.html">
+            <strong>Mortgage</strong><small>Price − down = principal made simple.</small>
+          </a>
+          <a class="link-card" href="image-to-pdf.html">
+            <strong>Image → PDF</strong><small>Pack photos into a neat PDF.</small>
+          </a>
+          <a class="link-card" href="qr.html">
+            <strong>QR Generator</strong><small>Share links, Wi-Fi, more.</small>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer injected by th-layout.js -->
+  <script src="app.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+
+    const CATS = {
+      "Weight / Mass": {
+        base: "kg",
+        units: {
+          g:   { name:"Gram (g)",       toBase:v=>v/1000, fromBase:v=>v*1000 },
+          kg:  { name:"Kilogram (kg)",  toBase:v=>v,      fromBase:v=>v },
+          t:   { name:"Tonne (t)",      toBase:v=>v*1000, fromBase:v=>v/1000 },
+          lb:  { name:"Pound (lb)",     toBase:v=>v*0.45359237, fromBase:v=>v/0.45359237 },
+          oz:  { name:"Ounce (oz)",     toBase:v=>v*0.028349523125, fromBase:v=>v/0.028349523125 }
+        }
+      },
+      "Length / Distance": {
+        base: "m",
+        units: {
+          mm:{name:"Millimeter (mm)",toBase:v=>v/1000,fromBase:v=>v*1000},
+          cm:{name:"Centimeter (cm)",toBase:v=>v/100,fromBase:v=>v*100},
+          m: {name:"Meter (m)",toBase:v=>v,fromBase:v=>v},
+          km:{name:"Kilometer (km)",toBase:v=>v*1000,fromBase:v=>v/1000},
+          in:{name:"Inch (in)",toBase:v=>v*0.0254, fromBase:v=>v/0.0254},
+          ft:{name:"Foot (ft)",toBase:v=>v*0.3048, fromBase:v=>v/0.3048},
+          yd:{name:"Yard (yd)",toBase:v=>v*0.9144, fromBase:v=>v/0.9144},
+          mi:{name:"Mile (mi)",toBase:v=>v*1609.344, fromBase:v=>v/1609.344}
+        }
+      },
+      "Temperature": {
+        base: "K",
+        units: {
+          C:{name:"Celsius (°C)", toBase:v=>v+273.15, fromBase:v=>v-273.15},
+          F:{name:"Fahrenheit (°F)", toBase:v=>(v-32)*5/9+273.15, fromBase:v=>(v-273.15)*9/5+32},
+          K:{name:"Kelvin (K)", toBase:v=>v, fromBase:v=>v}
+        }
+      },
+      "Volume": {
+        base: "L",
+        units: {
+          mL:{name:"Milliliter (mL)",toBase:v=>v/1000,fromBase:v=>v*1000},
+          L:{name:"Liter (L)",toBase:v=>v,fromBase:v=>v},
+          m3:{name:"Cubic meter (m³)",toBase:v=>v*1000,fromBase:v=>v/1000},
+          gal:{name:"Gallon (US)",toBase:v=>v*3.785411784,fromBase:v=>v/3.785411784},
+          qt:{name:"Quart (US)",toBase:v=>v*0.946352946,fromBase:v=>v/0.946352946},
+          pt:{name:"Pint (US)",toBase:v=>v*0.473176473,fromBase:v=>v/0.473176473},
+          cup:{name:"Cup (US)",toBase:v=>v*0.2365882365,fromBase:v=>v/0.2365882365}
+        }
+      },
+      "Area": {
+        base: "m2",
+        units: {
+          cm2:{name:"Square centimeter (cm²)",toBase:v=>v/10000,fromBase:v=>v*10000},
+          m2:{name:"Square meter (m²)",toBase:v=>v,fromBase:v=>v},
+          km2:{name:"Square kilometer (km²)",toBase:v=>v*1e6,fromBase:v=>v/1e6},
+          ft2:{name:"Square foot (ft²)",toBase:v=>v*0.09290304,fromBase:v=>v/0.09290304},
+          yd2:{name:"Square yard (yd²)",toBase:v=>v*0.83612736,fromBase:v=>v/0.83612736},
+          ac:{name:"Acre (ac)",toBase:v=>v*4046.8564224,fromBase:v=>v/4046.8564224},
+          ha:{name:"Hectare (ha)",toBase:v=>v*10000,fromBase:v=>v/10000}
+        }
+      }
+    };
+
+    function fillSelect(sel, units){
+      sel.innerHTML = "";
+      Object.entries(units).forEach(([k,u])=>{
+        const o = document.createElement('option');
+        o.value = k; o.textContent = u.name; sel.appendChild(o);
+      });
+    }
+
+    function update(){
+      const cat = CATS[$('cat').value]; if (!cat) return;
+      const fU = $('fromUnit').value, tU = $('toUnit').value;
+      const v = parseFloat($('fromVal').value)||0;
+      const base = cat.units[fU].toBase(v);
+      const out = cat.units[tU].fromBase(base);
+      $('toVal').value = Number.isFinite(out) ? String(out) : '';
+      const tbody = $('rows'); tbody.innerHTML="";
+      Object.entries(cat.units).forEach(([k,u])=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td style="padding:10px;border-bottom:1px solid var(--border)">${u.name}</td>
+                        <td style="padding:10px;border-bottom:1px solid var(--border);text-align:right">${u.fromBase(base)}</td>`;
+        tbody.appendChild(tr);
+      });
+      $('catLabel').textContent = $('cat').value;
+    }
+
+    function init(){
+      Object.keys(CATS).forEach(name=>{
+        const o = document.createElement('option'); o.textContent=name; o.value=name; $('cat').appendChild(o);
+      });
+      $('cat').value = "Weight / Mass";
+      fillSelect($('fromUnit'), CATS[$('cat').value].units);
+      fillSelect($('toUnit'),   CATS[$('cat').value].units);
+      $('fromUnit').value = "kg"; $('toUnit').value = "lb";
+      update();
+    }
+
+    $('cat').onchange = ()=>{
+      const units = CATS[$('cat').value].units;
+      fillSelect($('fromUnit'), units);
+      fillSelect($('toUnit'), units);
+      $('fromVal').value = $('fromVal').value || 1;
+      update();
+    };
+    $('fromVal').oninput = update; $('fromUnit').onchange = update; $('toUnit').onchange = update;
+
+    $('swapBtn').onclick = ()=>{
+      const f = $('fromUnit').value, t = $('toUnit').value;
+      $('fromUnit').value = t; $('toUnit').value = f; update();
+    };
+
+    $('copyBtn').onclick = async ()=>{
+      try{
+        $('toVal').select();
+        document.execCommand('copy');
+        $('status').textContent = 'Copied!';
+        setTimeout(()=>$('status').textContent='',1200);
+      }catch{
+        $('status').textContent = 'Copy failed.';
+      }
+    };
+
+    document.addEventListener('click', (e)=>{
+      const b = e.target.closest('button[data-preset]'); if(!b) return;
+      const p = b.getAttribute('data-preset');
+      const map = {
+        'km-mi':  ['Length / Distance','km','mi',1],
+        'kg-lb':  ['Weight / Mass','kg','lb',1],
+        'C-F':    ['Temperature','C','F',20],
+        'L-gal':  ['Volume','L','gal',1],
+        'm2-ft2': ['Area','m2','ft2',1]
+      };
+      const cfg = map[p]; if(!cfg) return;
+      $('cat').value = cfg[0];
+      $('cat').dispatchEvent(new Event('change'));
+      $('fromUnit').value = cfg[1]; $('toUnit').value = cfg[2];
+      $('fromVal').value = cfg[3];
+      update();
+    });
+
+    init();
+  </script>
+  <script src="th-layout.js"></script>
+</body>
+</html>

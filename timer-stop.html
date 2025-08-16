@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Timer Stop Challenge – Fun Online Timing Game & Accuracy Test | ToolHouzz</title>
+  <meta name="description" content="Test your reflexes with the Timer Stop Challenge! Start the timer and try to stop it exactly on the target time. Get instant accuracy scoring and challenge friends for the best score. Free, fun, and addictive.">
+  <link rel="canonical" href="https://toolhouzz.com/timer-stop.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Timer Stop Challenge – Fun Timing & Reflex Game">
+  <meta property="og:description" content="Stop the timer exactly on target and get your accuracy score. Play free and challenge your friends online.">
+  <meta property="og:url" content="https://toolhouzz.com/timer-stop.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Timer Stop Challenge – ToolHouzz">
+  <meta name="twitter:description" content="Fun online timer game – stop exactly on target and test your reflexes.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&family=Playfair+Display:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="th-layout.css">
+  <script defer src="th-layout.js"></script>
+  <style>
+    :root{
+      --ink:#0f172a; --muted:#64748b; --accent:#2563eb;
+      --bg:#f6f7fb; --card:#ffffff; --border:#e5e7eb; --border-strong:#d1d5db;
+      --good:#16a34a; --warn:#f59e0b; --bad:#ef4444;
+    }
+    body{background:var(--bg)}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace}
+
+    /* WIDE container – use the screen */
+    /* WIDE container – use the screen */
+.grid {
+  display: grid;
+  gap: 20px;
+  width: 100vw; /* <-- Changed to use 100% of the viewport width */
+  margin: 0; /* <-- Removed auto margin */
+  padding: 0 6px;
+}
+.card {
+  background: var(--bg);
+  border: none; /* <-- Removed the border for a seamless look */
+  border-radius: 0; /* <-- Removed border-radius */
+  padding: 22px;
+  box-shadow: none; /* <-- Removed the box-shadow */
+  width: 100vw; /* <-- Changed to use 100% of the viewport width */
+  min-height: 100vh; /* <-- Optional: makes sure the background fills the whole screen vertically */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+    .muted{color:var(--muted)}
+    .hero{padding:54px 22px 22px}
+    .hero-title{font-size:clamp(28px,4vw,36px);margin:0 0 6px}
+    .hero-sub{margin:0;color:var(--muted)}
+
+    /* BIG centered challenge badge */
+    .topbar{display:flex;justify-content:center}
+    .pill{
+      display:inline-flex;align-items:center;gap:12px;
+      padding:16px 32px;border:1px solid #facc15;border-radius:18px;
+      background:#fde68a;font-weight:900;
+      font-size:clamp(18px,2.6vw,28px); letter-spacing:.2px;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.6)
+    }
+
+    /* Mode row */
+    .mode{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:10px}
+    .search, select, input[type="number"]{
+      padding:10px 12px;border:1px solid var(--border-strong);border-radius:12px;background:#fff;min-height:40px
+    }
+
+    /* KPI strip — hide small Elapsed to avoid duplicates */
+    .kpis{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;justify-content:center}
+    .kpi{border:1px solid var(--border-strong);border-radius:14px;padding:12px 14px;background:#fff;min-width:190px}
+    .kpi label{font-size:12px;color:#64748b;font-weight:800}
+    .kpi div{font-weight:900;font-size:20px;margin-top:4px}
+    .kpi.elapsed{display:none}  /* <— remove the duplicate small Elapsed box */
+
+    /* Big timer uses all width */
+    .stage{margin-top:18px;display:grid;gap:16px;grid-template-columns:1fr;justify-items:center}
+    .timerWrap{
+      width:100%; max-width:none;                /* <— no cap */
+      display:flex;align-items:center;justify-content:center;
+      background:#fff;border:2px solid var(--border-strong);
+      border-radius:44px;padding:28px 36px;min-height:180px;
+      box-shadow:0 2px 0 rgba(0,0,0,.03), inset 0 1px 0 rgba(255,255,255,.7)
+    }
+    .timer{
+      text-align:center;color:var(--ink);font-weight:900;line-height:1.03;letter-spacing:.5px;
+      font-size:clamp(50px, 10vw, 150px);        /* <— MUCH bigger */
+    }
+    .timer small{display:block;font-size:clamp(18px,2.2vw,30px);font-weight:800;color:var(--muted);margin-bottom:6px}
+
+    .accuracy{display:flex;flex-direction:column;gap:12px;align-items:center}
+    .accPill{
+      display:flex;align-items:center;justify-content:center;border-radius:16px;padding:16px 18px;
+      border:1px solid var(--border-strong);background:#f8fafc;color:var(--muted);
+      font-weight:900;font-size:28px;min-width:200px
+    }
+    .accPill.ok{border-color:#bbf7d0;background:#f0fdf4;color:var(--good)}
+    .accPill.mid{border-color:#fde68a;background:#fffbeb;color:var(--warn)}
+    .accPill.low{border-color:#fecaca;background:#fff1f2;color:var(--bad)}
+    .hidden{display:none !important}
+
+    .msg{padding:12px 14px;border-radius:12px;border:1px dashed #cbd5e1;background:#f8fafc;width:100%}
+
+    /* Controls */
+    .controls{display:flex;gap:18px;flex-wrap:wrap;align-items:center;justify-content:center;margin-top:8px}
+    .btn{appearance:none;border:1px solid var(--border-strong);background:#fff;color:var(--ink);
+      border-radius:12px;padding:10px 16px;font-weight:900;cursor:pointer;transition:transform .05s ease, box-shadow .2s ease, background .2s ease}
+    .btn:hover{box-shadow:0 6px 16px rgba(2,6,23,.06)}
+    .btn:active{transform:translateY(1px)}
+    .btn[disabled]{opacity:.5;cursor:not-allowed;box-shadow:none}
+
+    /* START glossy pill */
+    #startBtn{
+      border-radius:999px;padding:14px 38px;font-size:22px;color:#fff;
+      background:#22c55e;border-color:#16a34a;
+      box-shadow:inset 0 3px 0 rgba(255,255,255,.35), 0 6px 0 #16a34a, 0 10px 24px rgba(34,197,94,.35)
+    }
+    #startBtn:active{transform:translateY(2px);box-shadow:inset 0 2px 0 rgba(255,255,255,.35),0 3px 0 #16a34a,0 8px 18px rgba(34,197,94,.3)}
+
+    /* STOP circular */
+    #stopBtn{
+      width:110px;height:110px;border-radius:50%;font-size:20px;color:#fff;font-weight:900;border:none;
+      background:radial-gradient(ellipse at 30% 25%, #ff8080, #ef4444 60%, #dc2626 100%);
+      box-shadow:0 2px 0 #991b1b, 0 12px 24px rgba(239,68,68,.35), inset 0 7px 0 rgba(255,255,255,.35);
+    }
+    #stopBtn[disabled]{filter:grayscale(.4);opacity:.65}
+
+    /* Hide chart (visual only) */
+    .chartWrap{display:none !important;height:0;margin:0;padding:0}
+  </style>
+</head>
+<body class="theme-light">
+  <!-- HERO (unchanged) -->
+  <section class="hero">
+    <div class="hero-inner">
+      <h1 class="hero-title">Timer Stop Challenge</h1>
+      <p class="hero-sub">Press <strong>Start</strong>, then try to stop exactly on the challenge time. We grade your timing accuracy.</p>
+    </div>
+  </section>
+
+  <section class="tools">
+    <div class="grid">
+      <div class="card">
+
+        <!-- Big centered Challenge -->
+        <div class="topbar">
+          <div class="pill"><strong>CHALLENGE:</strong> <span id="challenge" class="mono">—</span></div>
+        </div>
+
+        <!-- Mode selector -->
+        <div class="mode">
+          <span class="muted" style="font-weight:700">Mode:</span>
+          <select id="mode" class="search">
+            <option value="easy">Easy (3–8s)</option>
+            <option value="normal" selected>Normal (3–15s)</option>
+            <option value="hard">Hard (7–30s)</option>
+            <option value="custom">Custom…</option>
+          </select>
+          <input id="customSec" class="search" type="number" inputmode="decimal" placeholder="seconds" style="width:140px;display:none">
+        </div>
+
+        <!-- KPIs (Elapsed hidden to avoid duplicate) -->
+        <div class="kpis">
+          <div class="kpi"><label>Target</label><div id="kTarget" class="mono">—</div></div>
+          <div class="kpi elapsed"><label>Elapsed</label><div id="kElapsed" class="mono">0.00 s</div></div>
+          <div class="kpi"><label>Accuracy</label><div id="kAcc">—</div></div>
+        </div>
+
+        <!-- Stage -->
+        <div class="stage">
+          <div class="timerWrap">
+            <div class="timer mono" id="bigTimer"><small>Elapsed</small>0.00 s</div>
+          </div>
+          <div class="accuracy" style="width:100%;max-width:1100px">
+            <div id="accBadge" class="accPill hidden">—</div>
+            <div id="message" class="msg muted hidden"></div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button id="startBtn" class="btn">START</button>
+          <button id="stopBtn" class="btn" disabled>STOP</button>
+          <button id="newBtn" class="btn" style="border-radius:12px">New Challenge</button>
+          <span id="status" class="muted" style="min-width:80px;text-align:center"></span>
+        </div>
+
+        <div class="chartWrap"><canvas id="timerChart"></canvas></div>
+
+        <div class="muted" style="margin-top:8px">
+          <strong>Scoring:</strong> 100% if exact. We subtract <b>100 × |difference|</b> (cap at 0) where difference is in seconds (0–1s band for scoring).
+          Example: target 5.00s, you stop at 4.80s → |0.20| → <b>80% right</b>.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const challengeEl = $('challenge'), kTarget = $('kTarget'), kElapsed = $('kElapsed'), kAcc = $('kAcc');
+    const startBtn = $('startBtn'), stopBtn = $('stopBtn'), newBtn = $('newBtn');
+    const modeSel = $('mode'), customSec = $('customSec'), message = $('message'), status = $('status');
+    const bigTimer = $('bigTimer'), accBadge = $('accBadge');
+    let target = 5, startTime = 0, ticking = null, chart;
+
+    const fmt = s => `${s.toFixed(2)} s`;
+    function rndBetween(a,b){ return Math.round((a + Math.random()*(b-a))*100)/100; }
+    function pickTarget(){
+      const m = modeSel.value;
+      if (m === 'easy') return rndBetween(3,8);
+      if (m === 'normal') return rndBetween(3,15);
+      if (m === 'hard') return rndBetween(7,30);
+      const v = +customSec.value || 5; return Math.max(0.5, v);
+    }
+
+    function setChallenge(){
+      target = pickTarget();
+      challengeEl.textContent = fmt(target);
+      kTarget.textContent = fmt(target);
+      kElapsed.textContent = '0.00 s';
+      kAcc.textContent = '—';
+      bigTimer.innerHTML = '<small>Elapsed</small>0.00 s';
+      setAccBadge(null);
+      message.classList.add('hidden'); message.textContent = '';
+      status.textContent = '';
+      stopBtn.disabled = true; startBtn.disabled = false;
+      if (ticking){ cancelAnimationFrame(ticking); ticking = null; }
+      drawChart(0, 0);
+    }
+
+    modeSel.addEventListener('change', ()=>{
+      customSec.style.display = modeSel.value === 'custom' ? 'block' : 'none';
+      setChallenge();
+    });
+    customSec.addEventListener('input', setChallenge);
+
+    function tick(){
+      const now = performance.now();
+      const elapsed = (now - startTime)/1000;
+      kElapsed.textContent = fmt(elapsed);   // stays hidden visually
+      bigTimer.innerHTML = `<small>Elapsed</small>${elapsed.toFixed(2)} s`;
+      updateChart(elapsed, calcScore(elapsed));
+      ticking = requestAnimationFrame(tick);
+    }
+
+    function calcScore(elapsed){
+      const diff = Math.abs(elapsed - target);
+      return Math.max(0, 100 - Math.round(diff*100));
+    }
+
+    function setAccBadge(score){
+      if (score === null){
+        accBadge.textContent = '—';
+        accBadge.className = 'accPill hidden';
+        return;
+      }
+      accBadge.classList.remove('hidden');
+      accBadge.textContent = score + '%';
+      accBadge.className = 'accPill ' + (score>=90 ? 'ok' : score>=60 ? 'mid' : 'low');
+    }
+
+    startBtn.onclick = ()=>{
+      startTime = performance.now();
+      startBtn.disabled = true; stopBtn.disabled = false;
+      setAccBadge(null);
+      message.classList.add('hidden');
+      tick();
+    };
+
+    stopBtn.onclick = ()=>{
+      if (ticking){ cancelAnimationFrame(ticking); ticking = null; }
+      const elapsed = (performance.now() - startTime)/1000;
+      kElapsed.textContent = fmt(elapsed);
+      bigTimer.innerHTML = `<small>Elapsed</small>${elapsed.toFixed(2)} s`;
+      const diff = Math.abs(elapsed - target);
+      const score = calcScore(elapsed);
+      kAcc.textContent = score + '%';
+      setAccBadge(score);
+      const verdict = score===100 ? 'Perfect timing! 🎯' : score>=70 ? 'Nice! So close.' : 'Keep practicing!';
+      message.innerHTML = `<div><strong>${verdict}</strong></div>
+        <div>You were <b>${diff.toFixed(2)} s</b> ${elapsed>=target?'late':'early'} — <b>${score}% right</b>.</div>`;
+      message.classList.remove('hidden');
+      stopBtn.disabled = true; status.textContent = 'Stopped.';
+      updateChart(elapsed, score, true);
+    };
+
+    newBtn.onclick = setChallenge;
+
+    // Chart kept (hidden visually)
+    function drawChart(elapsed, score){
+      const ctx = $('timerChart').getContext('2d');
+      const data = {
+        labels:['Target','Your Stop','Accuracy %'],
+        datasets:[{type:'bar', label:'Seconds', data:[target, elapsed, null]},
+                  {type:'line', label:'Accuracy', data:[null, null, score], yAxisID:'y1'}]
+      };
+      const options = {
+        maintainAspectRatio:false,
+        scales:{ y:{beginAtZero:true,title:{display:true,text:'Seconds'}},
+                 y1:{beginAtZero:true,max:100,position:'right',grid:{drawOnChartArea:false},title:{display:true,text:'%'}} },
+        plugins:{ legend:{ position:'bottom' } }
+      };
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {data, options});
+    }
+    function updateChart(elapsed, score){
+      if (!chart){ drawChart(elapsed, score); return; }
+      chart.data.datasets[0].data = [target, elapsed, null];
+      chart.data.datasets[1].data = [null, null, score];
+      chart.update('none');
+    }
+
+    // init
+    setChallenge();
+
+    // Space toggles Start/Stop
+    window.addEventListener('keydown', (e)=>{
+      if(e.code === 'Space'){
+        e.preventDefault();
+        if(!startBtn.disabled) startBtn.click();
+        else if(!stopBtn.disabled) stopBtn.click();
+      }
+    });
+  </script>
+</body>
+</html>

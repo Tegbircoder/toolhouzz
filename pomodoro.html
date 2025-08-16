@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Free Pomodoro Timer – Focus, Long Work & Deep Work Sessions | ToolHouzz</title>
+  <meta name="description" content="Boost productivity with our free Pomodoro Timer. Choose from Pomodoro, long focus, or deep work presets. Track your work sessions, breaks, and daily focus time. Perfect for students, professionals, and remote workers.">
+  <link rel="canonical" href="https://toolhouzz.com/pomodoro.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free Pomodoro Timer – Productivity & Focus Tool">
+  <meta property="og:description" content="Stay focused with Pomodoro, long focus, and deep work modes. Track sessions, breaks, and daily productivity stats.">
+  <meta property="og:url" content="https://toolhouzz.com/pomodoro.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Pomodoro Timer – ToolHouzz">
+  <meta name="twitter:description" content="Pomodoro, long focus, and deep work modes with session tracking to boost productivity.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="th-layout.css" />
+  <style>
+:root{
+  --bg:#f7f9fb; --card:#fff; --ink:#0f172a; --muted:#64748b;
+  --border:#e5e7eb; --border2:#d1d5db; --pri:#6d5ef7; --pri2:#7c70ff;
+  --green:#16a34a; --red:#ef4444;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+.header{padding:30px 18px 10px;text-align:center}
+.header h1{margin:0 0 6px;font-size:clamp(28px,4.6vw,48px);font-weight:900}
+.header p{margin:0;color:var(--muted)}
+.wrap{max-width:1200px;margin:0 auto;padding:16px;display:grid;gap:16px}
+@media(min-width:980px){.wrap{grid-template-columns:1.1fr .9fr}}
+.card{background:#fff;border:1.5px solid var(--border2);border-radius:16px;padding:14px}
+
+/* Timer display */
+.time{font-size:clamp(44px,10vw,92px);font-weight:900;letter-spacing:1px;text-align:center}
+.sub{display:flex;justify-content:center;gap:10px;color:var(--muted);font-weight:800}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.btn{height:44px;padding:0 16px;border-radius:12px;border:1.5px solid var(--border2);background:#fff;font-weight:800;cursor:pointer}
+.btn.primary{background:var(--pri);border-color:var(--pri);color:#fff}
+.btn.primary:hover{filter:brightness(1.07)}
+.select, input[type="number"], input[type="range"]{height:44px;border:1.5px solid var(--border2);border-radius:12px;padding:0 12px;font:600 14px Inter,system-ui}
+.grid{display:grid;gap:10px}
+.grid2{grid-template-columns:1fr 1fr}
+
+/* Plan */
+.plan{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:#f3f4fa;border:1.5px solid var(--border2);border-radius:999px;padding:8px 12px;font-weight:800}
+.chip .x{cursor:pointer;opacity:.65}
+.bar{height:10px;border-radius:999px;background:#e5e7eb;overflow:hidden}
+.bar>span{display:block;height:100%;background:linear-gradient(90deg,#22c55e,#10b981)}
+.kv{display:flex;justify-content:space-between;color:var(--muted);font-weight:800}
+
+/* How to use + explanation */
+.tip li{margin:.42rem 0}
+
+/* Links */
+.links{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.link{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--border2);border-radius:12px;padding:8px 12px;background:#fff;font-weight:800}
+
+/* space out right-side nav items */
+.nav-right{gap:14px}
+  </style>
+</head>
+<body>
+
+<!-- Header injected by th-layout.js -->
+
+  <div class="header">
+    <h1>Pomodoro Timer</h1>
+    <p>Focus blocks with breaks, optional background music, and daily analytics — all local to your browser.</p>
+  </div>
+
+  <div class="wrap">
+    <!-- Timer panel -->
+    <div class="card">
+      <div class="time"><span id="mm">25</span>:<span id="ss">00</span></div>
+      <div class="sub"><span id="phase">Focus</span></div>
+
+      <div class="row">
+        <button class="btn" data-preset="25,5,15">Pomodoro (25/5/15)</button>
+        <button class="btn" data-preset="50,10,20">Long focus (50/10/20)</button>
+        <button class="btn" data-preset="90,15,0">Deep work (90/15)</button>
+      </div>
+
+      <div class="row">
+        <button id="start" class="btn primary">Start</button>
+        <button id="pause" class="btn">Pause</button>
+        <button id="reset" class="btn">Reset</button>
+        <button id="test" class="btn">Test sound</button>
+        <div class="badge" id="todayBadge" style="display:inline-flex;align-items:center;border:1.5px solid var(--border2);border-radius:999px;padding:8px 12px;font-weight:800">
+          Today: <span id="todayTotal" style="margin-left:6px">0 min • 0 sessions</span>
+        </div>
+      </div>
+
+      <div class="grid grid2" style="margin-top:6px">
+        <div>
+          <label style="display:block;font-size:12px;color:#6b7280;font-weight:800;margin:0 0 6px">Music while timer runs</label>
+          <select id="musicSel" class="select">
+            <option>None</option>
+            <option>Brown noise</option>
+            <option>Rain</option>
+            <option>Lofi hum</option>
+          </select>
+          <div style="color:var(--muted);font-size:12px;margin-top:6px">Tip: some browsers need a user click before audio can play. Press <strong>Test sound</strong> once if you hear nothing.</div>
+          </div>
+        <div>
+          <label style="display:block;font-size:12px;color:#6b7280;font-weight:800;margin:0 0 6px">Volume</label>
+          <input id="vol" type="range" min="0" max="1" step="0.01" value="0.5" style="width:100%">
+        </div>
+      </div>
+    </div>
+
+    <!-- Study focus plan + analytics -->
+    <div class="card">
+      <h3 style="margin:6px 0 8px">Study Focus (multi-session plan)</h3>
+      <div class="grid grid2">
+        <select id="blockType" class="select"><option>Focus</option><option>Break</option></select>
+        <input id="blockMin" type="number" class="select" placeholder="Minutes" value="25" min="1">
+      </div>
+      <div class="row">
+        <button id="addBlock" class="btn">Add block</button>
+        <button id="startPlan" class="btn primary">Start Plan</button>
+        <button id="clearPlan" class="btn">Clear</button>
+      </div>
+      <div id="plan" class="plan"></div>
+
+      <h3 style="margin:14px 0 8px">Today’s analytics</h3>
+      <div class="kv"><span>Focus</span><span id="focusMin">0 min</span></div>
+      <div class="bar"><span id="focusBar" style="width:0%"></span></div>
+      <div class="kv" style="margin-top:8px"><span>Break</span><span id="breakMin">0 min</span></div>
+      <div class="bar"><span id="breakBar" style="width:0%;background:linear-gradient(90deg,#60a5fa,#3b82f6)"></span></div>
+      <div class="kv" style="margin-top:8px"><span>Sessions</span><span id="sessCount">0</span></div>
+
+      <details style="margin-top:12px">
+        <summary class="badge">How to use</summary>
+        <ul class="tip">
+          <li>Pick a preset or build a custom plan with <strong>Add block</strong>, then press <strong>Start Plan</strong>.</li>
+          <li>Music plays only while a timer is running. It pauses when you pause or finish.</li>
+          <li>Daily analytics reset at midnight and are stored locally.</li>
+        </ul>
+        <h4>What do these presets mean?</h4>
+        <ul class="tip">
+          <li><strong>Pomodoro (25/5/15)</strong> — 25-minute focus, 5-minute short break, and a 15-minute long break after every 4 focus sessions.</li>
+          <li><strong>Long focus (50/10/20)</strong> — 50 focus, 10 short break, 20 long break every 2 cycles (useful for lectures/deep reading).</li>
+          <li><strong>Deep work (90/15)</strong> — one long 90-minute focus block followed by a 15-minute break (no long-break cycle).</li>
+        </ul>
+      </details>
+
+      <div class="links">
+        <a class="link" href="flashcards.html">Flashcards</a>
+        <a class="link" href="calorie-macros.html">Calorie &amp; Macros</a>
+        <a class="link" href="pdf-split-reorder.html">Split &amp; Reorder PDF</a>
+      </div>
+    </div>
+  </div>
+
+<!-- Footer injected by th-layout.js -->
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+
+  /* ---------- Timer core ---------- */
+  let secs = 25*60, t=null, phase='Focus', running=false;
+  let pomodoro = {focus:25, short:5, long:15, round:0};
+  let longBreakEvery = 4; // default for Pomodoro
+  let plan = []; let planIdx = 0;
+
+  function fmt(n){ return String(n).padStart(2,'0'); }
+  function renderTime(){
+    $('mm').textContent = fmt(Math.floor(secs/60));
+    $('ss').textContent = fmt(secs%60);
+    $('phase').textContent = phase;
+  }
+  function setTimer(min, ph){ secs=min*60; phase=ph; renderTime(); }
+  renderTime();
+
+  function tick(){
+    if (!running) return;
+    if (secs>0){ secs--; renderTime(); return; }
+    // finish block
+    running=false; stopMusic(); beep();
+    onBlockFinished(phase);
+    // auto-next
+    nextBlock();
+  }
+
+  function start(){ if(running) return; running=true; if(!ac) initAudio(); t = setInterval(tick, 1000); playMusic(); }
+  function pause(){ running=false; clearInterval(t); stopMusic(); }
+  function reset(){ pause(); secs = (phase==='Focus'? pomodoro.focus : pomodoro.short)*60; renderTime(); }
+  $('start').onclick=start; $('pause').onclick=pause; $('reset').onclick=reset;
+
+  /* ---------- Presets ---------- */
+  document.querySelectorAll('[data-preset]').forEach(btn=>{
+    btn.onclick=()=>{
+      const [f,s,l] = btn.dataset.preset.split(',').map(Number);
+      pomodoro.focus=f; pomodoro.short=s; pomodoro.long=l; pomodoro.round=0;
+      longBreakEvery = (f===25?4:(f===50?2:1));
+      phase='Focus'; secs=f*60; renderTime();
+    };
+  });
+
+  /* ---------- Sounds & music (WebAudio) ---------- */
+  let ac, master, musicNode, gain;
+  function initAudio(){
+    ac = new (window.AudioContext||window.webkitAudioContext)();
+    gain = ac.createGain(); gain.gain.value = +$('vol').value; gain.connect(ac.destination);
+    master = gain;
+  }
+  function setVolume(){ if(gain) gain.gain.value = +$('vol').value; }
+  $('vol').oninput=setVolume;
+
+  function beep(){ if(!ac) return;
+    const o = ac.createOscillator(); const g = ac.createGain();
+    o.type='sine'; o.frequency.setValueAtTime(440, ac.currentTime);
+    o.frequency.linearRampToValueAtTime(880, ac.currentTime+0.15);
+    g.gain.setValueAtTime(0.0001, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.2, ac.currentTime+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime+0.25);
+    o.connect(g).connect(master); o.start(); o.stop(ac.currentTime+0.27);
+  }
+  $('test').onclick=()=>{ if(!ac) initAudio(); beep(); playMusic(0.7); setTimeout(stopMusic, 800); };
+
+  // simple procedural “music”
+  function makeNoise(kind){
+    const node = ac.createScriptProcessor(1024,1,1);
+    let lastOut = 0;
+    node.onaudioprocess = e=>{
+      const out = e.outputBuffer.getChannelData(0);
+      for(let i=0;i<out.length;i++){
+        if(kind==='brown'){ // brown noise
+          const white = Math.random()*2-1;
+          lastOut = (lastOut+ (0.02*white)) / 1.02;
+          out[i] = lastOut*3.5;
+        }else if(kind==='rain'){ // filtered noise
+          const white = Math.random()*2-1;
+          out[i] = out[i-1]*0.9 + white*0.1;
+        }else{ // lofi hum (two sines)
+          const t = (ac.currentTime + i/ac.sampleRate);
+          out[i] = Math.sin(2*Math.PI*110*t)*0.2 + Math.sin(2*Math.PI*220*t)*0.08;
+        }
+      }
+    };
+    return node;
+  }
+
+  function playMusic(testVol){
+    if (!ac) return;
+    const sel = $('musicSel').value;
+    stopMusic(); if(sel==='None') return;
+    musicNode = makeNoise(sel==='Brown noise'?'brown':(sel==='Rain'?'rain':'hum'));
+    musicNode.connect(master);
+    if (typeof testVol === 'number' && gain) gain.gain.value = testVol;
+  }
+  function stopMusic(){ if(musicNode){ try{ musicNode.disconnect(); }catch{} musicNode=null; setVolume(); } }
+  $('musicSel').onchange=()=>{ if(running){ stopMusic(); playMusic(); } };
+
+  /* ---------- Analytics ---------- */
+  // stored by date key
+  function todayKey(){ const d=new Date(); return d.toISOString().slice(0,10); }
+  function loadStats(){
+    const s = JSON.parse(localStorage.getItem('th_pomo_stats')||'{}');
+    if(!s[todayKey()]) s[todayKey()] = {focus:0, break:0, sessions:0};
+    return s;
+  }
+  function saveStats(stats){ localStorage.setItem('th_pomo_stats', JSON.stringify(stats)); }
+  function updateAnalyticsDisplay(){
+    const stats = loadStats()[todayKey()];
+    const total = Math.max(1, stats.focus+stats.break);
+    document.getElementById('focusMin').textContent = Math.round(stats.focus/60)+' min';
+    document.getElementById('breakMin').textContent = Math.round(stats.break/60)+' min';
+    document.getElementById('focusBar').style.width = (stats.focus/total*100)+'%';
+    document.getElementById('breakBar').style.width = (stats.break/total*100)+'%';
+    document.getElementById('sessCount').textContent = stats.sessions;
+    document.getElementById('todayTotal').textContent = `${Math.round((stats.focus+stats.break)/60)} min • ${stats.sessions} sessions`;
+  }
+  updateAnalyticsDisplay();
+
+  function onBlockFinished(ph){
+    const stats = loadStats(); const t = todayKey();
+    const dur = (ph==='Focus'? pomodoro.focus : (phase.startsWith('Break')? pomodoro.short : pomodoro.short))*60;
+    if (ph==='Focus') stats[t].focus += dur; else stats[t].break += dur;
+    stats[t].sessions += 1;
+    saveStats(stats); updateAnalyticsDisplay();
+  }
+
+  /* ---------- Plan queue ---------- */
+  function renderPlan(){
+    const el = document.getElementById('plan'); el.innerHTML='';
+    plan.forEach((b,idx)=>{
+      const d = document.createElement('div');
+      d.className='chip'; d.innerHTML = `${b.type} ${b.min}m <span class="x" data-i="${idx}">×</span>`;
+      el.appendChild(d);
+    });
+  }
+  document.getElementById('addBlock').onclick=()=>{
+    const type = document.getElementById('blockType').value;
+    const min = Math.max(1, parseInt(document.getElementById('blockMin').value||'0',10));
+    plan.push({type, min}); renderPlan();
+  };
+  document.getElementById('plan').onclick = (e)=>{ const i = +e.target.dataset.i; if(Number.isInteger(i)){ plan.splice(i,1); renderPlan(); } };
+  document.getElementById('clearPlan').onclick=()=>{ plan=[]; renderPlan(); };
+  document.getElementById('startPlan').onclick=()=>{
+    if (!plan.length){ alert('Add at least one block.'); return; }
+    planIdx=0; runPlanBlock();
+  };
+  function runPlanBlock(){
+    const b = plan[planIdx]; if(!b) return;
+    setTimer(b.min, b.type==='Focus'?'Focus':'Break');
+    start();
+  }
+  function nextBlock(){
+    // preset logic if plan is empty
+    if (!plan.length){
+      if (phase==='Focus'){
+        pomodoro.round++;
+        const nowRound = pomodoro.round;
+        if (pomodoro.long && nowRound % longBreakEvery === 0){
+          setTimer(pomodoro.long, 'Break (long)');
+        }else{
+          setTimer(pomodoro.short, 'Break');
+        }
+      }else{
+        setTimer(pomodoro.focus, 'Focus');
+      }
+      start();
+      return;
+    }
+    // plan advance
+    planIdx++; if (planIdx>=plan.length){ pause(); return; }
+    runPlanBlock();
+  }
+})();
+</script>
+
+<!-- Inject standard header + footer -->
+<script src="th-layout.js"></script>
+</body>
+</html>

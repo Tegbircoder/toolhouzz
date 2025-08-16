@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free Compress PDF Tool – Reduce File Size Without Losing Quality | ToolHouzz</title>
+  <meta name="description" content="Shrink your PDF file size while keeping text and images clear with our free Compress PDF tool. Works entirely in your browser for privacy – no uploads required. Fast, secure, and perfect for email, sharing, and storage.">
+  <link rel="canonical" href="https://toolhouzz.com/compress-pdf.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free Compress PDF – Fast & Private PDF Size Reducer">
+  <meta property="og:description" content="Reduce PDF file size without losing quality. Works locally in your browser – secure, fast, and free.">
+  <meta property="og:url" content="https://toolhouzz.com/compress-pdf.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Compress PDF – ToolHouzz">
+  <meta name="twitter:description" content="Make large PDFs smaller without quality loss. Private, secure, and browser-based.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="th-layout.css" />
+  <style>.nav-right{gap:14px}</style>
+</head>
+<body class="theme-light">
+  <section class="tool-hero" data-theme="orange">
+    <div class="hero-inner">
+      <h1 class="hero-title">Compress PDF</h1>
+      <p class="hero-sub">Shrink PDFs by rasterizing pages at your chosen quality & resolution. Private, on-device.</p>
+      <a class="btn primary" href="#tool" style="margin-top:14px">Start</a>
+    </div>
+  </section>
+
+  <section id="tool" class="tools" style="padding:20px 22px 10px">
+    <div class="grid" style="grid-template-columns:1fr;max-width:900px">
+      <div class="card">
+        <div style="display:grid;gap:12px;grid-template-columns:1fr 1fr 1fr">
+          <div>
+            <label style="display:block;margin:0 0 6px">Quality</label>
+            <select id="quality" class="search" style="height:44px">
+              <option value="0.35">Small (0.35)</option>
+              <option value="0.55" selected>Balanced (0.55)</option>
+              <option value="0.8">High (0.8)</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block;margin:0 0 6px">Resolution</label>
+            <select id="scale" class="search" style="height:44px">
+              <option value="0.6">60%</option>
+              <option value="0.8" selected>80%</option>
+              <option value="1">100%</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block;margin:0 0 6px">Filename</label>
+            <input id="outName" class="search" value="compressed.pdf" placeholder="compressed.pdf">
+          </div>
+        </div>
+
+        <div id="dropzone" class="dropzone" style="margin-top:14px;border-radius:12px;padding:18px;background:var(--panel);text-align:center">
+          <p style="margin:0 0 10px"><strong>Drop a PDF here</strong> or click to select</p>
+          <input id="fileInput" type="file" accept="application/pdf" style="display:none" />
+          <button class="btn" id="browseBtn" type="button">Choose PDF</button>
+          <div style="font-size:12px;color:var(--muted);margin-top:8px">Note: Rasterizing makes text non-searchable for maximum size reduction.</div>
+        </div>
+
+        <div id="pages" style="margin-top:14px;display:grid;gap:10px"></div>
+
+        <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
+          <button class="btn" id="clearBtn" type="button">Clear</button>
+          <button class="btn primary" id="compressBtn" type="button" disabled>Compress PDF</button>
+          <div id="status" style="align-self:center;color:var(--muted)"></div>
+        </div>
+      </div>
+
+      <div class="info-card" style="margin-top:12px">
+        <h3>How to use</h3>
+        <ol class="tip-list">
+          <li>Open your PDF via drag-drop or <strong>Choose PDF</strong>.</li>
+          <li>Pick <em>Quality</em> (JPEG) and <em>Resolution</em> (scale).</li>
+          <li>Click <strong>Compress PDF</strong> and download.</li>
+        </ol>
+        <h3 style="margin-top:10px">Tips</h3>
+        <ul class="tip-list">
+          <li>For the tiniest file, try <em>0.35</em> quality and <em>60%</em> scale.</li>
+          <li>If you need searchable text, consider optimizing images first instead.</li>
+        </ul>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px">
+          <a class="link-card" href="pdf-to-images.html"><strong>PDF → Images</strong><small>Extract pages</small><span>→</span></a>
+          <a class="link-card" href="merge-pdfs.html"><strong>Merge PDFs</strong><small>Combine then compress</small><span>→</span></a>
+          <a class="link-card" href="file-converter.html"><strong>Image Converter</strong><small>PNG/JPG/WebP</small><span>→</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js" crossorigin="anonymous"></script>
+  <script>pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const statusEl = $('status'), pagesWrap = $('pages'), compressBtn = $('compressBtn');
+    let loadedPdf = null;
+
+    // --- FIX: prevent double-open ---
+    $('browseBtn').addEventListener('click', (e)=>{ e.stopPropagation(); $('fileInput').click(); });
+    const dz = $('dropzone');
+    dz.addEventListener('click', (e)=>{ if (e.target.closest('button')) return; $('fileInput').click(); });
+
+    $('fileInput').onchange = async (e) => { const f = e.target.files[0]; if(f) await loadPdfFile(f); e.target.value=""; };
+
+    ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.style.borderColor='var(--border-stronger)'; }));
+    ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.style.borderColor='var(--border-strong)'; }));
+    dz.addEventListener('drop', async (e) => {
+      const f = [...e.dataTransfer.files].find(x => x.type==='application/pdf' || x.name.toLowerCase().endsWith('.pdf'));
+      if (f) await loadPdfFile(f);
+    });
+
+    async function loadPdfFile(file){
+      statusEl.textContent = "Loading PDF…";
+      pagesWrap.innerHTML = "";
+      compressBtn.disabled = true;
+
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+
+      loadedPdf = { pdf, numPages: pdf.numPages };
+      const thumbCount = Math.min(5, pdf.numPages);
+      for (let i=1; i<=thumbCount; i++){
+        const page = await pdf.getPage(i);
+        const vp = page.getViewport({ scale: 0.3 });
+        const c = document.createElement('canvas'); const ctx = c.getContext('2d');
+        c.width = vp.width; c.height = vp.height;
+        await page.render({ canvasContext: ctx, viewport: vp }).promise;
+
+        const item = document.createElement('div'); item.className = 'list-item';
+        item.style.padding = '8px'; item.style.borderRadius = '12px';
+        const img = document.createElement('img'); img.src = c.toDataURL('image/png');
+        img.style.width = '100%'; img.style.borderRadius = '8px';
+        item.append(img); pagesWrap.append(item);
+      }
+      statusEl.textContent = `Loaded ${pdf.numPages} page(s). Choose settings and press Compress.`;
+      compressBtn.disabled = false;
+    }
+
+    $('clearBtn').onclick = () => { loadedPdf = null; pagesWrap.innerHTML = ""; statusEl.textContent = ""; compressBtn.disabled = true; };
+
+    $('compressBtn').onclick = async () => {
+      if (!loadedPdf){ statusEl.textContent = "Load a PDF first."; return; }
+      const quality = parseFloat($('quality').value);
+      const scale = parseFloat($('scale').value);
+      const outName = ($('outName').value || 'compressed.pdf').trim().replace(/[/\\?%*:|"<>]/g,'_') || 'compressed.pdf';
+
+      statusEl.textContent = "Rendering & compressing pages…";
+      const { jsPDF } = window.jspdf;
+
+      const firstPage = await loadedPdf.pdf.getPage(1);
+      const firstVp = firstPage.getViewport({ scale });
+      const orientation = firstVp.width >= firstVp.height ? 'l' : 'p';
+      const doc = new jsPDF({ unit: 'pt', format: [firstVp.width, firstVp.height], orientation });
+
+      for (let i=1; i<=loadedPdf.pdf.numPages; i++){
+        const page = await loadedPdf.pdf.getPage(i);
+        const vp = page.getViewport({ scale });
+        if (i>1) doc.addPage([vp.width, vp.height], vp.width >= vp.height ? 'l' : 'p');
+
+        const c = document.createElement('canvas'); const ctx = c.getContext('2d', { willReadFrequently: false });
+        c.width = Math.floor(vp.width); c.height = Math.floor(vp.height);
+        await page.render({ canvasContext: ctx, viewport: vp, intent:'print' }).promise;
+
+        const dataURL = c.toDataURL('image/jpeg', quality);
+        doc.addImage(dataURL, 'JPEG', 0, 0, vp.width, vp.height, undefined, 'FAST');
+        c.width = c.height = 0;
+      }
+      doc.save(outName);
+      statusEl.textContent = "Done! Your compressed PDF was downloaded.";
+    };
+  </script>
+
+  <script src="th-layout.js"></script>
+</body>
+</html>

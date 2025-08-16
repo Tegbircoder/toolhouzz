@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free Percentage Calculator – Percent of, Increase/Decrease & Reverse Percent | ToolHouzz</title>
+  <meta name="description" content="Quickly calculate percentages, percentage increase or decrease, and reverse percentages with our free Percentage Calculator. Ideal for discounts, markups, grades, tips, and data analysis. Simple, fast, and mobile-friendly.">
+  <link rel="canonical" href="https://toolhouzz.com/percentage-calculator.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free Percentage Calculator – Percent, Change & Reverse">
+  <meta property="og:description" content="Find percent of a number, percent increase/decrease, and reverse percentages instantly. Perfect for shopping, grades, and finance.">
+  <meta property="og:url" content="https://toolhouzz.com/percentage-calculator.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Percentage Calculator – ToolHouzz">
+  <meta name="twitter:description" content="Calculate percent, percent change, and reverse percent instantly. Great for discounts, grades, and finance.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="th-layout.css">
+  <script defer src="th-layout.js"></script>
+  <style>.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}</style>
+</head>
+<body class="theme-light">
+  <section class="hero" style="padding:54px 22px 28px">
+    <div class="hero-inner">
+      <h1 class="hero-title">Percentage Calculator</h1>
+      <p class="hero-sub">Solve “A is what % of B”, X% of Y, increases/decreases, and percent change.</p>
+    </div>
+  </section>
+
+  <section class="tools">
+    <div class="grid" style="grid-template-columns:1fr;max-width:1000px">
+      <div class="card">
+        <h3>A is what % of B?</h3>
+        <div class="grid2"><input id="a1" class="search" type="number" inputmode="decimal" placeholder="A"><input id="b1" class="search" type="number" inputmode="decimal" placeholder="B"></div>
+        <div class="toolbar" style="margin-top:8px"><button class="btn primary" id="go1">Calculate</button></div>
+        <div class="muted" id="out1" style="margin-top:6px">—</div>
+      </div>
+
+      <div class="card">
+        <h3>What is X% of Y?</h3>
+        <div class="grid2"><input id="x2" class="search" type="number" inputmode="decimal" placeholder="X %"><input id="y2" class="search" type="number" inputmode="decimal" placeholder="Y"></div>
+        <div class="toolbar" style="margin-top:8px"><button class="btn primary" id="go2">Calculate</button></div>
+        <div class="muted" id="out2" style="margin-top:6px">—</div>
+      </div>
+
+      <div class="card">
+        <h3>Increase / Decrease by %</h3>
+        <div class="grid2"><input id="base3" class="search" type="number" inputmode="decimal" placeholder="Base"><input id="pct3" class="search" type="number" inputmode="decimal" placeholder="% (+/-)"></div>
+        <div class="toolbar" style="margin-top:8px"><button class="btn primary" id="go3">Apply</button></div>
+        <div class="muted" id="out3" style="margin-top:6px">—</div>
+      </div>
+
+      <div class="card">
+        <h3>Percent change from Old → New</h3>
+        <div class="grid2"><input id="old4" class="search" type="number" inputmode="decimal" placeholder="Old"><input id="nw4" class="search" type="number" inputmode="decimal" placeholder="New"></div>
+        <div class="toolbar" style="margin-top:8px"><button class="btn primary" id="go4">Calculate</button></div>
+        <div class="muted" id="out4" style="margin-top:6px">—</div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const $=id=>document.getElementById(id);
+    $('go1').onclick=()=>{const a=+$('a1').value||0,b=+$('b1').value||0;$('out1').textContent=b?((a/b)*100).toFixed(2)+'%':'—';};
+    $('go2').onclick=()=>{const x=(+$('x2').value||0)/100,y=+$('y2').value||0;$('out2').textContent=(x*y).toLocaleString();};
+    $('go3').onclick=()=>{const base=+$('base3').value||0,p=(+$('pct3').value||0)/100;$('out3').textContent=(base*(1+p)).toLocaleString();};
+    $('go4').onclick=()=>{const o=+$('old4').value||0,n=+$('nw4').value||0;$('out4').textContent=o?(((n-o)/o)*100).toFixed(2)+'%':'—';};
+  </script>
+</body>
+</html>

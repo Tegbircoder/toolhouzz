@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free Loan Calculator – Monthly Payment, Interest & Payoff Schedule | ToolHouzz</title>
+  <meta name="description" content="Calculate your monthly loan payments, total interest, and full payoff schedule with our free Loan Calculator. Visualize your loan with charts and see how extra payments can save you money. Perfect for mortgages, car loans, and personal loans.">
+  <link rel="canonical" href="https://toolhouzz.com/loan.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free Loan Calculator – Payments, Interest & Payoff Visualization">
+  <meta property="og:description" content="Easily compute loan payments, interest, and payoff dates. View charts for mortgages, car loans, and personal loans. Free and mobile-friendly.">
+  <meta property="og:url" content="https://toolhouzz.com/loan.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Loan Calculator – ToolHouzz">
+  <meta name="twitter:description" content="Calculate loan payments, interest, and payoff schedule with charts. Works for mortgages, auto loans, and more.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Shared header/footer -->
+  <link rel="stylesheet" href="th-layout.css" />
+  <style>.nav-right{gap:14px}</style>
+</head>
+<body class="theme-light">
+  <!-- Header injected by th-layout.js -->
+
+  <section class="hero" style="padding:54px 22px 24px">
+    <div class="hero-inner">
+      <h1 class="hero-title">Loan Calculator</h1>
+      <p class="hero-sub">Monthly / bi-weekly / quarterly plan, extra payments, charts, and full amortization.</p>
+    </div>
+  </section>
+
+  <section class="tools">
+    <div class="grid" style="grid-template-columns:1.2fr 1fr;align-items:start">
+      <!-- Left: Inputs + Result + Table -->
+      <div class="card">
+        <h2 class="tool-title">Plan</h2>
+
+        <div class="row">
+          <div><label class="strong">Loan amount</label><input id="amount" class="search" type="number" inputmode="decimal" placeholder="20000" value="20000"></div>
+          <div><label class="strong">Rate (% per year)</label><input id="rate" class="search" type="number" inputmode="decimal" placeholder="9.5" value="9.5"></div>
+          <div><label class="strong">Years</label><input id="years" class="search" type="number" inputmode="decimal" placeholder="5" value="5"></div>
+          <div>
+            <label class="strong">Payment schedule</label>
+            <select id="scheduleSel" class="search" style="height:44px">
+              <option value="12" selected>Monthly (12 payments / year)</option>
+              <option value="26">Bi-weekly (26 payments / year)</option>
+              <option value="4">Quarterly (4 payments / year)</option>
+            </select>
+          </div>
+          <div>
+            <label class="strong">Extra payment (optional)</label>
+            <input id="extra" class="search" type="number" inputmode="decimal" placeholder="Add this extra each period" value="0">
+          </div>
+        </div>
+
+        <div class="toolbar" style="margin-top:10px">
+          <button class="btn primary" id="calcBtn">Calculate</button>
+          <button class="btn" id="csvBtn" disabled>Download CSV</button>
+          <span id="status" class="muted" style="margin-left:auto"></span>
+        </div>
+
+        <!-- KPIs -->
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px">
+          <div class="kpiBox"><div class="kpiLabel">Payment (per period)</div><div class="kpiVal" id="kpiPay">—</div></div>
+          <div class="kpiBox"><div class="kpiLabel">Total paid</div><div class="kpiVal" id="kpiTotal">—</div></div>
+          <div class="kpiBox"><div class="kpiLabel">Total interest</div><div class="kpiVal" id="kpiInterest">—</div></div>
+          <div class="kpiBox"><div class="kpiLabel">Payoff (est.)</div><div class="kpiVal" id="kpiPayoff">—</div></div>
+        </div>
+
+        <!-- Table + pager -->
+        <div id="schedule" style="margin-top:12px;overflow:auto;border:1px solid var(--border);border-radius:12px;display:none"></div>
+        <div id="pager" style="display:none;gap:8px;align-items:center;margin-top:8px">
+          <button class="btn" id="prevBtn">Prev 10</button>
+          <button class="btn" id="nextBtn">Next 10</button>
+          <span class="muted" id="pageInfo" style="margin-left:8px"></span>
+        </div>
+
+        <!-- How to use -->
+        <details style="margin-top:14px">
+          <summary style="font-weight:800">How to use this tool</summary>
+          <ul style="margin:10px 0 0 18px">
+            <li><strong>Loan amount</strong> = how much you borrow.</li>
+            <li><strong>Rate</strong> = annual interest rate (APR).</li>
+            <li><strong>Payment schedule</strong> = make payments monthly, every 2 weeks, or quarterly.</li>
+            <li><strong>Extra payment</strong> = add this extra every period. Even small extras can cut years off.</li>
+          </ul>
+        </details>
+      </div>
+
+      <!-- Right: Charts + Tips -->
+      <div class="card">
+        <h2 class="tool-title">Insights</h2>
+
+        <div style="display:grid;grid-template-columns:1fr;gap:12px">
+          <div>
+            <label class="chartLabel">Principal vs Interest</label>
+            <div style="height:240px"><canvas id="pie"></canvas></div>
+            <div id="pieNote" class="muted" style="margin-top:6px"></div>
+          </div>
+          <div>
+            <label class="chartLabel">Months to finish (with / without extra)</label>
+            <div style="height:240px"><canvas id="bars"></canvas></div>
+            <div id="barNote" class="muted" style="margin-top:6px"></div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px;padding:12px;background:#fbfcff">
+          <div style="font-weight:800;margin-bottom:6px">Save time with extra</div>
+          <div id="extraBox" class="muted">Add an extra amount above to see time/interest saved.</div>
+        </div>
+
+        <div class="card" style="margin-top:12px;padding:12px">
+          <div style="font-weight:800;margin-bottom:6px">How it works</div>
+<pre style="white-space:pre-wrap;margin:0;font-size:13px;background:#f7f9ff;border:1px solid var(--border);padding:10px;border-radius:8px">
+Payment = P × ( r × (1+r)^n ) / ( (1+r)^n − 1 )
+Where:
+  P = principal, r = periodic interest rate (APR ÷ payments per year),
+  n = total number of payments
+With extra payments, more of each payment goes to principal and the loan ends sooner.
+</pre>
+          <ul style="margin:10px 0 0 18px">
+            <li><strong>Lower total interest:</strong> make small automatic extra payments.</li>
+            <li><strong>Compare APRs</strong> and watch for prepayment penalties.</li>
+            <li><strong>Debt avalanche:</strong> if you have multiple loans, attack the highest APR first.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer injected by th-layout.js -->
+
+  <script src="app.js"></script>
+  <!-- Chart.js + DataLabels plugin -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0" crossorigin="anonymous"></script>
+
+  <script>
+    // ---------- Helpers
+    const $ = id => document.getElementById(id);
+    const money = v => (isFinite(v) ? v.toLocaleString(undefined,{style:'currency',currency:'USD'}) : '—');
+    const fmt2 = v => (isFinite(v) ? v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : '—');
+    const scheduleLabel = perYear => perYear==26?'every 2 weeks':perYear==4?'each quarter':'each month';
+    function pmt(P, r, n){ if (r===0) return P/n; const x = Math.pow(1+r,n); return P * (r*x)/(x-1); }
+
+    function buildSchedule(P, apr, years, perYear, extraPer){
+      const r = apr/perYear, n = Math.round(years*perYear);
+      const pay = pmt(P, r, n);
+      const rows = [['#','Payment','Interest','Principal','Balance']];
+      let bal = P, k=0, totalInterest=0;
+      while (bal > 0 && k< n+6000){
+        const interest = bal*r;
+        let principalPart = Math.min(pay - interest + extraPer, bal);
+        if (principalPart < 0) principalPart = 0;
+        const paymentActual = interest + principalPart;
+        bal = Math.max(0, bal - principalPart);
+        k++;
+        rows.push([k, paymentActual, interest, principalPart, bal]);
+        totalInterest += interest;
+        if (bal <= 0) break;
+      }
+      return { rows, periods:k, payment:pay, totalInterest, totalPaid: (rows.length>1?rows.slice(1).reduce((s,x)=>s+x[1],0):0) };
+    }
+
+    // --- Pagination state
+    let rowsAll=null, curPage=0, pageSize=10;
+    function renderPage(){
+      const host=$('schedule'); if(!rowsAll){ host.style.display='none'; $('pager').style.display='none'; return; }
+      const header = rowsAll[0];
+      const start = curPage*pageSize + 1;
+      const end = Math.min(start+pageSize-1, rowsAll.length-1);
+      const slice = rowsAll.slice(start, end+1);
+
+      host.style.display='block';
+      const tbl = document.createElement('table'); tbl.style.width='100%'; tbl.style.borderCollapse='collapse';
+      tbl.innerHTML = `<thead><tr>${header.map(h=>`<th style="text-align:right;padding:10px;border-bottom:1px solid var(--border)">${h}</th>`).join('')}</tr></thead>`;
+      const tb = document.createElement('tbody');
+      slice.forEach(r=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = r.map((c,i)=>`<td style="text-align:right;padding:10px;border-bottom:1px solid var(--border)">${i===0?c:fmt2(c)}</td>`).join('');
+        tb.appendChild(tr);
+      });
+      tbl.appendChild(tb); host.innerHTML=''; host.appendChild(tbl);
+
+      $('pager').style.display='flex';
+      const totalPages = Math.ceil((rowsAll.length-1)/pageSize);
+      $('pageInfo').textContent = `Showing ${start}-${end} of ${rowsAll.length-1} • Page ${curPage+1}/${totalPages}`;
+      $('prevBtn').disabled = curPage===0;
+      $('nextBtn').disabled = curPage>=totalPages-1;
+    }
+    $('prevBtn').onclick=()=>{ if(curPage>0){ curPage--; renderPage(); } };
+    $('nextBtn').onclick=()=>{ const totalPages=Math.ceil((rowsAll.length-1)/pageSize); if(curPage<totalPages-1){ curPage++; renderPage(); } };
+
+    // ---------- Charts holders
+    let pie=null, bars=null;
+    Chart.register(ChartDataLabels);
+
+    $('calcBtn').onclick = () => {
+      const P = +($('amount').value||0);
+      const apr = (+($('rate').value||0))/100;
+      const years = +($('years').value||0);
+      const perYear = +$('scheduleSel').value || 12;
+      const extraPer = +($('extra').value||0);
+      const status = $('status');
+
+      if (P<=0 || apr<0 || years<=0){ status.textContent = 'Please enter valid numbers.'; return; }
+      status.textContent = '';
+
+      // Without extra
+      const base = buildSchedule(P, apr, years, perYear, 0);
+      // With extra
+      const withX = buildSchedule(P, apr, years, perYear, Math.max(0, extraPer));
+
+      // KPIs (use with extra for payment length)
+      $('kpiPay').textContent = money(base.payment);
+      $('kpiTotal').textContent = money(withX.totalPaid);
+      $('kpiInterest').textContent = money(withX.totalInterest);
+
+      const monthsBase = Math.round(base.periods * 12 / perYear);
+      const monthsWith = Math.round(withX.periods * 12 / perYear);
+      const monthsSaved = Math.max(0, monthsBase - monthsWith);
+      const interestSaved = Math.max(0, base.totalInterest - withX.totalInterest);
+
+      // Rough payoff date from now
+      const d = new Date(); d.setMonth(d.getMonth() + monthsWith);
+      $('kpiPayoff').textContent = d.toLocaleDateString();
+
+      $('extraBox').innerHTML = `
+        <div><strong>Schedule:</strong> ${scheduleLabel(perYear)}</div>
+        <div><strong>Extra each period:</strong> ${money(extraPer)}</div>
+        <div style="margin-top:6px"><strong>Time saved:</strong> ${monthsSaved} month(s)</div>
+        <div><strong>Interest saved:</strong> ${money(interestSaved)}</div>
+      `;
+
+      // Render schedule (with extra) + pagination
+      rowsAll = withX.rows;
+      curPage = 0;
+      renderPage();
+
+      // CSV (all)
+      $('csvBtn').disabled = false;
+      $('csvBtn').onclick = () => {
+        const rows = withX.rows;
+        const csv = [rows[0].join(','), ...rows.slice(1).map(r=>[r[0],...r.slice(1).map(x=>x.toFixed(2))].join(','))].join('\n');
+        const blob = new Blob([csv], {type:'text/csv'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'loan-amortization.csv';
+        document.body.appendChild(a); a.click(); a.remove();
+      };
+
+      // Charts (with details)
+      if (window.Chart){
+        const c1 = $('pie'); const c2 = $('bars');
+        const interest = withX.totalInterest, principal = P;
+
+        if (c1){
+          const ctx1 = c1.getContext('2d'); if (pie) pie.destroy();
+          pie = new Chart(ctx1, {
+            type:'doughnut',
+            data:{ labels:['Interest','Principal'], datasets:[{ data:[interest, principal], backgroundColor:['#f59e0b','#4f46e5'] }] },
+            options:{
+              maintainAspectRatio:false,
+              layout:{padding:{top:8,bottom:8,left:8,right:8}},
+              plugins:{
+                legend:{ position:'bottom', labels:{ font:{weight:'800'},
+                  generateLabels(chart){
+                    const ds=chart.data.datasets[0].data;
+                    return chart.data.labels.map((l,i)=>({text:`${l} — ${money(ds[i])}`, fillStyle:chart.data.datasets[0].backgroundColor[i]}));
+                  }}},
+                datalabels:{
+                  formatter:(v)=>money(v),
+                  color:'#111',
+                  backgroundColor:'rgba(255,255,255,.9)',
+                  borderColor:'rgba(17,24,39,.1)',
+                  borderWidth:1,
+                  borderRadius:6,
+                  padding:4,
+                  font:{weight:'800',size:12}
+                }
+              },
+              cutout:'55%'
+            }
+          });
+          $('pieNote').textContent = `Interest: ${money(interest)} • Principal: ${money(principal)} • Total: ${money(interest+principal)}`;
+        }
+        if (c2){
+          const ctx2 = c2.getContext('2d'); if (bars) bars.destroy();
+          bars = new Chart(ctx2, {
+            type:'bar',
+            data:{ labels:['Without extra','With extra'], datasets:[{ label:'Months (approx.)', data:[monthsBase, monthsWith], backgroundColor:['#e5e7eb','#22c55e'] }] },
+            options:{
+              indexAxis:'y',
+              maintainAspectRatio:false,
+              layout:{padding:{right:36}},
+              plugins:{
+                legend:{ position:'bottom', labels:{font:{weight:'800'}} },
+                datalabels:{
+                  anchor:'end', align:'right', offset:6,
+                  clamp:true, clip:false,
+                  formatter:(v)=>`${v} months`,
+                  color:'#111', font:{weight:'800', size:12}
+                }
+              },
+              scales:{ 
+                x:{ beginAtZero:true, ticks:{font:{weight:'700'}} },
+                y:{ ticks:{font:{weight:'800'}} }
+              }
+            }
+          });
+          $('barNote').textContent = `Without extra: ${monthsBase} months • With extra: ${monthsWith} months • Saved: ${monthsSaved} months`;
+        }
+      }
+    };
+  </script>
+
+  <style>
+    .kpiBox{border:1px solid var(--border-strong);border-radius:12px;padding:10px;background:#fff;box-shadow:0 4px 12px rgba(16,24,40,.05)}
+    .kpiLabel{font-size:12px;color:#6b7280}
+    .kpiVal{font-weight:900;font-size:18px;margin-top:4px}
+    .strong{font-weight:800}
+    .chartLabel{display:block;font-weight:900;margin-bottom:6px}
+  </style>
+
+  <!-- Inject standard header + footer -->
+  <script src="th-layout.js"></script>
+</body>
+</html>

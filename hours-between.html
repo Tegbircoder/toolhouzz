@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free Hours Between Times Calculator – Time Difference in Hours & Minutes | ToolHouzz</title>
+  <meta name="description" content="Calculate the exact time difference between two times in hours and minutes with our free Hours Between Times tool. Perfect for work logs, schedules, travel planning, and time tracking.">
+  <link rel="canonical" href="https://toolhouzz.com/hours-between.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free Hours Between Times Calculator – Time Difference Tool">
+  <meta property="og:description" content="Easily compute hours and minutes between two times. Great for time tracking, work logs, and planning.">
+  <meta property="og:url" content="https://toolhouzz.com/hours-between.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Hours Between Times Calculator – ToolHouzz">
+  <meta name="twitter:description" content="Find the time difference in hours and minutes between two times instantly.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="th-layout.css">
+  <script defer src="th-layout.js"></script>
+  <style>
+    .k{border:1px solid var(--border-strong);border-radius:12px;padding:16px;background:#fff}
+    .big{font-size:1.4rem;font-weight:900}
+  </style>
+</head>
+<body class="theme-light">
+  <section class="hero" style="padding:54px 22px 28px">
+    <div class="hero-inner">
+      <h1 class="hero-title">Time Difference</h1>
+      <p class="hero-sub">Exact gap like <b>3 hours 2 minutes 5 seconds</b>. Works across midnight.</p>
+    </div>
+  </section>
+
+  <section class="tools">
+    <div class="grid" style="grid-template-columns:1fr;max-width:820px">
+      <div class="card">
+        <div class="row">
+          <div><label>Start time</label><input id="t1" class="search" type="time" step="1" value="09:00:00"></div>
+          <div><label>End time</label><input id="t2" class="search" type="time" step="1" value="12:02:05"></div>
+          <div style="display:flex;align-items:end">
+            <label class="checkbox" style="display:flex;gap:6px;align-items:center;margin-bottom:2px">
+              <input id="nextDay" type="checkbox"> End is next day
+            </label>
+          </div>
+        </div>
+        <div class="toolbar" style="margin-top:10px">
+          <button class="btn primary" id="calc">Calculate</button>
+          <button class="btn" id="now">Use Now</button>
+        </div>
+        <div class="k" style="margin-top:12px">
+          <div class="big" id="long">—</div>
+          <div class="muted" style="margin-top:8px">
+            Total: <span id="h">—</span> hours • <span id="m">—</span> minutes • <span id="s">—</span> seconds
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const $=id=>document.getElementById(id);
+    function toSec(h,m,s){return h*3600+m*60+s;}
+    function parse(t){const [H,M,S] = t.split(':').map(x=>+x||0);return toSec(H,M,S);}
+    function fmtLong(total){
+      let s = total; const h = Math.floor(s/3600); s-=h*3600; const m = Math.floor(s/60); s-=m*60;
+      return `${h} hours ${m} minutes ${s} seconds`;
+    }
+    function go(){
+      let a = parse($('t1').value || '00:00:00');
+      let b = parse($('t2').value || '00:00:00');
+      if ($('nextDay').checked && b<=a) b += 24*3600;
+      let diff = Math.max(0, b-a);
+      $('long').textContent = fmtLong(diff);
+      $('h').textContent = (diff/3600).toFixed(6);
+      $('m').textContent = (diff/60).toFixed(2);
+      $('s').textContent = diff;
+    }
+    $('calc').onclick = go;
+    $('now').onclick = ()=>{
+      const now = new Date(); const z=n=>String(n).padStart(2,'0');
+      const cur = `${z(now.getHours())}:${z(now.getMinutes())}:${z(now.getSeconds())}`;
+      $('t1').value = cur; $('t2').value = cur; $('nextDay').checked = false; go();
+    };
+    go();
+  </script>
+</body>
+</html>

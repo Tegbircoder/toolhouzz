@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Free PDF to Images Converter (Batch) – Export PDF Pages to PNG/JPG | ToolHouzz</title>
+  <meta name="description" content="Convert each page of your PDF into high-quality PNG or JPG images with our free PDF to Images (Batch) tool. Works entirely in your browser for privacy – no uploads required. Fast, secure, and batch-friendly downloads.">
+  <link rel="canonical" href="https://toolhouzz.com/pdf-to-images.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free PDF to Images Converter – Batch Export">
+  <meta property="og:description" content="Export PDF pages to PNG or JPG images in batches. 100% private, fast, and browser-based – no uploads needed.">
+  <meta property="og:url" content="https://toolhouzz.com/pdf-to-images.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free PDF to Images Converter – ToolHouzz">
+  <meta name="twitter:description" content="Convert PDF pages to PNG/JPG images in batches. Private, fast, and secure – works in your browser.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="th-layout.css" />
+  <style>
+    .nav-right{gap:14px}
+    .grid{display:grid;gap:14px}
+    .card{background:var(--card,#fff);border:1px solid var(--border-strong,#d1d5db);border-radius:14px;padding:14px}
+    .info-card{background:var(--card,#fff);border:1px solid var(--border,#e5e7eb);border-radius:14px;padding:14px;overflow:visible}
+    .btn[disabled]{opacity:.55;cursor:not-allowed}
+
+    /* Dropzone */
+    .dropzone{
+      position:relative;display:grid;gap:10px;place-items:center;min-height:160px;
+      border:2px dashed var(--border-strong);border-radius:14px;background:var(--panel,#f8fafc);
+      transition:border-color .15s ease, background .15s ease; cursor:pointer; outline:none;
+    }
+    .dropzone.is-dragover{border-color:#4f46e5;background:#eef2ff}
+    .dz-cta{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted,#6b7280)}
+    .dz-cta .big{font-weight:900;color:var(--ink,#0f172a)}
+    .dz-or{font-size:12px;color:var(--muted)}
+
+    /* File chip */
+    .file-bar{display:flex;align-items:center;gap:10px;justify-content:space-between;background:#fff;
+      border:1px solid var(--border-strong);border-radius:12px;padding:8px 10px}
+    .file-meta{display:flex;align-items:center;gap:10px;min-width:0}
+    .pdf-icon{width:40px;height:40px;border-radius:8px;border:1px solid var(--border-strong);display:grid;place-items:center;background:#fff;font-weight:900}
+    .meta-text{display:flex;flex-direction:column;min-width:0}
+    .meta-name{font-weight:700;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;max-width:52ch}
+    .meta-sub{font-size:12px;color:var(--muted)}
+
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .row-split{display:grid;gap:12px;grid-template-columns:repeat(5,1fr)}
+    @media (max-width:980px){ .row-split{grid-template-columns:1fr 1fr} }
+    @media (max-width:560px){ .row-split{grid-template-columns:1fr} }
+
+    /* Pages grid + card */
+    #pages{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+    .pg{border:1px solid var(--border-strong);border-radius:12px;padding:8px;background:#fff}
+    .pg img{width:100%;height:auto;border-radius:8px;display:block}
+    .pg-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:6px}
+
+    /* Status */
+    #status[aria-live]{min-height:20px}
+    .spinner{width:16px;height:16px;border-radius:999px;border:2px solid var(--border-strong);border-top-color:#4f46e5;animation:sp 1s linear infinite}
+    @keyframes sp{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body class="theme-light">
+  <!-- Header injected by th-layout.js -->
+
+  <section class="tool-hero" data-theme="cyan">
+    <div class="hero-inner">
+      <h1 class="hero-title">PDF → Images</h1>
+      <p class="hero-sub">Export each page to PNG/JPG/WebP with adjustable scale & quality. Batch ZIP download. 100% in your browser.</p>
+      <a class="btn primary" href="#tool" style="margin-top:14px">Start</a>
+    </div>
+  </section>
+
+  <section id="tool" class="tools" style="padding:20px 22px 10px">
+    <div class="grid" style="grid-template-columns:1fr;max-width:1100px">
+      <div class="card">
+
+        <!-- Top controls -->
+        <div class="row-split">
+          <div>
+            <label>Image Format</label>
+            <select id="fmt" class="search" style="height:44px">
+              <option value="image/png" selected>PNG (.png)</option>
+              <option value="image/jpeg">JPG (.jpg)</option>
+              <option value="image/webp">WebP (.webp)</option>
+            </select>
+          </div>
+          <div>
+            <label>Quality</label>
+            <input id="quality" class="search" type="number" min="0.1" max="1" step="0.01" value="0.92">
+            <div style="font-size:12px;color:var(--muted);margin-top:4px">JPG/WebP only</div>
+          </div>
+          <div>
+            <label>Scale</label>
+            <select id="scale" class="search" style="height:44px">
+              <option value="1">100%</option>
+              <option value="1.5">150%</option>
+              <option value="2" selected>200%</option>
+              <option value="3">300%</option>
+            </select>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px">Higher = sharper & bigger</div>
+          </div>
+          <div>
+            <label>Background</label>
+            <input id="bg" class="search" type="color" value="#ffffff" style="height:44px;padding:6px">
+            <div style="font-size:12px;color:var(--muted);margin-top:4px">Used for JPG/WebP</div>
+          </div>
+          <div>
+            <label>Filename Prefix</label>
+            <input id="prefix" class="search" value="pdf-page">
+          </div>
+        </div>
+
+        <!-- Dropzone -->
+        <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload PDF by dropping a file or pressing Enter to browse" style="margin-top:14px">
+          <div class="dz-cta">
+            <div class="big">Drop a PDF here</div>
+            <div class="dz-or">or</div>
+            <button class="btn" id="browseBtn" type="button" aria-describedby="tip">Choose PDF</button>
+            <div id="tip" style="font-size:12px;color:var(--muted)">Large PDFs can take time — processed locally in your browser.</div>
+          </div>
+          <input id="fileInput" type="file" accept="application/pdf" style="position:absolute;inset:0;opacity:0;pointer-events:none" aria-hidden="true" />
+        </div>
+
+        <!-- File chip -->
+        <div id="fileBar" class="file-bar" style="display:none;margin-top:12px">
+          <div class="file-meta">
+            <div class="pdf-icon">PDF</div>
+            <div class="meta-text">
+              <div class="meta-name" id="metaName">—</div>
+              <div class="meta-sub" id="metaSub">—</div>
+            </div>
+          </div>
+          <div class="row" style="gap:6px">
+            <button class="btn" id="removeBtn" type="button" aria-label="Remove file">Remove</button>
+          </div>
+        </div>
+
+        <!-- Action row -->
+        <div class="row" style="margin-top:14px">
+          <button class="btn" id="clearBtn" type="button">Clear</button>
+          <button class="btn primary" id="renderBtn" type="button" disabled>Render Pages</button>
+          <button class="btn" id="zipBtn" type="button" disabled>Download All (.zip)</button>
+          <div id="status" aria-live="polite" style="align-self:center;color:var(--muted);display:flex;gap:8px;align-items:center"></div>
+        </div>
+
+        <!-- Pages grid -->
+        <div id="pages" style="margin-top:14px"></div>
+      </div>
+
+      <div class="info-card" style="margin-top:12px">
+        <h3>How to use</h3>
+        <ol class="tip-list">
+          <li>Drop a PDF or click <strong>Choose PDF</strong>.</li>
+          <li>Select <em>Format</em>, <em>Quality</em>, <em>Scale</em>, and optional background for JPG/WebP.</li>
+          <li>Click <strong>Render Pages</strong> → download per page or all as <strong>.zip</strong>.</li>
+        </ol>
+        <h3 style="margin-top:10px">Tips</h3>
+        <ul class="tip-list">
+          <li>Higher <em>Scale</em> = sharper images (and larger files).</li>
+          <li>Use a non-white background if your pages have transparency and you’re exporting JPG/WebP.</li>
+        </ul>
+      </div>
+
+      <div class="info-card" style="margin-top:12px">
+        <h3>Try more tools</h3>
+        <div class="related-grid">
+          <a class="link-card" href="image-to-pdf.html"><strong>Images → PDF</strong><small>Rebuild a PDF from images</small><span class="btn go">Open</span></a>
+          <a class="link-card" href="file-converter.html"><strong>Image Converter</strong><small>Batch convert & resize</small><span class="btn go">Open</span></a>
+          <a class="link-card" href="age.html"><strong>Live Age</strong><small>Your age, to the second</small><span class="btn go">Try</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- pdf.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js" crossorigin="anonymous"></script>
+  <script>pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";</script>
+  <!-- jszip -->
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" crossorigin="anonymous"></script>
+
+  <script>
+    const $ = id => document.getElementById(id);
+
+    // Elements
+    const dz = $('dropzone'), fileInput = $('fileInput'), browseBtn = $('browseBtn');
+    const fileBar = $('fileBar'), metaName = $('metaName'), metaSub = $('metaSub'), removeBtn = $('removeBtn');
+    const renderBtn = $('renderBtn'), zipBtn = $('zipBtn'), clearBtn = $('clearBtn'), pagesWrap = $('pages'), statusEl = $('status');
+
+    // State
+    let loadedPdf = null; // { pdf, numPages, fileName, fileSize }
+    let pageImages = [];  // [{name, blob, url}]
+    const MAX_SIZE = 200 * 1024 * 1024; // 200MB soft cap
+
+    // Helpers
+    const fmtBytes = b => b < 1024 ? b + ' B' : b < 1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB';
+    const setBusy = (on, msg='Working…') => { statusEl.innerHTML = on ? `<span class="spinner"></span><span>${msg}</span>` : ''; };
+    const setButtons = () => { renderBtn.disabled = !loadedPdf; zipBtn.disabled = pageImages.length === 0; };
+    const safePrefix = () => ( ($('prefix').value || 'pdf-page').trim().replace(/[/\\?%*:|"<>]/g,'_') ) || 'pdf-page';
+
+    // Format toggles (quality/bg only for lossy)
+    function syncLossyControls(){
+      const mime = $('fmt').value;
+      const lossy = (mime === 'image/jpeg' || mime === 'image/webp');
+      $('quality').disabled = !lossy;
+      $('bg').disabled = !lossy;
+    }
+    $('fmt').addEventListener('change', syncLossyControls); syncLossyControls();
+
+    // Dropzone wiring
+    browseBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', async e => { const f = e.target.files?.[0]; if (f) await loadPdfFile(f); e.target.value=''; });
+    ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('is-dragover'); }));
+    ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('is-dragover'); }));
+    dz.addEventListener('drop', async e => { const f=[...e.dataTransfer.files].find(x=>x.type==='application/pdf'||x.name.toLowerCase().endsWith('.pdf')); if (f) await loadPdfFile(f); });
+    dz.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+
+    removeBtn.addEventListener('click', clearAll);
+    clearBtn.addEventListener('click', clearAll);
+
+    async function loadPdfFile(file){
+      if (file.size > MAX_SIZE){ statusEl.textContent = 'That PDF is too large to load in the browser.'; return; }
+      setBusy(true, 'Loading PDF…'); pagesWrap.innerHTML=''; pageImages.forEach(p=>URL.revokeObjectURL(p.url)); pageImages = []; setButtons();
+      try{
+        const buf = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({data: buf}).promise;
+        loadedPdf = { pdf, numPages: pdf.numPages, fileName: file.name, fileSize: file.size };
+        metaName.textContent = file.name;
+        metaSub.textContent = `${fmtBytes(file.size)} • ${pdf.numPages} page(s)`;
+        fileBar.style.display = 'flex';
+        setBusy(false); statusEl.textContent = `Loaded ${pdf.numPages} page(s). Choose options and press Render.`;
+        setButtons();
+      }catch(e){
+        console.error(e); setBusy(false); statusEl.textContent='Could not open this PDF.';
+        loadedPdf = null; fileBar.style.display='none'; setButtons();
+      }
+    }
+
+    function clearAll(){
+      if (loadedPdf?.pdf) try{ loadedPdf.pdf.destroy(); }catch{}
+      loadedPdf = null; fileBar.style.display='none'; metaName.textContent='—'; metaSub.textContent='—';
+      pagesWrap.innerHTML=''; pageImages.forEach(p=>URL.revokeObjectURL(p.url)); pageImages = [];
+      statusEl.textContent=''; setButtons();
+    }
+
+    // Render pages
+    renderBtn.addEventListener('click', async ()=>{
+      if (!loadedPdf){ statusEl.textContent='Load a PDF first.'; return; }
+      pagesWrap.innerHTML=''; pageImages.forEach(p=>URL.revokeObjectURL(p.url)); pageImages = []; setButtons();
+
+      const mime = $('fmt').value;
+      const lossy = (mime === 'image/jpeg' || mime === 'image/webp');
+      const quality = lossy ? Math.min(1, Math.max(0.1, parseFloat($('quality').value)||0.92)) : 1;
+      const scale = parseFloat($('scale').value) || 2;
+      const bg = $('bg').value || '#ffffff';
+      const prefix = safePrefix();
+
+      setBusy(true, `Rendering 0/${loadedPdf.numPages}…`);
+      for (let i=1; i<=loadedPdf.numPages; i++){
+        setBusy(true, `Rendering ${i}/${loadedPdf.numPages}…`);
+        const page = await loadedPdf.pdf.getPage(i);
+        const vp = page.getViewport({ scale });
+        const c = document.createElement('canvas'), ctx = c.getContext('2d', { willReadFrequently:false });
+        c.width = Math.floor(vp.width); c.height = Math.floor(vp.height);
+        if (lossy){ ctx.fillStyle = bg; ctx.fillRect(0,0,c.width,c.height); }
+        await page.render({ canvasContext: ctx, viewport: vp, intent: 'print' }).promise;
+        const blob = await new Promise(res => c.toBlob(res, mime, quality));
+        const idxText = String(i).padStart(3,'0');
+        const ext = mime==='image/png'?'png':mime==='image/jpeg'?'jpg':'webp';
+        const name = `${prefix}-${idxText}.${ext}`;
+        const url = URL.createObjectURL(blob);
+        pageImages.push({ name, blob, url });
+
+        // Card
+        const card = document.createElement('div');
+        card.className = 'pg';
+        card.innerHTML = `
+          <img src="${url}" alt="Page ${i}">
+          <div class="pg-head">
+            <div style="font-weight:600">Page ${i}</div>
+            <button class="btn dl-btn" type="button" data-i="${i-1}" style="white-space:nowrap">Download</button>
+          </div>
+        `;
+        // attach listener for this button
+        card.querySelector('.dl-btn').addEventListener('click', (e)=>{
+          const idx = parseInt(e.currentTarget.getAttribute('data-i'), 10);
+          downloadPage(idx);
+        });
+        pagesWrap.append(card);
+
+        // free canvas memory
+        c.width = c.height = 0;
+      }
+      setBusy(false); statusEl.textContent = `Done! Rendered ${pageImages.length} image(s).`;
+      setButtons();
+    });
+
+    function downloadPage(i){
+      const it = pageImages[i];
+      if (!it) return;
+      // use a programmatic anchor to avoid any parent click-handlers blocking default
+      const a = document.createElement('a');
+      a.href = it.url;
+      a.download = it.name;
+      a.rel = 'noopener';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+
+    // ZIP all
+    zipBtn.addEventListener('click', async ()=>{
+      if (pageImages.length === 0) return;
+      const prefix = safePrefix();
+      setBusy(true, 'Packaging ZIP…');
+      try{
+        const zip = new JSZip();
+        for (const it of pageImages) zip.file(it.name, it.blob);
+        const blob = await zip.generateAsync({ type:'blob' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `${prefix}-images.zip`; a.style.display='none';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(()=>URL.revokeObjectURL(url), 2000);
+        setBusy(false); statusEl.textContent='ZIP ready.';
+      }catch(e){ console.error(e); setBusy(false); statusEl.textContent='ZIP failed.'; }
+    });
+  </script>
+
+  <!-- Inject standard header + footer -->
+  <script src="th-layout.js"></script>
+</body>
+</html>

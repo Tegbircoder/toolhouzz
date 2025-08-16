@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ToolHouzz — Free Calculators, Converters & Mini Games</title>
+  
+  
+  <meta name="description" content="Fast, privacy-first web tools: calculators, PDF/image converters, and mini games. No login. Works in your browser.">
+  <link rel="canonical" href="https://toolhouzz.com/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="ToolHouzz — Free Calculators, Converters & Mini Games">
+  <meta property="og:description" content="Fast, privacy-first web tools: calculators, PDF/image converters, and mini games. No login.">
+  <meta property="og:url" content="https://toolhouzz.com/">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+  <meta name="twitter:card" content="summary_large_image">
+
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&family=Playfair+Display:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/logo.png">
+  <style>
+    :root{
+      --hero-font:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      --primary-font:'Playfair Display',serif; --secondary-font:'Lato',sans-serif;
+
+      --primary-color:#0f172a; --secondary-color:#5b6474; --accent-color:#4f46e5;
+      --background-color:#f5f9ff; --card-bg:#ffffff; --border-color:#e2e8f0;
+      --shadow-color:rgba(0,0,0,.08); --header-z:300; --backdrop-z:240; --panel-z:280;
+      --attach-gap:8px;
+    }
+    html,body{height:100%}
+    body{font-family:var(--secondary-font);background:var(--background-color);color:var(--primary-color);line-height:1.6;margin:0}
+
+    /* ===== Sticky Header + Dropdowns ===== */
+    .site-header{
+      background:var(--card-bg);
+      border-bottom:1px solid var(--border-color);
+      padding:1rem 1.25rem;
+      display:flex;align-items:center;justify-content:space-between;gap:1rem;
+      position:sticky;top:0;z-index:var(--header-z);
+      box-shadow:0 1px 0 rgba(0,0,0,.02), 0 3px 6px rgba(0,0,0,.08)
+    }
+    .nav-left,.nav-center,.nav-right{display:flex;align-items:center}
+    .nav-center{flex:1;justify-content:center}
+    .brand{font-family:var(--primary-font);font-size:1.8rem;font-weight:700;color:var(--primary-color);text-decoration:none;letter-spacing:.2px}
+    .nav{display:flex;align-items:center;gap:.75rem}
+    .nav a{color:var(--secondary-color);text-decoration:none;font-weight:600}
+    .nav a:hover{color:var(--primary-color)}
+    .nav-item{position:relative;margin-left:1rem}
+    .nav-item>button{
+      background:none;border:0;cursor:pointer;font:600 1rem var(--secondary-font);
+      color:var(--secondary-color);padding:0 0 .25rem;border-bottom:2px solid transparent;
+      display:inline-flex;align-items:center;gap:.35rem;transition:.2s
+    }
+    .nav-item>button:hover,.nav-item>button[aria-expanded="true"]{color:var(--primary-color);border-bottom-color:var(--accent-color)}
+    .caret{width:14px;height:14px;display:inline-block}
+    .nav-right{gap:1rem}
+
+    .backdrop{position:fixed;inset:0;background:rgba(15,23,42,.32);
+      backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+      opacity:0;pointer-events:none;transition:opacity .16s ease;z-index:var(--backdrop-z)}
+    .backdrop.show{opacity:1;pointer-events:auto}
+
+    .menu-panel{
+      position:fixed;left:50%;transform:translateX(-50%) translateY(-6px);
+      background:var(--card-bg);
+      border:1px solid var(--border-color);border-radius:14px;padding:14px 14px 18px;
+      width:min(1000px,92vw);display:none;z-index:var(--panel-z);
+      box-shadow:0 18px 40px rgba(0,0,0,.18),0 8px 18px rgba(0,0,0,.08)
+    }
+    .menu-panel.show{display:block;animation:panelIn .16s ease-out forwards}
+    @keyframes panelIn{from{opacity:0;transform:translateX(-50%) translateY(-8px) scale(.985)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+    .menu-head{display:flex;justify-content:space-between;align-items:center;padding:2px 2px 10px}
+    .menu-title{font:800 13px var(--secondary-font);color:#6b7280;letter-spacing:.08em;text-transform:uppercase}
+    .menu-close{background:none;border:0;font-size:22px;line-height:1;cursor:pointer;color:#6b7280}
+
+    .drop-grid{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:1rem}
+    .dd-col h5{margin:.2rem 0 .5rem;font:800 12px var(--secondary-font);color:#6b7280;letter-spacing:.08em;text-transform:uppercase}
+    .dd-col a{display:block;padding:.5rem .55rem;border-radius:10px;color:var(--primary-color);text-decoration:none;border:1px solid transparent}
+    .dd-col a:hover{background:#f3f7ff;color:#1d4ed8;border-color:#dbeafe}
+
+    /* ===== Hero ===== */
+    .hero{
+      background:radial-gradient(1200px 280px at 50% -120px, rgba(120,150,255,.18), rgba(120,150,255,0)), var(--background-color);
+      padding:4.25rem 1.25rem 2.75rem;text-align:center
+    }
+    .hero-title{
+      font-family:var(--hero-font);font-weight:900;letter-spacing:-.02em;
+      font-size:clamp(2.2rem,5.8vw,4.25rem);line-height:1.1;margin:0 0 .65rem;color:#0f172a
+    }
+    .hero-sub{max-width:920px;margin:0 auto;color:var(--secondary-color);font:600 1.05rem var(--hero-font)}
+
+    /* ===== Search ===== */
+    .search-wrap{padding:1rem 1.25rem}
+    .search{
+      width:100%;max-width:600px;margin:0 auto;display:block;padding:.85rem 1rem;font-size:1rem;
+      border:1.5px solid #00000026;border-radius:12px;background:#fff;
+      box-shadow:0 2px 6px rgba(15,23,42,.06), 0 1px 0 rgba(255,255,255,.7) inset
+    }
+    .search:focus{outline:none;border-color:#93c5fd;box-shadow:0 0 0 3px rgba(120,150,255,.25)}
+    .no-results{display:none;text-align:center;margin:22px auto 0;font-family:var(--hero-font);font-weight:900;font-size:clamp(1.6rem,3.5vw,2.4rem);letter-spacing:-.01em;color:#0f172a}
+
+    /* ===== Cards grid ===== */
+    .tools{padding:3rem clamp(1.25rem, 5vw, 3rem)}
+    .grid{max-width:1320px;margin:0 auto;display:grid;gap:clamp(1.5rem, 3vw, 2.5rem);align-items:start;grid-template-columns:1fr}
+    @media (min-width: 900px){ .grid{ grid-template-columns:repeat(2,1fr);} }
+    @media (min-width: 1200px){ .grid{ grid-template-columns:repeat(3,1fr);} }
+    .grid>div{display:flex;flex-direction:column;align-items:center}
+    .section-title{font-family:var(--primary-font);font-size:2rem;font-weight:700;margin-bottom:1.1rem;text-align:center;width:100%}
+    .card{
+      display:inline-flex;align-items:center;gap:1.1rem;background:var(--card-bg);
+      border:1.5px solid rgba(15,23,42,.18);border-radius:14px;padding:1.15rem 1.35rem;
+      text-decoration:none;color:var(--primary-color);
+      box-shadow:0 10px 22px rgba(15,23,42,.06);
+      transition:transform .2s, box-shadow .2s, border-color .2s;
+      width:auto;min-width:280px;max-width:640px;place-self:center;white-space:normal
+    }
+    .card:hover{transform:translateY(-4px);box-shadow:0 16px 30px rgba(15,23,42,.12);border-color:rgba(15,23,42,.28)}
+    .card h3{font-family:var(--primary-font);font-size:1.22rem;font-weight:700;margin:0}
+    .icon{width:64px;height:64px;display:flex;justify-content:center;align-items:center;border-radius:12px;background:#fff;border:1.5px solid rgba(0,0,0,.15);box-shadow:inset 0 1px 0 rgba(255,255,255,.9), 0 8px 16px rgba(16,24,40,.06);overflow:hidden}
+    .icon-img{width:82%;height:82%;object-fit:contain;transition:transform .2s ease}
+    .card:hover .icon-img{ transform:scale(1.04) }
+
+    /* Blog preview layout */
+    .blog-grid{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:1.25rem}
+    @media (min-width: 900px){ .blog-grid{ grid-template-columns:repeat(3,1fr);} }
+    .post-card{
+      display:block;background:#fff;border:1.5px solid rgba(15,23,42,.18);border-radius:14px;
+      padding:1rem 1.1rem;text-decoration:none;color:inherit;box-shadow:0 10px 22px rgba(15,23,42,.06);
+      transition:transform .2s, box-shadow .2s, border-color .2s;
+    }
+    .post-card:hover{transform:translateY(-4px);box-shadow:0 16px 30px rgba(15,23,42,.12);border-color:rgba(15,23,42,.28)}
+    .post-title{font-family:var(--primary-font);font-size:1.15rem;font-weight:700;margin:.1rem 0}
+    .post-excerpt{color:#5b6474;margin:.25rem 0 .5rem}
+    .post-meta{font-size:.85rem;color:#6b7280;font-weight:700;letter-spacing:.2px}
+
+    /* ===== Footer (with quick links) ===== */
+    .site-footer{background:#0f172a;color:#b0bdd8;padding:3rem 1.25rem 2.25rem;margin-top:2.5rem}
+    .footer-grid{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:1.75rem}
+    .site-footer h4{font-family:var(--primary-font);color:#e6ecff;font-weight:700;margin:0 0 .75rem}
+    .site-footer a{color:#b0bdd8;display:block;margin:.35rem 0;text-decoration:none}
+    .site-footer a:hover{color:#9db2ff}
+    .legal{max-width:1320px;margin:2rem auto 0;text-align:center;font-size:.85rem;color:#8b97b8}
+    .brand small{display:block;margin-top:.25rem;color:#9db2ff}
+    @media (max-width: 900px){ .footer-grid{grid-template-columns:1fr 1fr} }
+    @media (max-width: 600px){ .footer-grid{grid-template-columns:1fr} }
+
+    /* ===== Responsive dropdown fix ===== */
+    @media (max-width: 860px){
+      .nav-center{order:3;margin-top:.35rem}
+      .nav-right{order:2}
+      .nav-left{order:1}
+      .menu-panel{width:min(720px,94vw)}
+      .drop-grid{grid-template-columns:1fr 1fr}
+    }
+  </style>
+</head>
+<body class="theme-light home">
+  <!-- ===== Header ===== -->
+  <header class="site-header" id="siteHeader">
+    <div class="nav-left">
+      <a class="brand" href="index.html" aria-label="ToolHouzz home">ToolHouzz</a>
+    </div>
+
+    <div class="nav-center" role="menubar" aria-label="Primary">
+      <nav class="nav">
+        <div class="nav-item">
+          <button class="trigger" data-menu="calc" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-calc">
+            Calculators
+            <svg class="caret" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M1.8 5.2a1 1 0 0 1 1.4 0L8 10l4.8-4.8a1 1 0 1 1 1.4 1.4l-5.5 5.5a1 1 0 0 1-1.4 0L1.8 6.6a1 1 0 0 1 0-1.4Z"/></svg>
+          </button>
+        </div>
+        <div class="nav-item">
+          <button class="trigger" data-menu="conv" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-conv">
+            Converters
+            <svg class="caret" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M1.8 5.2a1 1 0 0 1 1.4 0L8 10l4.8-4.8a1 1 0 1 1 1.4 1.4l-5.5 5.5a1 1 0 0 1-1.4 0L1.8 6.6a1 1 0 0 1 0-1.4Z"/></svg>
+          </button>
+        </div>
+        <div class="nav-item">
+          <button class="trigger" data-menu="games" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-games">
+            Mini Games
+            <svg class="caret" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M1.8 5.2a1 1 0 0 1 1.4 0L8 10l4.8-4.8a1 1 0 1 1 1.4 1.4l-5.5 5.5a1 1 0 0 1-1.4 0L1.8 6.6a1 1 0 0 1 0-1.4Z"/></svg>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <div class="nav-right">
+      <a href="blog.html">Blog</a>
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+    </div>
+  </header>
+
+  <!-- Backdrop -->
+  <div class="backdrop" id="backdrop" hidden></div>
+
+  <!-- ===== Dropdown Panels ===== -->
+  <div class="menu-panel" id="panel-calc" role="dialog" aria-modal="true" aria-labelledby="calc-title">
+    <div class="menu-head">
+      <div class="menu-title" id="calc-title">Calculators</div>
+      <button class="menu-close" data-close aria-label="Close menu">×</button>
+    </div>
+    <div class="drop-grid">
+      <div class="dd-col">
+        <h5>Health & Personal</h5>
+        <a href="bmi.html">BMI Calculator</a>
+        <a href="bmr.html">BMR Calculator</a>
+        <a href="calorie-macros.html">Calorie &amp; Macros Tracker</a>
+        <a href="age.html">Age Calculator</a>
+      </div>
+      <div class="dd-col">
+        <h5>Finance</h5>
+        <a href="salary-calculator.html">Salary Calculator</a>
+        <a href="retirement-calculator.html">Retirement Calculator</a>
+        <a href="sales-tax-cad.html">Sales Tax (CAD)</a>
+        <a href="loan.html">Loan Calculator</a>
+        <a href="mortgage.html">Mortgage Calculator</a>
+        <a href="budget.html">Budget Planner</a>
+        <a href="gpa.html">GPA Calculator</a>
+      </div>
+      <div class="dd-col">
+        <h5>Date & Time</h5>
+        <a href="days-between.html">Days Between Dates</a>
+        <a href="hours-between.html">Hours Between Times</a>
+        <a href="timer-stop.html">Timer Stop Challenge</a>
+      </div>
+      <div class="dd-col">
+        <h5>Popular</h5>
+        <a href="percentage-calculator.html">Percentage Calculator</a>
+        <a href="word-counter.html">Word &amp; Readability</a>
+        <a href="gpa.html">GPA (4.0 scale)</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-panel" id="panel-conv" role="dialog" aria-modal="true" aria-labelledby="conv-title">
+    <div class="menu-head">
+      <div class="menu-title" id="conv-title">Converters</div>
+      <button class="menu-close" data-close aria-label="Close menu">×</button>
+    </div>
+    <div class="drop-grid">
+      <div class="dd-col">
+        <h5>PDF</h5>
+        <a href="image-to-pdf.html">Image → PDF</a>
+        <a href="pdf-to-images.html">PDF → Images</a>
+        <a href="merge-pdfs.html">Merge PDFs</a>
+        <a href="pdf-split-reorder.html">Split &amp; Reorder PDF</a>
+        <a href="compress-pdf.html">Compress PDF</a>
+      </div>
+      <div class="dd-col">
+        <h5>Images</h5>
+        <a href="png-to-svg.html">PNG → SVG</a>
+      </div>
+      <div class="dd-col">
+        <h5>General</h5>
+        <a href="unit-converter.html">Unit Converter</a>
+        <a href="file-converter.html">File Converter</a>
+      </div>
+      <div class="dd-col">
+        <h5>Utility</h5>
+        <a href="qr.html">QR Code Generator</a>
+        <a href="citation-generator.html">Citation Generator</a>
+        <a href="genetic-barcode.html">Genetic Barcode</a>
+        <a href="genetic-barcode-reader.html">Genetic Barcode Reader</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-panel" id="panel-games" role="dialog" aria-modal="true" aria-labelledby="games-title">
+    <div class="menu-head">
+      <div class="menu-title" id="games-title">Mini Games</div>
+      <button class="menu-close" data-close aria-label="Close menu">×</button>
+    </div>
+    <div class="drop-grid">
+      <div class="dd-col"><h5>Brain</h5><a href="tic-tac-toe.html">Tic-Tac-Toe (Single Player)</a></div>
+      <div class="dd-col"><h5>Arcade</h5><a href="flappy.html">Flappy</a></div>
+      <div class="dd-col"><h5>Timing</h5><a href="timer-stop.html">Timer Stop Challenge</a></div>
+      <div class="dd-col"><h5>Coming Soon</h5><a href="#">More mini games</a></div>
+    </div>
+  </div>
+
+  <!-- ===== Hero ===== -->
+  <section class="hero">
+    <h1 class="hero-title">Make stuff easier with ToolHouzz</h1>
+    <p class="hero-sub">Fast, private, in-browser tools — calculators, converters (PDF, image, units, QR) and study helpers — all in one clean place.</p>
+  </section>
+
+  <!-- ===== Search ===== -->
+  <section class="search-wrap" aria-label="Search tools">
+    <input id="searchInput" class="search" type="text" placeholder="Search tools…  try: gpa, percentage, cad tax, timer, retirement, blog" aria-label="Search tools">
+    <div id="noResults" class="no-results">No tools found</div>
+  </section>
+
+  <!-- ===== Cards ===== -->
+  <section id="tools" class="tools" aria-label="Tools">
+    <div class="grid" id="toolsGrid">
+      <!-- Column 1 -->
+      <div>
+        <h2 class="section-title">Calculators</h2>
+        <div style="display:flex;flex-direction:column;gap:1.4rem;width:100%;align-items:center">
+          <a class="card" href="bmi.html" data-name="bmi calculator" data-tags="health weight body mass bmi calculator healthy range"><div class="icon"><img class="icon-img" src="assets/icons/bmi.svg" alt="BMI icon"></div><h3>BMI Calculator</h3></a>
+          <a class="card" href="bmr.html" data-name="bmr calculator" data-tags="bmr basal metabolic rate calories tdee mifflin st jeor"><div class="icon"><img class="icon-img" src="assets/icons/bmr.svg" alt="BMR icon"></div><h3>BMR Calculator</h3></a>
+          <a class="card" href="calorie-macros.html" data-name="calorie macros tracker" data-tags="calorie calories macro macros protein carbs fat nutrition tracker"><div class="icon"><img class="icon-img" src="assets/icons/calorie-macros.svg" alt="Calorie & Macros icon"></div><h3>Calorie &amp; Macros Tracker</h3></a>
+
+          <a class="card" href="salary-calculator.html" data-name="salary calculator" data-tags="salary hourly monthly annual gross pay rate"><div class="icon"><img class="icon-img" src="assets/icons/salary-calculator.svg" alt="Salary icon"></div><h3>Salary Calculator</h3></a>
+          <a class="card" href="retirement-calculator.html" data-name="retirement calculator" data-tags="retirement future value nest egg fv inflation investment"><div class="icon"><img class="icon-img" src="assets/icons/retirement-calculator.svg" alt="Retirement icon"></div><h3>Retirement Calculator</h3></a>
+          <a class="card" href="sales-tax-cad.html" data-name="sales tax (cad)" data-tags="cad canada hst gst pst qst tax calculator"><div class="icon"><img class="icon-img" src="assets/icons/sales-tax-cad.svg" alt="Sales Tax icon"></div><h3>Sales Tax (CAD)</h3></a>
+          <a class="card" href="percentage-calculator.html" data-name="percentage calculator" data-tags="percent change increase decrease of what percent study"><div class="icon"><img class="icon-img" src="assets/icons/percentage-calculator.svg" alt="Percentage icon"></div><h3>Percentage Calculator</h3></a>
+
+          <a class="card" href="loan.html" data-name="loan calculator" data-tags="finance emi interest amortization payment"><div class="icon"><img class="icon-img" src="assets/icons/loan.svg" alt="Loan icon"></div><h3>Loan Calculator</h3></a>
+          <a class="card" href="mortgage.html" data-name="mortgage calculator" data-tags="home mortgage emi interest amortization"><div class="icon"><img class="icon-img" src="assets/icons/house.svg" alt="Mortgage icon"></div><h3>Mortgage Calculator</h3></a>
+          <a class="card" href="age.html" data-name="age calculator" data-tags="birthday next birthday date of birth dob"><div class="icon"><img class="icon-img" src="assets/icons/cake.svg" alt="Age/Birthday icon"></div><h3>Age Calculator</h3></a>
+          <a class="card" href="days-between.html" data-name="days between dates" data-tags="date difference days weeks inclusive exclusive leftover full weeks"><div class="icon"><img class="icon-img" src="assets/icons/days-between.svg" alt="Days Between icon"></div><h3>Days Between Dates</h3></a>
+          <a class="card" href="hours-between.html" data-name="hours between times" data-tags="time difference hours minutes seconds duration across midnight"><div class="icon"><img class="icon-img" src="assets/icons/hours-between.svg" alt="Time Difference icon"></div><h3>Hours Between Times</h3></a>
+          <a class="card" href="budget.html" data-name="budget planner" data-tags="finance savings expenses monthly budget plan charts 50 30 20"><div class="icon"><img class="icon-img" src="assets/icons/budget.svg" alt="Budget icon"></div><h3>Budget Planner</h3></a>
+        </div>
+      </div>
+
+      <!-- Column 2 -->
+      <div>
+        <h2 class="section-title">Converters</h2>
+        <div style="display:flex;flex-direction:column;gap:1.4rem;width:100%;align-items:center">
+          <a class="card" href="image-to-pdf.html"
+             data-name="image to pdf"
+             data-tags="image to pdf images to pdf photo to pdf pictures to pdf jpg jpeg png webp heic convert to pdf document">
+            <div class="icon"><img class="icon-img" src="assets/icons/image-to-pdf.svg" alt="Image to PDF icon"></div>
+            <h3>Image → PDF</h3>
+          </a>
+
+          <a class="card" href="pdf-to-images.html"
+             data-name="pdf to images"
+             data-tags="pdf to images pdf to image pdf2img export pdf pages to png jpg jpeg webp convert pdf pages images">
+            <div class="icon"><img class="icon-img" src="assets/icons/pdf-to-images.svg" alt="PDF to Images icon"></div>
+            <h3>PDF → Images</h3>
+          </a>
+
+          <a class="card" href="merge-pdfs.html" data-name="merge pdfs" data-tags="pdf combine join append pages"><div class="icon"><img class="icon-img" src="assets/icons/merge.svg" alt="Merge PDFs icon"></div><h3>Merge PDFs</h3></a>
+          <a class="card" href="pdf-split-reorder.html" data-name="split reorder pdf" data-tags="pdf split extract pages reorder rearrange"><div class="icon"><img class="icon-img" src="assets/icons/pdf-split-reorder.svg" alt="Split & Reorder icon"></div><h3>Split &amp; Reorder PDF</h3></a>
+          <a class="card" href="compress-pdf.html" data-name="compress pdf" data-tags="pdf reduce size smaller optimization"><div class="icon"><img class="icon-img" src="assets/icons/compress.svg" alt="Compress PDF icon"></div><h3>Compress PDF</h3></a>
+          <a class="card" href="png-to-svg.html" data-name="png to svg" data-tags="image vector trace outline convert raster to svg"><div class="icon"><img class="icon-img" src="assets/icons/png-to-svg.svg" alt="PNG to SVG icon"></div><h3>PNG → SVG</h3></a>
+          <a class="card" href="unit-converter.html" data-name="unit converter" data-tags="length weight temperature speed metric imperial"><div class="icon"><img class="icon-img" src="assets/icons/scale.svg" alt="Unit Converter icon"></div><h3>Unit Converter</h3></a>
+          <a class="card" href="qr.html" data-name="qr code generator" data-tags="qr qrcode barcode text url link code"><div class="icon"><img class="icon-img" src="assets/icons/qr.svg" alt="QR Code icon"></div><h3>QR Code Generator</h3></a>
+
+          <a class="card" href="genetic-barcode.html"
+             data-name="genetic barcode"
+             data-tags="barcode genetic id code generator qr print card luhn unique hash">
+            <div class="icon">
+              <img class="icon-img" src="assets/icons/barcode.svg" alt="Genetic Barcode icon" onerror="this.src='assets/icons/qr.svg'">
+            </div>
+            <h3>Genetic Barcode</h3>
+          </a>
+
+          <a class="card" href="genetic-barcode-reader.html"
+             data-name="genetic barcode reader"
+             data-tags="barcode reader scan qr validate verify id luhn">
+            <div class="icon">
+              <img class="icon-img" src="assets/icons/scan.svg" alt="Genetic Barcode Reader icon" onerror="this.src='assets/icons/qr.svg'">
+            </div>
+            <h3>Genetic Barcode Reader</h3>
+          </a>
+
+          <a class="card" href="file-converter.html" data-name="file converter" data-tags="image file convert jpg jpeg png webp heic gif svg pdf doc audio video"><div class="icon"><img class="icon-img" src="assets/icons/file-converter.svg" alt="File Converter icon"></div><h3>File Converter</h3></a>
+        </div>
+      </div>
+
+      <!-- Column 3 -->
+      <div>
+        <h2 class="section-title">Study &amp; Writing</h2>
+        <div style="display:flex;flex-direction:column;gap:1.4rem;width:100%;align-items:center">
+          <a class="card" href="gpa.html" data-name="gpa calculator" data-tags="gpa grade point average final needed exam requirement study school"><div class="icon"><img class="icon-img" src="assets/icons/gpa.svg" alt="GPA icon"></div><h3>GPA Calculator</h3></a>
+          <a class="card" href="percentage-calculator.html" data-name="percentage calculator" data-tags="percent change increase decrease of what percent study writing"><div class="icon"><img class="icon-img" src="assets/icons/percentage-calculator.svg" alt="Percentage icon"></div><h3>Percentage Calculator</h3></a>
+
+          <a class="card" href="citation-generator.html" data-name="citation generator" data-tags="apa mla chicago cite references bibliography"><div class="icon"><img class="icon-img" src="assets/icons/citation-generator.svg" alt="Citation icon"></div><h3>Citation Generator</h3></a>
+          <a class="card" href="word-counter.html" data-name="word character counter" data-tags="count words characters reading time readability flesch"><div class="icon"><img class="icon-img" src="assets/icons/word-counter.svg" alt="Word counter icon"></div><h3>Word &amp; Readability</h3></a>
+          <a class="card" href="flashcards.html" data-name="flashcards" data-tags="study memorize spaced repetition csv import export"><div class="icon"><img class="icon-img" src="assets/icons/flashcards.svg" alt="Flashcards icon"></div><h3>Flashcards</h3></a>
+          <a class="card" href="pomodoro.html" data-name="pomodoro timer" data-tags="focus study timer productivity music stats cycles"><div class="icon"><img class="icon-img" src="assets/icons/pomodoro.svg" alt="Pomodoro icon"></div><h3>Pomodoro Timer</h3></a>
+        </div>
+
+        <h2 class="section-title" style="margin-top:2rem">Mini Games</h2>
+        <div style="display:flex;flex-direction:column;gap:1.4rem;width:100%;align-items:center">
+          <a class="card" href="tic-tac-toe.html" data-name="tic tac toe (single player)" data-tags="game brain board x o ai single-player"><div class="icon"><img class="icon-img" src="assets/icons/brain.svg" alt="Tic-Tac-Toe icon"></div><h3>Tic-Tac-Toe (Single Player)</h3></a>
+          <a class="card" href="flappy.html" data-name="flappy game" data-tags="game arcade endless jump fly bird"><div class="icon"><img class="icon-img" src="assets/icons/gamepad.svg" alt="Flappy icon"></div><h3>Flappy</h3></a>
+          <a class="card" href="timer-stop.html" data-name="timer stop challenge" data-tags="game timing reflex stop exact time accuracy mini-game"><div class="icon"><img class="icon-img" src="assets/icons/timer-stop.svg" alt="Timer icon"></div><h3>Timer Stop Challenge</h3></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== From the Blog ===== -->
+  <section class="tools" aria-label="From the Blog">
+    <h2 class="section-title">From the Blog</h2>
+    <div class="blog-grid">
+      <a class="post-card" href="blog.html#bmr-guide" data-name="blog bmr guide" data-tags="blog article health bmr calories tdee">
+        <div class="post-meta">Guides</div>
+        <div class="post-title">BMR Explained: What It Is & Why It Matters</div>
+        <p class="post-excerpt">Understand basal metabolic rate, factors that change it, and how to use our BMR tool for smarter goals.</p>
+        <div class="post-meta">Read more →</div>
+      </a>
+      <a class="post-card" href="blog.html#retirement-basics" data-name="blog retirement basics" data-tags="blog finance retirement investing savings">
+        <div class="post-meta">Finance</div>
+        <div class="post-title">Retirement Planning 101: Start Simple, Grow Smart</div>
+        <p class="post-excerpt">A plain-English walkthrough of contributions, returns, inflation, and how our calculator projects your path.</p>
+        <div class="post-meta">Read more →</div>
+      </a>
+      <a class="post-card" href="blog.html#study-math-percentage" data-name="blog percentage tips" data-tags="blog study math percentage basics">
+        <div class="post-meta">Study</div>
+        <div class="post-title">Percentages: Fast Tricks for Exams</div>
+        <p class="post-excerpt">Quick formulas for “What percent of…”, increase/decrease, and percent change—plus common pitfalls.</p>
+        <div class="post-meta">Read more →</div>
+      </a>
+    </div>
+    <div style="text-align:center;margin-top:1rem">
+      <a href="blog.html" class="post-card" style="display:inline-block;padding:.6rem 1rem;border-radius:10px">View all posts</a>
+    </div>
+  </section>
+
+  <!-- ===== Footer with quick links ===== -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="font-family:var(--primary-font);color:#e6ecff;font-weight:700">ToolHouzz</div>
+        <small>Fast, privacy-first utilities.</small>
+      </div>
+      <div>
+        <h4>Calculators</h4>
+        <a href="bmi.html">BMI Calculator</a>
+        <a href="bmr.html">BMR Calculator</a>
+        <a href="gpa.html">GPA Calculator</a>
+        <a href="percentage-calculator.html">Percentage Calculator</a>
+        <a href="budget.html">Budget Planner</a>
+        <a href="age.html">Age Calculator</a>
+        <a href="days-between.html">Days Between Dates</a>
+        <a href="hours-between.html">Hours Between Times</a>
+      </div>
+      <div>
+        <h4>Finance</h4>
+        <a href="salary-calculator.html">Salary Calculator</a>
+        <a href="retirement-calculator.html">Retirement Calculator</a>
+        <a href="sales-tax-cad.html">Sales Tax (CAD)</a>
+        <a href="loan.html">Loan Calculator</a>
+        <a href="mortgage.html">Mortgage Calculator</a>
+      </div>
+      <div>
+        <h4>Converters</h4>
+        <a href="image-to-pdf.html">Image → PDF</a>
+        <a href="pdf-to-images.html">PDF → Images</a>
+        <a href="merge-pdfs.html">Merge PDFs</a>
+        <a href="compress-pdf.html">Compress PDF</a>
+        <a href="genetic-barcode.html">Genetic Barcode</a>
+        <a href="genetic-barcode-reader.html">Genetic Barcode Reader</a>
+        <a href="file-converter.html">File Converter</a>
+        <h4 style="margin-top:1rem">Mini Games</h4>
+        <a href="tic-tac-toe.html">Tic-Tac-Toe</a>
+        <a href="flappy.html">Flappy</a>
+        <a href="timer-stop.html">Timer Stop Challenge</a>
+        <h4 style="margin-top:1rem">Resources</h4>
+        <a href="blog.html">Blog</a>
+        <h4 style="margin-top:1rem">Legal</h4>
+        <a href="about.html">About</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </div>
+    </div>
+    <p class="legal">© <span id="year"></span> ToolHouzz. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Dropdown behavior (hover on desktop, click/tap everywhere)
+    const header = document.getElementById('siteHeader');
+    const backdrop = document.getElementById('backdrop');
+    const panels = {
+      calc: document.getElementById('panel-calc'),
+      conv: document.getElementById('panel-conv'),
+      games: document.getElementById('panel-games')
+    };
+    let openKey = null, closeTimer = null;
+
+    const placePanel = (p)=>{
+      const r = header.getBoundingClientRect();
+      const top = r.bottom + (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--attach-gap'))||8);
+      p.style.top = `${top}px`;
+    };
+    const showBackdrop = ()=>{
+      backdrop.hidden = false;
+      requestAnimationFrame(()=>backdrop.classList.add('show'));
+    };
+    const hideBackdrop = ()=>{
+      backdrop.classList.remove('show');
+      setTimeout(()=>{ if(!openKey) backdrop.hidden = true; }, 160);
+    };
+    function openPanel(key, btn){
+      if(openKey && openKey !== key){
+        panels[openKey].classList.remove('show');
+        const prev = document.querySelector(`.trigger[data-menu="${openKey}"]`);
+        if(prev) prev.setAttribute('aria-expanded','false');
+      }
+      openKey = key;
+      placePanel(panels[key]); showBackdrop();
+      panels[key].classList.add('show');
+      if(btn) btn.setAttribute('aria-expanded','true');
+      panels[key].querySelector('[data-close]')?.focus({preventScroll:true});
+    }
+    function scheduleClose(){ clearTimeout(closeTimer); closeTimer = setTimeout(closePanel, 120); }
+    function cancelClose(){ clearTimeout(closeTimer); }
+    function closePanel(){
+      if(!openKey){ hideBackdrop(); return; }
+      panels[openKey].classList.remove('show');
+      const btn = document.querySelector(`.trigger[data-menu="${openKey}"]`);
+      if(btn) btn.setAttribute('aria-expanded','false');
+      openKey = null; hideBackdrop();
+    }
+    window.addEventListener('resize', ()=>{ if(openKey) placePanel(panels[openKey]); });
+    window.addEventListener('scroll', ()=>{ if(openKey) placePanel(panels[openKey]); });
+
+    const isDesktopHover = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+    document.querySelectorAll('.trigger').forEach(btn=>{
+      const key = btn.dataset.menu;
+      if(isDesktopHover){
+        btn.addEventListener('mouseenter', ()=>openPanel(key,btn));
+        btn.addEventListener('mouseleave', scheduleClose);
+        panels[key].addEventListener('mouseenter', cancelClose);
+        panels[key].addEventListener('mouseleave', scheduleClose);
+      }
+      btn.addEventListener('click', e=>{
+        e.preventDefault();
+        if(openKey === key){ closePanel(); return; }
+        openPanel(key,btn);
+      });
+      btn.addEventListener('keydown', e=>{
+        if(e.key==='Enter' || e.key===' '){
+          e.preventDefault();
+          if(openKey===key){ closePanel(); return; }
+          openPanel(key,btn);
+        }
+      });
+    });
+    backdrop.addEventListener('click', closePanel);
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closePanel(); });
+    document.querySelectorAll('[data-close]').forEach(x=>x.addEventListener('click', closePanel));
+
+    // Search (aliases help)
+    const searchInput = document.getElementById('searchInput');
+    const gridEl = document.getElementById('toolsGrid');
+    const noResults = document.getElementById('noResults');
+    const cards = [...document.querySelectorAll('.card')];
+
+    // Aliases (expanded, now includes 'blog', 'news', 'article')
+    const aliases = {
+      jpg:'jpg jpeg image photo pictures', jpeg:'jpg jpeg image photo pictures',
+      png:'png image', webp:'webp image', heic:'heic image', pdf:'pdf document',
+
+      'image to pdf':'image to pdf images to pdf photo to pdf picture to pdf img2pdf image2pdf',
+      img2pdf:'image to pdf images to pdf', image2pdf:'image to pdf images to pdf',
+
+      'pdf to images':'pdf to images pdf to image pdf2img pdf2image pdf to png pdf to jpg pdf to jpeg pdf to webp export pages',
+      pdf2img:'pdf to images pdf to png pdf to jpg pdf to jpeg',
+      pdf2image:'pdf to images pdf to png pdf to jpg pdf to jpeg',
+      'pdf to png':'pdf to images',
+      'pdf to jpg':'pdf to images jpg jpeg',
+      'pdf to jpeg':'pdf to images jpg jpeg',
+      'pdf to webp':'pdf to images webp',
+
+      // Genetic Barcode search helpers
+      genetic:'genetic barcode id code',
+      barcode:'barcode genetic id code',
+      id:'id code barcode genetic',
+      'genetic barcode':'barcode id genetic code',
+      reader:'reader scan',
+      scan:'scan reader barcode',
+      'genetic barcode reader':'scan barcode id',
+
+      // Core calculators
+      cad:'canada canadian sales tax gst pst qst hst',
+      canada:'cad canada sales tax gst pst qst hst',
+      'sales tax':'tax cad canada hst gst pst qst',
+      'sales tax cad':'cad canada hst gst pst qst tax',
+      percentage:'percent change increase decrease',
+      'percentage calculator':'percent change increase decrease',
+      bmr:'basal metabolic rate calories tdee',
+      'bmr calculator':'basal metabolic rate mifflin st jeor',
+      retirement:'future value investment inflation nest egg',
+      salary:'pay wage hourly yearly monthly',
+      gpa:'gpa grade point average school study',
+      'gpa calculator':'grade point average',
+
+      // Time & games
+      timer:'timer stop challenge game',
+      'timer stop':'timer stop challenge',
+      'time difference':'hours between times duration',
+      'days between':'date difference days weeks leftover full',
+
+      // Blog / content
+      blog:'news article post posts guide tips how-to',
+      article:'blog news guide tutorial',
+      news:'blog article posts',
+
+      qr:'qr qrcode barcode code', loan:'loan emi interest finance', mortgage:'mortgage home emi finance',
+      svg:'svg vector', apa:'apa mla chicago citation references cite',
+      mla:'mla apa chicago citation references cite', chicago:'chicago apa mla citation references cite',
+      split:'split reorder extract pages', graph:'graph plot math function',
+      pomodoro:'timer focus study', flashcards:'cards memory spaced'
+    };
+    const norm = s => (s||'').toString().toLowerCase().trim();
+    const expandQuery = q => {
+      const words = norm(q);
+      const extra = words.split(/\s+/).map(p=>aliases[p]||'').join(' ');
+      const joined = aliases[words] || '';
+      return (words + ' ' + extra + ' ' + joined).trim();
+    };
+    function search(q){
+      const tokens = norm(expandQuery(q)).split(/\s+/).filter(Boolean);
+      let matches = 0;
+      cards.forEach(card=>{
+        const hay = `${norm(card.dataset.name)} ${norm(card.dataset.tags)} ${norm(card.textContent)}`;
+        const ok = tokens.length===0 || tokens.every(t=>hay.includes(t));
+        card.style.display = ok? '' : 'none';
+        if(ok) matches++;
+      });
+      // Also filter blog preview cards
+      const posts = [...document.querySelectorAll('.post-card')];
+      let postMatches = 0;
+      posts.forEach(post=>{
+        const hay = `${norm(post.dataset?.name||'')} ${norm(post.dataset?.tags||'')} ${norm(post.textContent)}`;
+        const ok = tokens.length===0 || tokens.every(t=>hay.includes(t));
+        post.style.display = ok? '' : 'none';
+        if(ok) postMatches++;
+      });
+
+      if(matches===0 && postMatches===0){ 
+        gridEl.style.display='none'; 
+        document.querySelector('.blog-grid').style.display='none';
+        document.getElementById('noResults').style.display='block'; 
+        document.getElementById('noResults').textContent='No tools or posts found'; 
+      } else {
+        gridEl.style.display='';
+        document.querySelector('.blog-grid').style.display='';
+        document.getElementById('noResults').style.display='none';
+      }
+    }
+    searchInput.addEventListener('input', e=>search(e.target.value));
+    search('');
+  </script>
+</body>
+</html>

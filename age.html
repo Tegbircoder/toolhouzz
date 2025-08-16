@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Free Age Calculator – Exact Age in Years, Months, Days & Birthday Countdown | ToolHouzz</title>
+  <meta name="description" content="Find your exact age in years, months, days, hours, minutes, and seconds with our free Age Calculator. See the time remaining until your next birthday with a fun countdown timer. Mobile-friendly and instant results.">
+  <link rel="canonical" href="https://toolhouzz.com/age.html">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ToolHouzz">
+  <meta property="og:title" content="Free Age Calculator – Exact Age & Birthday Countdown">
+  <meta property="og:description" content="Calculate your exact age and see the countdown to your next birthday. Instant, fun, and mobile-friendly.">
+  <meta property="og:url" content="https://toolhouzz.com/age.html">
+  <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free Age Calculator – ToolHouzz">
+  <meta name="twitter:description" content="See your exact age in years, months, and days with a live birthday countdown. 100% free and easy to use.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
+
+  <!-- Global sticky header + footer -->
+  <link rel="stylesheet" href="th-layout.css">
+  <script defer src="th-layout.js"></script>
+
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--ink:#0f172a;--muted:#6b7280;--border:#e5e7eb;--border-strong:#d1d5db}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+    a{color:inherit;text-decoration:none}
+
+    .hero{padding:46px 16px 10px;text-align:center}
+    .hero-title{margin:0;font-weight:900;font-size:44px}
+    .hero-sub{margin:8px 0 0;color:#475569}
+
+    .tools{display:flex;justify-content:center;padding:14px 16px 28px}
+    .grid{width:100%;max-width:1100px;display:grid;gap:12px}
+    .card{background:var(--card);border:1.5px solid var(--border-strong);border-radius:14px;padding:14px}
+
+    label{display:block;font-weight:800;margin:0 0 6px 2px;font-size:12px;color:#6b7280}
+    input.search{width:100%;height:44px;padding:0 12px;border-radius:12px;border:1.5px solid var(--border-strong);background:#fff;outline:none}
+    input.search:focus{border-color:#818cf8;box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+
+    .grid-2{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+    @media (max-width:900px){ .grid-2{grid-template-columns:1fr} }
+
+    .kpi{display:flex;flex-direction:column;gap:6px;border:1.5px solid var(--border-strong);border-radius:14px;background:#fff;padding:14px}
+    .kpi .big{font-weight:900;font-size:28px}
+    .kpi .huge{font-weight:900;font-size:36px;letter-spacing:.3px}
+
+    .start-btn{height:48px;padding:0 24px;font-weight:900;font-size:16px;border-radius:12px;color:#111;border:1.5px solid rgba(0,0,0,.18);cursor:pointer;background:linear-gradient(90deg,#fde047,#f59e0b);box-shadow:0 10px 20px rgba(245,158,11,.25)}
+    .start-btn:hover{transform:translateY(-1px)}
+
+    .highlight{border:2px dashed #f59e0b;background:#fffaf0;border-radius:14px;padding:12px}
+    .bar{height:10px;border-radius:999px;background:#eef2ff;overflow:hidden}
+    .bar>span{display:block;height:100%;background:linear-gradient(90deg,#4f46e5,#22c55e)}
+    .muted{color:#64748b}
+
+    .chartBox{border:1.5px solid var(--border-strong);border-radius:14px;background:#fff;padding:14px}
+    .chartLabel{display:block;font-weight:900;margin-bottom:6px}
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <h1 class="hero-title">Age Calculator</h1>
+    <p class="hero-sub">See your exact age and live counters in weeks, days, hours &amp; seconds.</p>
+  </section>
+
+  <section class="tools">
+    <div class="grid">
+      <div class="card">
+        <div class="grid-2" style="align-items:end">
+          <div>
+            <label>Date of Birth</label>
+            <input id="dob" class="search" type="date" placeholder="mm/dd/yyyy">
+          </div>
+          <div class="grid-2" style="align-items:end;grid-template-columns:1fr auto">
+            <div>
+              <label>Time of Birth (optional)</label>
+              <input id="tob" class="search" type="time" placeholder="hh:mm">
+            </div>
+            <div style="display:flex;align-items:end">
+              <button id="startBtn" class="start-btn">Start</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px;grid-template-columns:repeat(4,1fr)">
+          <div class="kpi"><label>Age (y m d)</label><div id="ageYmd" class="big">—</div></div>
+          <div class="kpi"><label>Weeks lived</label><div id="weeks" class="big">—</div></div>
+          <div class="kpi"><label>Hours lived</label><div id="hours" class="big">—</div></div>
+          <div class="kpi"><label>Seconds lived</label><div id="seconds" class="huge">—</div></div>
+        </div>
+
+        <div class="grid-2" style="margin-top:12px">
+          <div class="highlight">
+            <div style="font-weight:800;margin-bottom:4px">You have lived</div>
+            <div id="livedVerbose" style="font-size:16px">—</div>
+          </div>
+          <div class="highlight">
+            <div style="font-weight:800;margin-bottom:6px">Time until your next birthday</div>
+            <div id="untilVerbose">—</div>
+            <div class="bar" style="margin-top:8px"><span id="yearProgress" style="width:0%"></span></div>
+            <div class="muted" style="margin-top:4px;font-size:12px">Year progress: <span id="yearPct">—</span></div>
+          </div>
+        </div>
+
+        <div class="chartBox" style="margin-top:12px">
+          <label class="chartLabel">Life in units (live)</label>
+          <canvas id="bars" height="240"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const fmtInt = n => Number.isFinite(n) ? n.toLocaleString() : '—';
+
+    function partsBetween(a,b){
+      let from=new Date(a), to=new Date(b); if(to<from)[from,to]=[to,from];
+      let years=to.getFullYear()-from.getFullYear();
+      let t=new Date(from); t.setFullYear(from.getFullYear()+years);
+      if(t>to){years--; t.setFullYear(from.getFullYear()+years)}
+      let months=(to.getMonth()-t.getMonth())+(to.getFullYear()-t.getFullYear())*12;
+      t.setMonth(t.getMonth()+months); if(t>to){months--; t.setMonth(t.getMonth()+months)}
+      let secs=Math.floor((to-t)/1000), days=Math.floor(secs/86400); secs-=days*86400;
+      const hours=Math.floor(secs/3600); secs-=hours*3600;
+      const minutes=Math.floor(secs/60); secs-=minutes*60;
+      const seconds=secs; const weeks=Math.floor((to-from)/604800000);
+      return {years,months,weeks,days,hours,minutes,seconds};
+    }
+    function nextBirthday(dob,now){
+      const d=new Date(dob); if(!Number.isFinite(d.getTime())) return null;
+      const thisYear=new Date(now.getFullYear(),d.getMonth(),d.getDate(),d.getHours(),d.getMinutes(),d.getSeconds());
+      return (thisYear>now)?thisYear:new Date(now.getFullYear()+1,d.getMonth(),d.getDate(),d.getHours(),d.getMinutes(),d.getSeconds());
+    }
+    function lastBirthday(dob,now){
+      const d=new Date(dob);
+      const thisYear=new Date(now.getFullYear(),d.getMonth(),d.getDate(),d.getHours(),d.getMinutes(),d.getSeconds());
+      return (thisYear<=now)?thisYear:new Date(now.getFullYear()-1,d.getMonth(),d.getDate(),d.getHours(),d.getMinutes(),d.getSeconds());
+    }
+    function ymdText(p){return `${p.years}y ${p.months}m ${p.days}d`;}
+    function verbose(p){return `${p.years}y, ${p.months}m, ${p.weeks}w, ${p.days}d, ${p.hours}h, ${p.minutes}m, ${p.seconds}s`; }
+
+    const valueLabels={id:'valueLabels',afterDatasetsDraw(chart){
+      const {ctx,data}=chart;
+      ctx.save();
+      ctx.font='700 12px Inter, system-ui, sans-serif';
+      ctx.textAlign='center';ctx.fillStyle='#111';
+      const m=chart.getDatasetMeta(0);
+      m.data.forEach((b,i)=>{
+        const v=data.datasets[0].data[i];
+        if(v!=null) ctx.fillText(Number(v).toLocaleString(),b.x,b.y-6);
+      });
+      ctx.restore();
+    }};
+
+    let timer=null, dobObj=null;
+    const bars=new Chart($('bars').getContext('2d'),{
+      type:'bar',
+      data:{labels:['Weeks','Days','Hours'],datasets:[{label:'Total lived',data:[0,0,0]}]},
+      options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:v=>Intl.NumberFormat().format(v)}}}},
+      plugins:[valueLabels]
+    });
+
+    function updateAll(){
+      if(!dobObj) return;
+      const now=new Date();
+
+      const age=partsBetween(dobObj,now);
+      $('ageYmd').textContent=ymdText(age);
+      $('weeks').textContent=fmtInt(age.weeks);
+      const totalHours=Math.floor((now-dobObj)/3600000);
+      $('hours').textContent=fmtInt(totalHours);
+      const totalSeconds=Math.floor((now-dobObj)/1000);
+      $('seconds').textContent=fmtInt(totalSeconds);
+      $('livedVerbose').textContent=verbose(age);
+
+      const nb=nextBirthday(dobObj,now);
+      const left=partsBetween(now,nb);
+      $('untilVerbose').textContent=verbose(left);
+
+      const lb=lastBirthday(dobObj,now);
+      const cycleTotal = nb - lb;
+      const cycleDone  = now - lb;
+      const pct = Math.max(0, Math.min(100, (cycleDone / cycleTotal) * 100));
+      $('yearProgress').style.width=pct.toFixed(1)+'%';
+      $('yearPct').textContent=pct.toFixed(1)+'%';
+
+      bars.data.datasets[0].data=[age.weeks, age.days+age.weeks*7, totalHours];
+      bars.update('none');
+    }
+
+    function start(){
+      const dobVal=$('dob').value;
+      if(!dobVal){alert('Please select your Date of Birth');return;}
+      const [y,m,d]=dobVal.split('-').map(Number);
+      dobObj=new Date(y,(m||1)-1,(d||1));
+      const tobVal=$('tob').value;
+      if(tobVal){const [hh,mm]=tobVal.split(':').map(Number);dobObj.setHours(hh||0,mm||0,0,0)}
+      if(timer) clearInterval(timer);
+      updateAll(); timer=setInterval(updateAll,1000);
+    }
+
+    $('startBtn').addEventListener('click',start);
+  </script>
+</body>
+</html>

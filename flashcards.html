@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Flashcards — ToolHouzz</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Create, import (.csv), study with a flip animation, and export — everything stays in your browser.">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/logo.png">
+  <style>
+    :root{
+      --hero-font:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      --primary-font:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      --secondary-font:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+
+      --primary-color:#0f172a;
+      --secondary-color:#5b6474;
+      --accent-color:#8C6A5A;
+
+      --background-color:#f7f9ff;
+      --card-bg:#ffffff;
+      --border-color:#e5e7eb;
+      --border-strong:#d1d5db;
+
+      --header-z:300;
+      --backdrop-z:240;
+      --panel-z:280;
+      --attach-gap:8px;
+
+      --pri:#4f46e5;
+      --pri2:#6366f1;
+      --muted:#64748b;
+    }
+
+    html,body{height:100%}
+    body{font-family:var(--secondary-font);background:var(--background-color);color:var(--primary-color);line-height:1.6;margin:0}
+
+    /* ===== Sticky header (same style as index) ===== */
+    .site-header{
+      background:var(--card-bg);
+      border-bottom:1px solid var(--border-color);
+      padding:1.1rem 2rem;
+      display:flex;align-items:center;justify-content:space-between;gap:1rem;
+      position:sticky;top:0;z-index:var(--header-z);
+      box-shadow:0 1px 0 rgba(0,0,0,.02), 0 3px 6px rgba(0,0,0,.08);
+    }
+    .nav-left,.nav-center,.nav-right{display:flex;align-items:center}
+    .nav-center{flex:1;justify-content:center}
+    .brand{font-family:var(--primary-font);font-size:1.8rem;font-weight:900;color:var(--primary-color);text-decoration:none}
+    .nav{display:flex;align-items:center;gap:1rem}
+    .nav a{color:#475569;text-decoration:none;font-weight:600}
+    .nav-item{position:relative;margin-left:1.5rem}
+    .nav-item>button{
+      background:none;border:0;cursor:pointer;font:600 1rem var(--secondary-font);color:#475569;
+      padding:0 0 .25rem;border-bottom:2px solid transparent;display:inline-flex;align-items:center;gap:.25rem;transition:.25s
+    }
+    .nav-item>button:hover{color:#111827;border-bottom-color:#b5c4ff}
+
+    .backdrop{
+      position:fixed;inset:0;background:rgba(26,26,26,.28);
+      backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+      opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:var(--backdrop-z);
+    }
+    .backdrop.show{opacity:1;pointer-events:auto}
+
+    .menu-panel{
+      position:fixed;left:50%;transform:translateX(-50%) translateY(-4px);
+      background:var(--card-bg);border:1px solid var(--border-color);border-radius:12px;
+      padding:14px 14px 18px;width:min(1000px,92vw);display:none;z-index:var(--panel-z);
+      box-shadow:0 18px 40px rgba(0,0,0,.18),0 8px 18px rgba(0,0,0,.08);
+      background-image:linear-gradient(0deg,rgba(255,255,255,.97),rgba(255,255,255,.97));
+    }
+    .menu-panel.show{display:block;animation:panelIn .18s ease-out forwards}
+    @keyframes panelIn{from{opacity:0;transform:translateX(-50%) translateY(-6px) scale(.99)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+    .menu-panel::after{content:"";position:absolute;left:12px;right:12px;bottom:-18px;height:24px;background:radial-gradient(50% 60% at 50% 0%,rgba(0,0,0,.15),rgba(0,0,0,0) 70%);pointer-events:none;filter:blur(6px)}
+    .menu-head{display:flex;justify-content:space-between;align-items:center;padding:4px 6px 10px}
+    .menu-title{font:700 14px var(--secondary-font);color:#7a7a7a;letter-spacing:.08em;text-transform:uppercase}
+    .menu-close{background:none;border:0;font-size:22px;line-height:1;cursor:pointer;color:#777}
+    .drop-grid{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:1rem}
+    .dd-col h5{margin:.25rem 0 .5rem;font:700 12px var(--secondary-font);color:#7a7a7a;letter-spacing:.08em;text-transform:uppercase}
+    .dd-col a{display:block;padding:.45rem .5rem;border-radius:8px;color:var(--primary-color);text-decoration:none}
+    .dd-col a:hover{background:#f3f7ff;color:#2b5bd7}
+
+    /* ===== Page hero ===== */
+    .hero{padding:46px 18px 18px;text-align:center}
+    .hero h1{margin:0 0 6px;font-weight:900;letter-spacing:.2px;font-size:clamp(28px,4.6vw,48px)}
+    .hero p{margin:0;color:#5b6474}
+
+    /* ===== Layout ===== */
+    .wrap{max-width:1200px;margin:0 auto 36px;padding:0 16px;display:grid;gap:16px}
+    @media(min-width:980px){.wrap{grid-template-columns:1.05fr .95fr}}
+    .card{background:#fff;border:1.5px solid var(--border-strong);border-radius:16px;padding:14px}
+
+    /* Inputs & controls */
+    label{font-size:12px;color:#6b7280;font-weight:800;margin:0 0 6px;display:block}
+    input[type="text"], input[type="number"], select{
+      height:44px;width:100%;border-radius:12px;border:1.5px solid var(--border-strong);padding:0 12px;font:600 14px var(--secondary-font)
+    }
+    input:focus,select:focus{outline:none;border-color:#98b3ff;box-shadow:0 0 0 3px rgba(120,150,255,.18)}
+    .row{display:grid;gap:10px}
+    .row2{grid-template-columns:1fr 1fr}
+    .row3{grid-template-columns:1fr 1fr auto}
+    .btn{height:44px;padding:0 16px;border-radius:12px;border:1.5px solid var(--border-strong);background:#fff;font-weight:800;cursor:pointer}
+    .btn.primary{background:var(--pri);border-color:var(--pri);color:#fff}
+    .btn.primary:hover{filter:brightness(1.07)}
+    .badge{display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--border-strong);border-radius:999px;padding:8px 12px;font-weight:800}
+
+    /* Big blur switch */
+    .switch{display:inline-flex;align-items:center;gap:10px;background:#f2f3f8;border:1.5px solid var(--border-strong);border-radius:999px;padding:6px 10px;font-weight:800}
+    .switch input{display:none}
+    .toggle{position:relative;width:56px;height:28px;border-radius:999px;background:#c7c9d7;border:1px solid #b9bdd0}
+    .toggle::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.15);transition:left .18s ease}
+    input:checked + .toggle{background:#7c83f8}
+    input:checked + .toggle::after{left:30px}
+
+    /* Editor rows */
+    .item{display:grid;grid-template-columns:1fr 1fr 40px;gap:10px;align-items:center;margin-top:10px}
+    .item .x{height:44px;border-radius:12px;border:1.5px solid var(--border-strong);background:#fff;cursor:pointer;font-weight:900}
+
+    /* Blur answers in editor */
+    .blur-answers .ans, .blur-answers .ans input{
+      filter:blur(7px); pointer-events:auto; position:relative;
+    }
+    .blur-answers .ans::after{
+      content:"Blurred — toggle off to reveal";
+      position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+      color:#111; font-weight:900; font-size:12px; opacity:.28;
+    }
+
+    /* Study area + flip animation */
+    .study{min-height:390px;border:1.5px dashed var(--border-strong);border-radius:16px;background:linear-gradient(#fafbff,#fff)}
+    .stage{perspective:1200px;height:260px;margin:16px;border-radius:12px;background:#fff;border:1px solid var(--border-color);display:flex;align-items:center;justify-content:center}
+    .flip{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.8,.2,1)}
+    .flipped .flip{transform:rotateY(180deg)}
+    .face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;backface-visibility:hidden;border-radius:10px}
+    .front{background:#fff}
+    .back{background:#f9fafb;transform:rotateY(180deg)}
+    .q{font-size:clamp(18px,2.6vw,28px);font-weight:800;text-align:center}
+    .a{font-size:clamp(18px,2.6vw,28px);font-weight:900;color:#0ea5e9;text-align:center}
+    .controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+    .stats{display:flex;gap:10px;justify-content:center;color:var(--muted);font-weight:800}
+
+    /* Footer */
+    .site-footer{background:#0f172a;color:#b0bdd8;padding:3rem 2rem;font-size:.9rem;margin-top:3rem}
+    .footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem}
+    .site-footer h4{color:#e6ecff;font-weight:700;margin-bottom:1rem}
+    .site-footer a{color:#b0bdd8;display:block;margin-bottom:.5rem;text-decoration:none}
+    .site-footer a:hover{color:#9db2ff}
+    .legal{text-align:center;margin-top:2.0rem;font-size:.8rem;color:#8b97b8}
+  </style>
+</head>
+<body>
+
+  <!-- ===== Header ===== -->
+  <header class="site-header" id="siteHeader">
+    <div class="nav-left">
+      <a class="brand" href="index.html">ToolHouzz</a>
+    </div>
+    <div class="nav-center">
+      <nav class="nav" aria-label="Primary">
+        <div class="nav-item">
+          <button class="trigger" data-menu="calc" aria-haspopup="dialog" aria-expanded="false">
+            Calculators
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1 0-.708z"/></svg>
+          </button>
+        </div>
+        <div class="nav-item">
+          <button class="trigger" data-menu="conv" aria-haspopup="dialog" aria-expanded="false">
+            Converters
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1 0-.708z"/></svg>
+          </button>
+        </div>
+        <div class="nav-item">
+          <button class="trigger" data-menu="games" aria-haspopup="dialog" aria-expanded="false">
+            Mini Games
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1 0-.708z"/></svg>
+          </button>
+        </div>
+      </nav>
+    </div>
+    <div class="nav-right">
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+    </div>
+  </header>
+
+  <!-- Backdrop + Panels -->
+  <div class="backdrop" id="backdrop" hidden></div>
+
+  <div class="menu-panel" id="panel-calc" role="dialog" aria-modal="true" aria-labelledby="calc-title">
+    <div class="menu-head">
+      <div class="menu-title" id="calc-title">Calculators</div>
+      <button class="menu-close" data-close aria-label="Close">×</button>
+    </div>
+    <div class="drop-grid">
+      <div class="dd-col">
+        <h5>Health &amp; Personal</h5>
+        <a href="bmi.html">BMI Calculator</a>
+        <a href="calorie-macros.html">Calorie &amp; Macros Tracker</a>
+        <a href="age.html">Age Calculator</a>
+      </div>
+      <div class="dd-col">
+        <h5>Study</h5>
+        <a href="flashcards.html">Flashcards</a>
+        <a href="pomodoro.html">Pomodoro Timer</a>
+      </div>
+      <div class="dd-col">
+        <h5>Finance</h5>
+        <a href="loan.html">Loan Calculator</a>
+        <a href="mortgage.html">Mortgage Calculator</a>
+        <a href="budget.html">Budget Planner</a>
+      </div>
+      <div class="dd-col">
+        <h5>Popular</h5>
+        <a href="bmi.html">Quick BMI Check</a>
+        <a href="budget.html">Monthly Budget</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-panel" id="panel-conv" role="dialog" aria-modal="true" aria-labelledby="conv-title">
+    <div class="menu-head">
+      <div class="menu-title" id="conv-title">Converters</div>
+      <button class="menu-close" data-close aria-label="Close">×</button>
+    </div>
+    <div class="drop-grid">
+      <div class="dd-col">
+        <h5>PDF</h5>
+        <a href="image-to-pdf.html">Image → PDF</a>
+        <a href="merge-pdfs.html">Merge PDFs</a>
+        <a href="compress-pdf.html">Compress PDF</a>
+        <a href="pdf-split-reorder.html">Split &amp; Reorder PDF</a>
+      </div>
+      <div class="dd-col">
+        <h5>Images</h5>
+        <a href="png-to-svg.html">PNG → SVG</a>
+      </div>
+      <div class="dd-col">
+        <h5>General</h5>
+        <a href="unit-converter.html">Unit Converter</a>
+        <a href="file-converter.html">File Converter</a>
+      </div>
+      <div class="dd-col">
+        <h5>Utility</h5>
+        <a href="qr.html">QR Code Generator</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-panel" id="panel-games" role="dialog" aria-modal="true" aria-labelledby="games-title">
+    <div class="menu-head">
+      <div class="menu-title" id="games-title">Mini Games</div>
+      <button class="menu-close" data-close aria-label="Close">×</button>
+    </div>
+    <div class="drop-grid">
+      <div class="dd-col"><h5>Brain</h5><a href="tic-tac-toe.html">Tic-Tac-Toe (Single Player)</a></div>
+      <div class="dd-col"><h5>Arcade</h5><a href="flappy.html">Flappy</a></div>
+      <div class="dd-col"><h5>Popular</h5><a href="tic-tac-toe.html">Play Tic-Tac-Toe</a><a href="flappy.html">Play Flappy</a></div>
+      <div class="dd-col"><h5>Coming Soon</h5><a href="#">More mini games</a></div>
+    </div>
+  </div>
+
+  <!-- ===== Hero ===== -->
+  <section class="hero">
+    <h1>Flashcards</h1>
+    <p>Create, import (.csv), study with a <strong>flip animation</strong>, and export — everything stays in your browser.</p>
+  </section>
+
+  <!-- ===== App ===== -->
+  <section class="wrap">
+    <!-- Builder -->
+    <div class="card">
+      <div class="row row2">
+        <div>
+          <label>Deck name</label>
+          <input id="deckName" type="text" placeholder="My deck">
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+          <button id="newDeck" class="btn">New deck</button>
+          <button id="saveDeck" class="btn">Save</button>
+          <span class="badge" title="Card count"><span id="count">0</span>&nbsp;cards</span>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <button id="importCsv" class="btn">Import CSV</button>
+        <button id="exportCsv" class="btn">Export CSV</button>
+
+        <label class="switch" title="Blur answers on the left while building">
+          <span>Hide answers in editor</span>
+          <input id="blurToggle" type="checkbox">
+          <span class="toggle" aria-hidden="true"></span>
+        </label>
+      </div>
+
+      <div class="row row3" style="margin-top:10px">
+        <div>
+          <label>Term / Question</label>
+          <input id="qIn" type="text" placeholder="e.g., Earth is the ___ planet from the Sun">
+        </div>
+        <div class="ans">
+          <label>Definition / Answer</label>
+          <input id="aIn" type="text" placeholder="e.g., third">
+        </div>
+        <div style="align-self:end">
+          <button id="add" class="btn primary">Add</button>
+        </div>
+      </div>
+
+      <div id="list"></div>
+
+      <details style="margin-top:12px">
+        <summary class="badge">How to use</summary>
+        <ul style="margin:.4rem 0 0 1rem">
+          <li>Type a term &amp; an answer and press <strong>Add</strong>. Click the “×” on a row to remove it.</li>
+          <li><strong>Import CSV</strong> accepts two columns: <em>Question,Answer</em>. Use <strong>Export CSV</strong> to download your deck.</li>
+          <li>Turn on <strong>Hide answers in editor</strong> (big switch) to blur answers while you build.</li>
+          <li>When you press <strong>Flip</strong> or <strong>Next</strong> to start studying, the editor blurs automatically.</li>
+        </ul>
+      </details>
+    </div>
+
+    <!-- Study -->
+    <div class="card">
+      <div class="stage" id="stage">
+        <div class="flip" id="flip">
+          <div class="face front"><div class="q" id="qOut">Add some cards to begin</div></div>
+          <div class="face back"><div class="a" id="aOut">—</div></div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="prev" class="btn">← Prev</button>
+        <button id="flipBtn" class="btn primary">Flip</button>
+        <button id="next" class="btn">Next →</button>
+      </div>
+      <div class="controls">
+        <button id="again" class="btn">Again</button>
+        <button id="good"  class="btn">Good</button>
+        <button id="easy"  class="btn">Easy</button>
+      </div>
+      <div class="stats" id="stats">0/0 • Known: 0 • Hard: 0</div>
+    </div>
+  </section>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <div class="brand small" style="font-weight:900;color:#e6ecff">ToolHouzz</div>
+        <p>Free tools for everyone. No sign-up needed.</p>
+      </div>
+      <div>
+        <h4>Links</h4>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </div>
+      <div>
+        <h4>Calculators</h4>
+        <a href="bmi.html">BMI</a>
+        <a href="calorie-macros.html">Calorie &amp; Macros</a>
+        <a href="pomodoro.html">Pomodoro Timer</a>
+      </div>
+      <div>
+        <h4>PDF Tools</h4>
+        <a href="image-to-pdf.html">Image → PDF</a>
+        <a href="merge-pdfs.html">Merge PDFs</a>
+        <a href="compress-pdf.html">Compress PDF</a>
+        <a href="pdf-split-reorder.html">Split &amp; Reorder PDF</a>
+      </div>
+    </div>
+    <p class="legal">© <span id="year"></span> ToolHouzz. All rights reserved.</p>
+  </footer>
+
+  <!-- ===== Panels + App JS ===== -->
+  <script>
+    // footer year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // ===== Attached dropdown panels (same behavior as index) =====
+    const header=document.getElementById('siteHeader');
+    const backdrop=document.getElementById('backdrop');
+    const panels={calc:document.getElementById('panel-calc'),conv:document.getElementById('panel-conv'),games:document.getElementById('panel-games')};
+    let openKey=null,closeTimer=null;
+    const placePanel=p=>{const r=header.getBoundingClientRect();const top=r.bottom+(parseInt(getComputedStyle(document.documentElement).getPropertyValue('--attach-gap'))||8);p.style.top=`${top}px`;};
+    const showBackdrop=()=>{backdrop.hidden=false;requestAnimationFrame(()=>backdrop.classList.add('show'));};
+    const hideBackdrop=()=>{backdrop.classList.remove('show');setTimeout(()=>{if(!openKey)backdrop.hidden=true;},180);};
+    function openPanel(key,btn){if(openKey&&openKey!==key){panels[openKey].classList.remove('show');const prev=document.querySelector(`.trigger[data-menu="${openKey}"]`);if(prev)prev.setAttribute('aria-expanded','false');}
+      openKey=key;placePanel(panels[key]);showBackdrop();panels[key].classList.add('show');if(btn)btn.setAttribute('aria-expanded','true');}
+    function scheduleClose(){clearTimeout(closeTimer);closeTimer=setTimeout(closePanel,120);}
+    function cancelClose(){clearTimeout(closeTimer);}
+    function closePanel(){if(!openKey){hideBackdrop();return;}panels[openKey].classList.remove('show');const btn=document.querySelector(`.trigger[data-menu="${openKey}"]`);if(btn)btn.setAttribute('aria-expanded','false');openKey=null;hideBackdrop();}
+    window.addEventListener('resize',()=>{if(openKey)placePanel(panels[openKey]);});
+    window.addEventListener('scroll',()=>{if(openKey)placePanel(panels[openKey]);});
+    const isDesktopHover=window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+    document.querySelectorAll('.trigger').forEach(btn=>{
+      const key=btn.dataset.menu;
+      if(isDesktopHover){btn.addEventListener('mouseenter',()=>openPanel(key,btn));btn.addEventListener('mouseleave',scheduleClose);panels[key].addEventListener('mouseenter',cancelClose);panels[key].addEventListener('mouseleave',scheduleClose);}
+      btn.addEventListener('click',e=>{e.preventDefault();if(openKey===key){closePanel();return;}openPanel(key,btn);});
+      btn.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();if(openKey===key){closePanel();return;}openPanel(key,btn);}});
+    });
+    backdrop.addEventListener('click',closePanel);
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')closePanel();});
+
+    // ===== Flashcards app =====
+    (() => {
+      const $ = (id) => document.getElementById(id);
+      const deck = { name:'My deck', items:[] };
+      let i = 0, flipped = false, started = false;
+      let known = 0, hard = 0;
+
+      const deckName = $('deckName'), list = $('list'), count = $('count');
+      const qIn=$('qIn'), aIn=$('aIn'), blurToggle=$('blurToggle');
+
+      function saveToLS(){ localStorage.setItem('th_flashcards', JSON.stringify(deck)); }
+      function loadFromLS(){
+        const s = localStorage.getItem('th_flashcards');
+        if (!s) { deck.items = []; deck.name='My deck'; }
+        else try { const d = JSON.parse(s); deck.name=d.name||'My deck'; deck.items=d.items||[]; } catch {}
+      }
+
+      function renderList(){
+        list.innerHTML='';
+        deck.items.forEach((it,idx)=>{
+          const row = document.createElement('div');
+          row.className='item';
+          row.innerHTML = `
+            <div><input type="text" value="${it.q.replaceAll('"','&quot;')}" data-i="${idx}" data-k="q"></div>
+            <div class="ans"><input type="text" value="${it.a.replaceAll('"','&quot;')}" data-i="${idx}" data-k="a"></div>
+            <button class="x" data-del="${idx}" title="Remove">×</button>`;
+          list.appendChild(row);
+        });
+        count.textContent = String(deck.items.length);
+        deckName.value = deck.name;
+        applyBlur();
+      }
+      function applyBlur(){ document.body.classList.toggle('blur-answers', blurToggle.checked); }
+
+      function showCard(){
+        const empty = deck.items.length===0;
+        $('qOut').textContent = empty ? 'Add some cards to begin' : deck.items[i].q;
+        $('aOut').textContent = empty ? '—' : deck.items[i].a;
+        flipped=false; $('stage').classList.remove('flipped');
+        $('stats').textContent = `${deck.items.length? i+1:0}/${deck.items.length} • Known: ${known} • Hard: ${hard}`;
+      }
+
+      // init
+      loadFromLS(); renderList(); showCard();
+
+      // builder events
+      list.addEventListener('input', (e)=>{
+        const t = e.target; if (!t.dataset) return;
+        const id = +t.dataset.i; const k = t.dataset.k;
+        if (!Number.isNaN(id) && (k==='q'||k==='a')) deck.items[id][k]=t.value;
+        saveToLS();
+      });
+      list.addEventListener('click', (e)=>{
+        const id = +e.target.dataset.del; if (Number.isNaN(id)) return;
+        deck.items.splice(id,1); if (i>=deck.items.length) i=Math.max(0,deck.items.length-1);
+        saveToLS(); renderList(); showCard();
+      });
+
+      $('add').onclick = ()=>{
+        const q = (qIn.value||'').trim(), a = (aIn.value||'').trim();
+        if (!q || !a){ aIn.focus(); return; }
+        deck.items.push({q,a}); qIn.value=''; aIn.value=''; saveToLS(); renderList(); if(deck.items.length===1) showCard();
+      };
+      $('newDeck').onclick = ()=>{ deck.items=[]; deck.name='Untitled'; i=0; known=hard=0; saveToLS(); renderList(); showCard(); };
+      $('saveDeck').onclick = ()=>{ deck.name=deckName.value||'My deck'; saveToLS(); alert('Saved locally.'); };
+      blurToggle.onchange = applyBlur;
+
+      // CSV import/export
+      $('exportCsv').onclick = ()=>{
+        const rows = deck.items.map(it=>{
+          const q = `"${it.q.replaceAll('"','""')}"`;
+          const a = `"${it.a.replaceAll('"','""')}"`;
+          return `${q},${a}`;
+        });
+        const blob = new Blob([rows.join('\n')], {type:'text/csv'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href=url; a.download=(deck.name||'deck')+'.csv';
+        document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      };
+      $('importCsv').onclick = ()=>{
+        const inp = document.createElement('input'); inp.type='file'; inp.accept='.csv,text/csv';
+        inp.onchange = async (e)=>{
+          const file = e.target.files[0]; if(!file) return;
+          const text = await file.text();
+          const lines = text.split(/\r?\n/).filter(Boolean);
+          const items = lines.map(line=>{
+            const m = line.match(/^("(?:[^"]|"")*"|[^,]*),(.*)$/);
+            let q=line, a=''; if(m){ q=m[1]; a=m[2]; }
+            const unq = s => s.replace(/^"/,'').replace(/"$/,'').replace(/""/g,'"');
+            return {q:unq(q.trim()), a:unq(a.trim())};
+          });
+          deck.items = items; i=0; known=hard=0; saveToLS(); renderList(); showCard();
+        };
+        inp.click();
+      };
+
+      // study controls + auto-blur when starting
+      function startStudyAutoBlur(){
+        if (!started){ started = true; if (!blurToggle.checked){ blurToggle.checked = true; applyBlur(); }}
+      }
+      $('flipBtn').onclick = ()=>{ if(!deck.items.length) return; $('stage').classList.toggle('flipped'); startStudyAutoBlur(); };
+      $('next').onclick = ()=>{ if(!deck.items.length) return; i=(i+1)%deck.items.length; $('stage').classList.remove('flipped'); showCard(); startStudyAutoBlur(); };
+      $('prev').onclick = ()=>{ if(!deck.items.length) return; i=(i-1+deck.items.length)%deck.items.length; $('stage').classList.remove('flipped'); showCard(); startStudyAutoBlur(); };
+
+      $('again').onclick = ()=>{ hard++; if(deck.items.length){ deck.items.push(deck.items.splice(i,1)[0]); if(i>=deck.items.length) i=deck.items.length-1; showCard(); } };
+      $('good').onclick = ()=>{ known++; $('next').click(); };
+      $('easy').onclick = ()=>{ known++; $('next').click(); };
+    })();
+  </script>
+</body>
+</html>
