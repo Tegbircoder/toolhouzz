@@ -39,7 +39,7 @@
     .search:focus{border-color:#818cf8;box-shadow:0 0 0 3px rgba(99,102,241,.15)}
     .btn{height:40px;padding:0 14px;border-radius:12px;border:1.5px solid var(--border-strong);background:#fff;font-weight:800;cursor:pointer}
     .btn.primary{background:#4f46e5;color:#fff;border-color:#4f46e5}.btn.primary:hover{filter:brightness(1.05)}
-    .dropzone{border:1.5px dashed var(--border-strong);border-radius:14px;padding:22px 14px;text-align:center;background:linear-gradient(180deg,#f8fafc,#fff)}
+    .dropzone{border:1.5px dashed var(--border-strong);border-radius:14px;padding:22px 14px;text-align:center;background:linear-gradient(180deg,#f8fafc,#fff);position:relative}
     .list{display:grid;gap:10px;margin-top:12px}
     .page-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;border:1px solid var(--border);border-radius:12px;background:#fbfcff;padding:8px}
     .thumb{width:96px;height:128px;background:#fff;border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden}
@@ -53,6 +53,15 @@
     .link-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
     .link-card{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:#fff}
     small{color:var(--muted)}
+
+    /* In-dropzone progress */
+    .dz-tag{
+      display:inline-block;margin-left:6px;font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid #e0e7ff;background:#eef2ff;color:#3730a3
+    }
+    .dz-tag.busy{background:#fff7ed;color:#9a3412;border-color:#ffedd5}
+    .dz-rail{position:absolute;left:12px;right:12px;bottom:12px;height:12px;border-radius:999px;overflow:hidden;background:#eef2ff;border:1px solid #e0e7ff;display:none}
+    .dz-bar{height:100%;width:0%;background:linear-gradient(90deg,#6366f1,#4f46e5);transition:width .12s linear}
+    .dz-pct{position:absolute;right:18px;bottom:30px;font-size:12px;font-weight:700;color:#3730a3;display:none;user-select:none}
   </style>
 </head>
 <body class="theme-light">
@@ -83,9 +92,11 @@
         </div>
 
         <div id="dropzone" class="dropzone" style="margin-top:12px">
-          <p style="margin:0 0 8px"><strong>Drop a PDF here</strong> or click to select</p>
+          <p style="margin:0 0 8px"><strong>Drop a PDF here</strong> or click to select <span id="dzTag" class="dz-tag">Idle</span></p>
           <input id="fileInput" type="file" accept="application/pdf" style="display:none">
           <button class="btn" id="browseBtn" type="button">Choose PDF</button>
+          <div class="dz-rail" id="dzRail" aria-hidden="true"><div class="dz-bar" id="dzBar"></div></div>
+          <div class="dz-pct" id="dzPct">0%</div>
           <div style="font-size:12px;color:var(--muted);margin-top:6px">Large PDFs are supported (processed locally).</div>
         </div>
 
@@ -136,16 +147,22 @@
   <script>
     (() => {
       const $ = id => document.getElementById(id);
-
       const state = { pdf: null, numPages: 0, order: [], selected: [], pageThumbs: [] };
 
       if (window['pdfjsLib']) {
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.10.111/build/pdf.worker.min.js';
       }
 
+      const dzRail = $('dzRail'), dzBar = $('dzBar'), dzPct = $('dzPct'), dzTag = $('dzTag');
+      const dzShow = () => { dzRail.style.display='block'; dzPct.style.display='block'; };
+      const dzHide = () => { dzRail.style.display='none'; dzPct.style.display='none'; dzSet(0); dzBusy(false); };
+      const dzSet  = p => { p=Math.max(0,Math.min(100, p|0)); dzBar.style.width=p+'%'; dzPct.textContent=p+'%'; };
+      const dzBusy = on => dzTag.classList.toggle('busy', !!on);
+      const dzText = t => { dzTag.textContent=t; };
+
       function setStatus(msg){ $('status').textContent = msg || ''; }
 
-      // --- FIX: prevent double-open ---
+      // prevent double-open
       $('browseBtn').addEventListener('click', (e)=>{ e.stopPropagation(); $('fileInput').click(); });
       const dz = $('dropzone');
       dz.addEventListener('click', (e)=>{ if (e.target.closest('button')) return; $('fileInput').click(); });
@@ -164,6 +181,7 @@
       });
 
       async function loadPdfFile(file){
+        dzShow(); dzBusy(true); dzText('Loading…'); dzSet(2);
         setStatus('Loading PDF…');
         $('pages').innerHTML = '';
         state.pdf = null; state.order = []; state.selected = []; state.pageThumbs = [];
@@ -174,12 +192,10 @@
         const pdf = await pdfjsLib.getDocument({data: buf}).promise;
         state.numPages = pdf.numPages;
         state.pdf = pdf;
-
         state.order = Array.from({length: pdf.numPages}, (_,i)=>i+1);
         state.selected = Array.from({length: pdf.numPages}, ()=>true);
 
         setStatus('Rendering thumbnails…');
-
         for (let i=1;i<=pdf.numPages;i++){
           const page = await pdf.getPage(i);
           const viewport = page.getViewport({scale: 0.25});
@@ -188,11 +204,13 @@
           canvas.width = Math.floor(viewport.width); canvas.height = Math.floor(viewport.height);
           await page.render({canvasContext: ctx, viewport}).promise;
           state.pageThumbs[i] = canvas;
-
           addPageRow(i, canvas);
           setStatus(`Rendered ${i}/${pdf.numPages}…`);
+          dzSet(Math.min(95, Math.round((i/pdf.numPages)*90)+5));
         }
         setStatus('Ready.');
+        dzSet(100); dzText('Ready'); dzBusy(false);
+        setTimeout(dzHide, 600);
       }
 
       function addPageRow(pageNum, canvas){
@@ -278,7 +296,7 @@
       $('exportBtn').onclick = async ()=>{
         if(!state.pdf){ setStatus('Load a PDF first.'); return; }
         const mode = $('mode').value;
-        setStatus('Exporting…');
+        setStatus('Exporting…'); dzShow(); dzBusy(true); dzText('Exporting…'); dzSet(5);
 
         const loadingTask = state.pdf;
         const docData = await loadingTask.getData();
@@ -289,15 +307,18 @@
         const chosenOrder = state.order.filter((p,i)=> state.selected[i] || mode==='split-all');
 
         if (mode === 'one') {
-          if (chosenOrder.length === 0){ setStatus('Select at least one page.'); return; }
+          if (chosenOrder.length === 0){ setStatus('Select at least one page.'); dzHide(); return; }
           const out = await PDFDocument.create();
           const pages = await out.copyPages(source, chosenOrder.map(p=>p-1));
           pages.forEach(p=> out.addPage(p));
+          dzSet(85);
           const bytes = await out.save();
           downloadBlob(new Blob([bytes],{type:'application/pdf'}), sanitizeName($('outBase').value || 'document') + '_selected.pdf');
+          dzSet(100); dzText('Downloaded'); dzBusy(false); setTimeout(dzHide,600);
           setStatus('Done. Downloaded your PDF.');
         } else {
-          for (let i=0;i<(mode==='split-all'?state.order.length:chosenOrder.length);i++){
+          const total = (mode==='split-all'?state.order.length:chosenOrder.length);
+          for (let i=0;i<total;i++){
             const pageNum = (mode==='split-all'? state.order[i] : chosenOrder[i]);
             const out = await PDFDocument.create();
             const [page] = await out.copyPages(source, [pageNum-1]);
@@ -305,8 +326,9 @@
             const bytes = await out.save();
             const name = sanitizeName($('outBase').value || 'document') + `_p${pageNum}.pdf`;
             downloadBlob(new Blob([bytes],{type:'application/pdf'}), name);
-            await delay(60);
+            dzSet(5 + Math.round(((i+1)/total)*90));
           }
+          dzSet(100); dzText('Downloaded'); dzBusy(false); setTimeout(dzHide,600);
           setStatus('Done. Exported pages.');
         }
       };
@@ -316,7 +338,6 @@
         const a = document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); a.remove();
         URL.revokeObjectURL(url);
       }
-      const delay = ms=>new Promise(r=>setTimeout(r,ms));
       const sanitizeName = s => (s||'').trim().replace(/[/\\?%*:|"<>]/g,'_') || 'document';
     })();
   </script>

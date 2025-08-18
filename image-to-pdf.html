@@ -22,13 +22,36 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="th-layout.css" />
-  <style>.nav-right{gap:14px}</style>
+  <style>
+    .nav-right{gap:14px}
+    /* In-box progress */
+    .dz-progress-wrap{ position:relative; }
+    .dz-progress-rail{
+      position:absolute; left:12px; right:12px; bottom:12px;
+      height:12px; border-radius:999px; overflow:hidden;
+      background:#eef2ff; border:1px solid #e0e7ff; display:none;
+    }
+    .dz-progress-bar{
+      height:100%; width:0%;
+      background:linear-gradient(90deg, #6366f1, #7c3aed);
+      transition:width .12s linear;
+    }
+    .dz-progress-text{
+      position:absolute; right:18px; bottom:30px; font-size:12px; font-weight:700; color:#3730a3; display:none;
+      user-select:none;
+    }
+    .dz-tag{
+      display:inline-block; font-size:12px; padding:2px 8px; border-radius:999px; border:1px solid #e0e7ff;
+      background:#eef2ff; color:#3730a3; margin-left:6px;
+    }
+    .dz-tag.busy{ background:#fff7ed; color:#9a3412; border-color:#ffedd5 }
+  </style>
 </head>
 <body class="theme-light">
   <section class="tool-hero" data-theme="indigo">
     <div class="hero-inner">
       <h1 class="hero-title">Image → PDF Converter</h1>
-      <p class="hero-sub">Combine JPG/PNG/WebP into a single PDF with margins & fit options. Fast, private, in-browser.</p>
+      <p class="hero-sub">Combine JPG/PNG/WebP into a single PDF with margins &amp; fit options. Fast, private, in-browser.</p>
       <a class="btn primary" href="#tool" style="margin-top:14px">Start</a>
     </div>
   </section>
@@ -61,10 +84,15 @@
           </div>
         </div>
 
-        <div id="dropzone" class="dropzone" style="margin-top:14px;border-radius:12px;padding:18px;background:var(--panel);text-align:center">
-          <p style="margin:0 0 10px"><strong>Drop images here</strong> or click to select</p>
+        <!-- DROPZONE with embedded progress UI -->
+        <div id="dropzone" class="dropzone dz-progress-wrap" style="margin-top:14px;border-radius:12px;padding:18px;background:var(--panel);text-align:center; position:relative;">
+          <p style="margin:0 0 10px"><strong>Drop images here</strong> or click to select <span id="dzStatus" class="dz-tag">Idle</span></p>
           <input id="fileInput" type="file" accept="image/*" multiple style="display:none" />
           <button class="btn" id="browseBtn" type="button">Choose Images</button>
+
+          <div class="dz-progress-rail" id="dzProgRail" aria-hidden="true"><div class="dz-progress-bar" id="dzProgBar"></div></div>
+          <div class="dz-progress-text" id="dzProgText">0%</div>
+
           <div style="font-size:12px;color:var(--muted);margin-top:8px">JPG, PNG, WebP • Reorder below</div>
         </div>
 
@@ -108,98 +136,81 @@
       </div>
     </div>
   </section>
-  <div class="status-bar-container">
-    <div class="status-bar" id="statusBar"></div>
-    <div class="status-message" id="statusMessage"></div>
-  </div>
 
   <script src="app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
     const state = { items: [] };
-    const dropzone = document.getElementById('dropzone');
-    const fileInput = document.getElementById('fileInput');
-    const browseBtn = document.getElementById('browseBtn');
-    const list = document.getElementById('list');
-    const statusEl = document.getElementById('status');
-    const statusBar = document.getElementById('statusBar');
-    const statusMessage = document.getElementById('statusMessage');
+    const $ = id => document.getElementById(id);
+    const dropzone = $('dropzone'), fileInput = $('fileInput'), browseBtn = $('browseBtn');
+    const list = $('list'), statusEl = $('status');
 
-    function updateStatus(message, showBar = false) {
-      statusMessage.textContent = message;
-      statusMessage.classList.add('show');
-      if (showBar) {
-        statusBar.style.width = '100%';
-        statusBar.style.transition = 'width 25s linear';
-      } else {
-        statusBar.style.width = '0';
-        statusBar.style.transition = 'none';
-        setTimeout(() => statusMessage.classList.remove('show'), 3000);
-      }
-    }
+    // Progress elements
+    const dzStatus = $('dzStatus');
+    const dzProgRail = $('dzProgRail');
+    const dzProgBar = $('dzProgBar');
+    const dzProgText = $('dzProgText');
+    function dzSet(p){ p=Math.max(0,Math.min(100,p|0)); dzProgBar.style.width=p+'%'; dzProgText.textContent=p+'%'; }
+    function dzShow(){ dzProgRail.style.display='block'; dzProgText.style.display='block'; dzSet(0); }
+    function dzHide(){ dzProgRail.style.display='none'; dzProgText.style.display='none'; dzSet(0); }
+    function dzTag(t, busy=false){ dzStatus.textContent=t; dzStatus.classList.toggle('busy', busy); }
 
     const readImage = (file) => new Promise((resolve,reject)=>{
       const fr = new FileReader();
-      fr.onload = () => {
-        const img = new Image();
-        img.onload = () => resolve({ url: fr.result, w: img.naturalWidth, h: img.naturalHeight, file });
-        img.onerror = reject; img.src = fr.result;
-      };
+      fr.onload = () => { const img = new Image(); img.onload = () => resolve({ url: fr.result, w: img.naturalWidth, h: img.naturalHeight, file }); img.onerror = reject; img.src = fr.result; };
       fr.onerror = reject; fr.readAsDataURL(file);
     });
 
     function renderList(){
       list.innerHTML = "";
       state.items.forEach((it, i)=>{
-        const row = document.createElement('div');
+        const row=document.createElement('div');
         row.className='list-item';
-        row.style.display='grid'; row.style.gridTemplateColumns='64px 1fr auto';
-        row.style.alignItems='center'; row.style.gap='10px'; row.style.borderRadius='12px';
-        row.style.padding='8px 10px'; row.style.background='var(--panel)';
-
-        const thumb = document.createElement('img');
-        thumb.src = it.url; thumb.style.width='64px'; thumb.style.height='64px';
-        thumb.style.objectFit='cover'; thumb.style.borderRadius='8px';
-
-        const meta = document.createElement('div');
-        meta.innerHTML = `<div style="font-weight:600">${it.file.name}</div>
-                          <div style="color:var(--muted);font-size:12px">${it.w}×${it.h}px</div>`;
-
-        const actions = document.createElement('div'); actions.style.display='flex'; actions.style.gap='8px';
-        const up = document.createElement('button'); up.className='btn'; up.textContent='↑';
-        const down = document.createElement('button'); down.className='btn'; down.textContent='↓';
-        const del = document.createElement('button'); del.className='btn'; del.textContent='✕';
-
-        up.onclick=()=>{ if(i>0){ [state.items[i-1], state.items[i]]=[state.items[i], state.items[i-1]]; renderList(); }};
-        down.onclick=()=>{ if(i<state.items.length-1){ [state.items[i+1], state.items[i]]=[state.items[i], state.items[i+1]]; renderList(); }};
+        row.style.cssText='display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:12px;background:var(--panel)';
+        const thumb=document.createElement('img'); thumb.src=it.url; thumb.style.width='64px'; thumb.style.height='64px'; thumb.style.objectFit='cover'; thumb.style.borderRadius='8px';
+        const meta=document.createElement('div'); meta.innerHTML=`<div style="font-weight:600">${it.file.name}</div><div style="color:var(--muted);font-size:12px">${it.w}×${it.h}px</div>`;
+        const actions=document.createElement('div'); actions.style.display='flex'; actions.style.gap='8px';
+        const up=document.createElement('button'); up.className='btn'; up.textContent='↑';
+        const down=document.createElement('button'); down.className='btn'; down.textContent='↓';
+        const del=document.createElement('button'); del.className='btn'; del.textContent='✕';
+        up.onclick=()=>{ if(i>0){ [state.items[i-1], state.items[i]]=[state.items[i], state.items[i-1]]; renderList(); } };
+        down.onclick=()=>{ if(i<state.items.length-1){ [state.items[i+1], state.items[i]]=[state.items[i], state.items[i+1]]; renderList(); } };
         del.onclick=()=>{ state.items.splice(i,1); renderList(); };
-
         actions.append(up,down,del); row.append(thumb,meta,actions); list.append(row);
       });
     }
 
-    // --- FIX: prevent double-open ---
-    browseBtn.addEventListener('click', (e)=>{ e.stopPropagation(); fileInput.click(); });
-    dropzone.addEventListener('click', (e)=>{ if (e.target.closest('button')) return; fileInput.click(); });
+    // Prevent double-open
+    browseBtn.addEventListener('click', e=>{ e.stopPropagation(); fileInput.click(); });
+    dropzone.addEventListener('click', e=>{ if(e.target.closest('button')) return; fileInput.click(); });
 
-    fileInput.onchange = async (e)=>{
-      const files = [...e.target.files];
-      for (const f of files){ state.items.push(await readImage(f)); }
-      renderList(); fileInput.value="";
+    fileInput.onchange = async e=>{
+      const files=[...e.target.files]; if(!files.length) return;
+      dzShow(); dzTag('Loading…', true); statusEl.textContent="Loading images…";
+      for(let i=0;i<files.length;i++){
+        state.items.push(await readImage(files[i]));
+        dzSet(Math.min(95, Math.round(((i+1)/files.length)*90)+5));
+      }
+      renderList(); e.target.value="";
+      dzSet(100); dzTag(`Selected ${state.items.length} image(s)`, false); setTimeout(dzHide,500);
     };
 
-    ['dragenter','dragover'].forEach(ev=> dropzone.addEventListener(ev, e=>{ e.preventDefault(); dropzone.style.borderColor='var(--border-stronger)'; }));
-    ['dragleave','drop'].forEach(ev=> dropzone.addEventListener(ev, e=>{ e.preventDefault(); dropzone.style.borderColor='var(--border-strong)'; }));
-    dropzone.addEventListener('drop', async (e)=>{
-      const files = [...e.dataTransfer.files].filter(f=>f.type.startsWith('image/'));
-      for (const f of files){ state.items.push(await readImage(f)); }
+    ['dragenter','dragover'].forEach(ev=> dropzone.addEventListener(ev,e=>{ e.preventDefault(); dropzone.style.borderColor='var(--border-stronger)'; }));
+    ['dragleave','drop'].forEach(ev=> dropzone.addEventListener(ev,e=>{ e.preventDefault(); dropzone.style.borderColor='var(--border-strong)'; }));
+    dropzone.addEventListener('drop', async e=>{
+      const files=[...e.dataTransfer.files].filter(f=>f.type.startsWith('image/')); if(!files.length) return;
+      dzShow(); dzTag('Loading…', true); statusEl.textContent="Loading images…";
+      for(let i=0;i<files.length;i++){
+        state.items.push(await readImage(files[i]));
+        dzSet(Math.min(95, Math.round(((i+1)/files.length)*90)+5));
+      }
       renderList();
+      dzSet(100); dzTag(`Selected ${state.items.length} image(s)`, false); setTimeout(dzHide,500);
     });
 
     document.getElementById('makePdfBtn').onclick = async ()=>{
-      if (state.items.length === 0){ updateStatus("Add at least one image."); statusEl.textContent = "Add at least one image."; return; }
-      updateStatus("Building PDF...", true);
-      statusEl.textContent = "Building PDF…";
+      if (state.items.length === 0){ dzTag("Add at least one image."); statusEl.textContent="Add at least one image."; return; }
+      dzShow(); dzTag("Building PDF…", true); statusEl.textContent = "Building PDF…";
 
       const size = document.getElementById('pageSize').value;
       const margin = parseInt(document.getElementById('margins').value, 10);
@@ -217,24 +228,32 @@
         const pageH = doc.internal.pageSize.getHeight();
         const maxW = pageW - margin*2, maxH = pageH - margin*2;
         const imgRatio = it.w / it.h, pageRatio = maxW / maxH;
-
         let drawW, drawH;
+
         if (fitMode === 'contain'){
-          if (imgRatio > pageRatio){ drawW = maxW; drawH = maxW / imgRatio; }
-          else { drawH = maxH; drawW = maxH * imgRatio; }
+          if (imgRatio > pageRatio){ drawW = maxW; drawH = maxW / imgRatio; } else { drawH = maxH; drawW = maxH * imgRatio; }
         } else {
-          if (imgRatio > pageRatio){ drawH = maxH; drawW = maxH * imgRatio; }
-          else { drawW = maxW; drawH = maxW / imgRatio; }
+          if (imgRatio > pageRatio){ drawH = maxH; drawW = maxH * imgRatio; } else { drawW = maxW; drawH = maxW / imgRatio; }
         }
+
         const x = (pageW - drawW)/2, y = (pageH - drawH)/2;
         doc.addImage(it.url, 'JPEG', x, y, drawW, drawH, undefined, 'FAST');
+
+        dzSet(Math.min(90, Math.round(((idx+1)/state.items.length)*90)));
       }
-      doc.save('images-to-pdf.pdf');
-      updateStatus("Done! Your PDF was downloaded.");
-      statusEl.textContent = "Done! Your PDF was downloaded.";
+
+      // Controlled download to finish the bar
+      dzTag('Preparing download…', true);
+      const blob = doc.output('blob');
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'images-to-pdf.pdf';
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+
+      dzSet(100); dzTag('Downloaded', false); statusEl.textContent = "Done! Your PDF was downloaded.";
+      setTimeout(dzHide,600);
     };
 
-    document.getElementById('clearBtn').onclick = ()=>{ state.items = []; renderList(); statusEl.textContent = ""; };
+    document.getElementById('clearBtn').onclick = ()=>{ state.items=[]; renderList(); statusEl.textContent=""; dzShow(); dzTag('Cleared'); dzSet(100); setTimeout(dzHide,500); };
   </script>
 
   <script src="th-layout.js"></script>

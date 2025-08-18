@@ -24,49 +24,38 @@
   <link rel="stylesheet" href="th-layout.css" />
   <style>
     .nav-right{gap:14px}
-    /* Mobile-friendly adjustments for a clean layout */
+
+    /* Mobile tweaks */
     @media (max-width: 600px) {
-        .grid > .card > div:first-child {
-            grid-template-columns: 1fr !important;
-            gap: 16px;
-        }
-        .dropzone p strong, .dropzone button, .dropzone div {
-            font-size: 14px;
-        }
-        #list > div, #results > div {
-            grid-template-columns: 64px 1fr;
-            gap: 10px;
-        }
-        #list > div button, #results > div button {
-            width: 100%;
-            margin-top: 8px;
-        }
-        .dropzone {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
+      .grid > .card > div:first-child { grid-template-columns: 1fr !important; gap: 16px; }
+      .dropzone p strong, .dropzone button, .dropzone div { font-size: 14px; }
+      #list > div, #results > div { grid-template-columns: 64px 1fr; gap: 10px; }
+      #list > div button, #results > div button { width: 100%; margin-top: 8px; }
+      .dropzone { display:flex; flex-direction:column; align-items:center; }
     }
-    
-    /* New styles for the status bar */
-    .status-bar-container { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; padding: 10px; background-color: transparent; }
-    .status-bar { height: 6px; width: 0; background-color: var(--accent); transition: width 0.3s ease-out; }
-    .status-message {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: rgba(0, 0, 0, 0.75);
-      color: #fff;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 14px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      pointer-events: none;
-      white-space: nowrap;
+
+    /* In-box progress (matches Compress PDF pattern) */
+    .dz-progress-wrap{ position:relative; }
+    .dz-progress-rail{
+      position:absolute; left:12px; right:12px; bottom:12px;
+      height:12px; border-radius:999px; overflow:hidden;
+      background:#eef2ff; border:1px solid #e0e7ff; display:none;
     }
-    .status-message.show { opacity: 1; }
+    .dz-progress-bar{
+      height:100%; width:0%;
+      background:linear-gradient(90deg, #10b981, #059669);
+      transition:width .12s linear;
+    }
+    .dz-progress-text{
+      position:absolute; right:18px; bottom:30px; font-size:12px; font-weight:700; color:#065f46; display:none;
+      user-select:none;
+    }
+    .dz-tag{
+      display:inline-block; font-size:12px; padding:2px 8px; border-radius:999px; border:1px solid #d1fae5;
+      background:#ecfdf5; color:#065f46; margin-left:6px;
+    }
+    .dz-tag.busy{ background:#fff7ed; color:#9a3412; border-color:#ffedd5 }
+    .dz-tag.idle{ background:#eef2ff; color:#3730a3; border-color:#e0e7ff }
   </style>
 </head>
 <body class="theme-light">
@@ -111,10 +100,15 @@
           </div>
         </div>
 
-        <div id="dropzone" class="dropzone" style="margin-top:14px;border-radius:12px;padding:18px;background:var(--panel);text-align:center">
-          <p style="margin:0 0 10px"><strong>Drop images here</strong> or click to select</p>
+        <!-- DROPZONE with embedded progress UI -->
+        <div id="dropzone" class="dropzone dz-progress-wrap" style="margin-top:14px;border-radius:12px;padding:18px;background:var(--panel);text-align:center; position:relative;">
+          <p style="margin:0 0 10px"><strong>Drop images here</strong> or click to select <span id="dzStatus" class="dz-tag idle">Idle</span></p>
           <input id="fileInput" type="file" accept="image/*" multiple style="display:none" />
           <button class="btn" id="browseBtn" type="button">Choose Images</button>
+
+          <div class="dz-progress-rail" id="dzProgRail" aria-hidden="true"><div class="dz-progress-bar" id="dzProgBar"></div></div>
+          <div class="dz-progress-text" id="dzProgText">0%</div>
+
           <div style="font-size:12px;color:var(--muted);margin-top:8px">PNG, JPG, WebP, and more</div>
         </div>
 
@@ -150,11 +144,6 @@
       </div>
     </div>
   </section>
-  
-  <div id="statusBarContainer" class="status-bar-container" style="display:none;">
-    <div class="status-bar" id="statusBar"></div>
-    <div class="status-message" id="statusMessage"></div>
-  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" crossorigin="anonymous"></script>
   <script>
@@ -163,303 +152,180 @@
     const convertBtn = $('convertBtn'), downloadAllBtn = $('downloadAllBtn');
     const state = { items: [] };
 
-    // New elements for the status bar
-    const statusBarContainer = document.getElementById('statusBarContainer');
-    const statusBar = document.getElementById('statusBar');
-    const statusMessage = document.getElementById('statusMessage');
-    
-    function showStatusBar(message, color) {
-        statusBarContainer.style.display = 'block';
-        statusBar.style.width = '0%';
-        statusBar.style.backgroundColor = color;
-        statusMessage.textContent = message;
-        statusMessage.classList.add('show');
-    }
-
-    function hideStatusBar() {
-        statusBarContainer.style.display = 'none';
-        statusBar.style.width = '0%';
-        statusBar.style.backgroundColor = 'var(--accent)';
-        statusMessage.classList.remove('show');
+    // Progress in dropzone
+    const dz = $('dropzone');
+    const dzStatus = $('dzStatus');
+    const dzProgRail = $('dzProgRail');
+    const dzProgBar = $('dzProgBar');
+    const dzProgText = $('dzProgText');
+    function dzSet(p){ p=Math.max(0,Math.min(100,p|0)); dzProgBar.style.width=p+'%'; dzProgText.textContent=p+'%'; }
+    function dzShow(){ dzProgRail.style.display='block'; dzProgText.style.display='block'; dzSet(0); }
+    function dzHide(){ dzProgRail.style.display='none'; dzProgText.style.display='none'; dzSet(0); }
+    function dzTag(text, state='idle'){
+      dzStatus.textContent = text;
+      dzStatus.classList.remove('busy','idle');
+      dzStatus.classList.add(state==='busy'?'busy':'idle');
     }
 
     function enableConvert(b){ convertBtn.disabled = !b; }
     function enableZip(b){ downloadAllBtn.disabled = !b; }
 
     async function getDims(file){
-      // Fast path with createImageBitmap (respects EXIF orientation)
       if (window.createImageBitmap){
         try{
-          const bmp = await createImageBitmap(file, { imageOrientation: 'from-image' });
-          const w = bmp.width, h = bmp.height; bmp.close(); return { w, h };
-        }catch{/* fallback below */}
+          const bmp = await createImageBitmap(file, { imageOrientation:'from-image' });
+          const w=bmp.width,h=bmp.height; bmp.close(); return {w,h};
+        }catch{}
       }
-      // Fallback with Image()
       const url = URL.createObjectURL(file);
       const img = new Image();
-      const dims = await new Promise((res, rej)=>{
-        img.onload = ()=> res({ w: img.naturalWidth, h: img.naturalHeight });
-        img.onerror = rej; img.src = url;
-      });
-      URL.revokeObjectURL(url);
-      return dims;
+      const dims = await new Promise((res,rej)=>{ img.onload=()=>res({w:img.naturalWidth,h:img.naturalHeight}); img.onerror=rej; img.src=url; });
+      URL.revokeObjectURL(url); return dims;
     }
 
     function renderList(){
       list.innerHTML = "";
       state.items.forEach((it,i)=>{
         const row = document.createElement('div');
-        row.className = 'list-item';
-        row.style.cssText = 'display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:12px;background:var(--panel)';
-
-        const thumb = document.createElement('img');
-        thumb.src = it.url; thumb.style.width = '64px'; thumb.style.height='64px';
-        thumb.style.objectFit='cover'; thumb.style.borderRadius='8px';
-
-        const meta = document.createElement('div');
-        meta.innerHTML = `<div style="font-weight:600">${it.name}</div>
-                          <div style="color:var(--muted);font-size:12px">${(it.file.size/1024).toFixed(1)} KB • ${it.w}×${it.h}</div>`;
-
-        const del = document.createElement('button');
-        del.className = 'btn'; del.textContent = '✕';
-        del.onclick = ()=>{
-          URL.revokeObjectURL(it.url);
-          state.items.splice(i,1);
-          renderList();
-          enableConvert(state.items.length>0);
-          if(state.items.filter(x=>x.converted).length===0) enableZip(false);
-        };
-
-        const acts = document.createElement('div'); acts.append(del);
-        row.append(thumb, meta, acts);
-        list.append(row);
+        row.className='list-item';
+        row.style.cssText='display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:12px;background:var(--panel)';
+        const thumb=document.createElement('img'); thumb.src=it.url; thumb.style.width='64px'; thumb.style.height='64px'; thumb.style.objectFit='cover'; thumb.style.borderRadius='8px';
+        const meta=document.createElement('div');
+        meta.innerHTML = `<div style="font-weight:600">${it.name}</div><div style="color:var(--muted);font-size:12px">${(it.file.size/1024).toFixed(1)} KB • ${it.w}×${it.h}</div>`;
+        const del=document.createElement('button'); del.className='btn'; del.textContent='✕';
+        del.onclick=()=>{ URL.revokeObjectURL(it.url); state.items.splice(i,1); renderList(); enableConvert(state.items.length>0); if(state.items.filter(x=>x.converted).length===0) enableZip(false); };
+        const acts=document.createElement('div'); acts.append(del);
+        row.append(thumb,meta,acts); list.append(row);
       });
       enableConvert(state.items.length>0);
     }
 
-    // === File selection ===
-    $('browseBtn').addEventListener('click', (e)=>{
-      // Prevent bubbling to dropzone (avoids double file dialog)
-      e.stopPropagation();
-      $('fileInput').click();
-    });
+    // File picking
+    $('browseBtn').addEventListener('click', e=>{ e.stopPropagation(); $('fileInput').click(); });
+    dz.addEventListener('click', e=>{ if(e.target.closest('button')) return; $('fileInput').click(); });
 
-    $('fileInput').addEventListener('change', async (e)=>{
-      showStatusBar("Uploading files...", '#4f46e5');
-      const files = [...e.target.files].filter(f=>f.type.startsWith('image/'));
-      for (const f of files){
-        const url = URL.createObjectURL(f);
-        const {w,h} = await getDims(f);
+    $('fileInput').addEventListener('change', async e=>{
+      const files=[...e.target.files].filter(f=>f.type.startsWith('image/'));
+      if(!files.length) return;
+      dzShow(); dzTag('Loading…','busy'); statusEl.textContent='Loading images…';
+      for (let i=0;i<files.length;i++){
+        dzSet(Math.min(95, Math.round(((i)/files.length)*90)+5));
+        const f=files[i]; const url=URL.createObjectURL(f); const {w,h}=await getDims(f);
         state.items.push({ file:f, url, name:f.name, w, h });
       }
-      renderList();
-      // Allow picking the same file again later
-      e.target.value = "";
-      statusBar.style.width = '100%';
-      statusBar.style.backgroundColor = '#34d399';
-      statusMessage.textContent = "Upload complete!";
-      setTimeout(hideStatusBar, 2000);
+      dzSet(100); dzTag(`Selected ${state.items.length} image(s)`,'idle'); setTimeout(dzHide,500);
+      renderList(); e.target.value="";
     });
 
-    const dz = $('dropzone');
-    ['dragenter','dragover'].forEach(ev=> dz.addEventListener(ev, e=>{
-      e.preventDefault(); dz.style.borderColor='var(--border-stronger)';
-    }));
-    ['dragleave','drop'].forEach(ev=> dz.addEventListener(ev, e=>{
-      e.preventDefault(); dz.style.borderColor='var(--border-strong)';
-    }));
-    dz.addEventListener('drop', async (e)=>{
-      showStatusBar("Uploading files...", '#4f46e5');
-      const files = [...e.dataTransfer.files].filter(f=>f.type.startsWith('image/'));
-      for (const f of files){
-        const url = URL.createObjectURL(f);
-        const {w,h} = await getDims(f);
+    ['dragenter','dragover'].forEach(ev=> dz.addEventListener(ev,e=>{ e.preventDefault(); dz.style.borderColor='var(--border-stronger)'; }));
+    ['dragleave','drop'].forEach(ev=> dz.addEventListener(ev,e=>{ e.preventDefault(); dz.style.borderColor='var(--border-strong)'; }));
+    dz.addEventListener('drop', async e=>{
+      const files=[...e.dataTransfer.files].filter(f=>f.type.startsWith('image/'));
+      if(!files.length) return;
+      dzShow(); dzTag('Loading…','busy'); statusEl.textContent='Loading images…';
+      for (let i=0;i<files.length;i++){
+        dzSet(Math.min(95, Math.round(((i)/files.length)*90)+5));
+        const f=files[i]; const url=URL.createObjectURL(f); const {w,h}=await getDims(f);
         state.items.push({ file:f, url, name:f.name, w, h });
       }
+      dzSet(100); dzTag(`Selected ${state.items.length} image(s)`,'idle'); setTimeout(dzHide,500);
       renderList();
-      statusBar.style.width = '100%';
-      statusBar.style.backgroundColor = '#34d399';
-      statusMessage.textContent = "Upload complete!";
-      setTimeout(hideStatusBar, 2000);
     });
-    dz.addEventListener('click', ()=> $('fileInput').click());
 
-    // === Conversion helpers ===
-    function targetSize(ow,oh,max){
-      if(!max || max<=0) return {w:ow,h:oh};
-      const L = Math.max(ow,oh); if(L<=max) return {w:ow,h:oh};
-      const s = max / L; return { w: Math.round(ow*s), h: Math.round(oh*s) };
-    }
-
+    function targetSize(ow,oh,max){ if(!max||max<=0) return{w:ow,h:oh}; const L=Math.max(ow,oh); if(L<=max) return{w:ow,h:oh}; const s=max/L; return{w:Math.round(ow*s),h:Math.round(oh*s)};}
     function canvasToBlobAsync(canvas, mime, quality){
       return new Promise(resolve=>{
-        canvas.toBlob(b=>{
-          if (b) return resolve(b);
-          // Fallback via dataURL
-          const dataURL = canvas.toDataURL(mime, quality);
-          const bin = atob(dataURL.split(',')[1]);
-          const ab = new ArrayBuffer(bin.length);
-          const ia = new Uint8Array(ab);
-          for (let i=0;i<bin.length;i++) ia[i]=bin.charCodeAt(i);
+        canvas.toBlob(b=>{ if(b) return resolve(b);
+          const dataURL=canvas.toDataURL(mime,quality); const bin=atob(dataURL.split(',')[1]);
+          const ab=new ArrayBuffer(bin.length); const ia=new Uint8Array(ab); for(let i=0;i<bin.length;i++) ia[i]=bin.charCodeAt(i);
           resolve(new Blob([ab],{type:mime}));
         }, mime, quality);
       });
     }
-
     async function convertOne(item, mime, quality, maxSide, bg){
-      let bmp=null, img=null;
-      try{ if(window.createImageBitmap) bmp = await createImageBitmap(item.file, { imageOrientation:'from-image' }); }catch{}
-      if(!bmp){
-        const url = URL.createObjectURL(item.file);
-        img = new Image(); img.src = url;
-        await new Promise((r,j)=>{ img.onload=r; img.onerror=j; });
-      }
-      const sw = bmp ? bmp.width : img.naturalWidth;
-      const sh = bmp ? bmp.height : img.naturalHeight;
-      const {w,h} = targetSize(sw, sh, maxSide);
-
-      const c = document.createElement('canvas'); c.width=w; c.height=h;
-      const ctx = c.getContext('2d');
-      if (mime === 'image/jpeg'){ ctx.fillStyle = bg || '#fff'; ctx.fillRect(0,0,w,h); }
-      if (bmp){ ctx.drawImage(bmp, 0,0,w,h); bmp.close(); }
-      else { ctx.drawImage(img, 0,0,w,h); URL.revokeObjectURL(img.src); }
-
-      const blob = await canvasToBlobAsync(c, mime, quality);
-      return { blob, w, h };
+      let bmp=null,img=null; try{ if(window.createImageBitmap) bmp=await createImageBitmap(item.file,{imageOrientation:'from-image'});}catch{}
+      if(!bmp){ img=new Image(); img.src=item.url; await new Promise((r,j)=>{ img.onload=r; img.onerror=j; }); }
+      const sw=bmp?bmp.width:img.naturalWidth, sh=bmp?bmp.height:img.naturalHeight; const {w,h}=targetSize(sw,sh,maxSide);
+      const c=document.createElement('canvas'); c.width=w; c.height=h; const ctx=c.getContext('2d');
+      if(mime==='image/jpeg'){ ctx.fillStyle=bg||'#fff'; ctx.fillRect(0,0,w,h); }
+      if(bmp){ ctx.drawImage(bmp,0,0,w,h); bmp.close(); } else { ctx.drawImage(img,0,0,w,h); }
+      const blob=await canvasToBlobAsync(c,mime,quality); return { blob, w, h };
     }
+    function base(name){ const i=name.lastIndexOf('.'); return i>0?name.slice(0,i):name; }
+    function extFor(m){ return m==='image/png'?'png':m==='image/webp'?'webp':'jpg'; }
 
-    function base(name){ const i = name.lastIndexOf('.'); return i>0 ? name.slice(0,i) : name; }
-    function extFor(m){ return m==='image/png' ? 'png' : m==='image/webp' ? 'webp' : 'jpg'; }
-
-    // Toggle inputs based on format
     $('outFmt').addEventListener('change', ()=>{
-      const m = $('outFmt').value;
-      const lossy = (m==='image/jpeg' || m==='image/webp');
-      $('quality').disabled = !lossy;
-      $('bgColor').disabled = (m!=='image/jpeg');
+      const m=$('outFmt').value, lossy=(m==='image/jpeg'||m==='image/webp');
+      $('quality').disabled=!lossy; $('bgColor').disabled=(m!=='image/jpeg');
     });
-    // Initialize toggles
-    (function(){ const ev = new Event('change'); $('outFmt').dispatchEvent(ev); })();
+    (function(){ $('outFmt').dispatchEvent(new Event('change')); })();
 
-    // === Convert ===
     $('convertBtn').addEventListener('click', async ()=>{
-      if (state.items.length===0) return;
+      if(!state.items.length) return;
+      const mime=$('outFmt').value, lossy=(mime==='image/jpeg'||mime==='image/webp');
+      const quality=lossy?Math.min(1,Math.max(0.1,parseFloat($('quality').value)||0.92)):1;
+      const maxSide=parseInt($('maxSide').value,10); const bg=$('bgColor').value;
+      const suffix=( $('suffix').value || '-converted').replace(/[/\\?%*:|"<>]/g,'_') || '-converted';
 
-      const mime = $('outFmt').value;
-      const lossy = (mime==='image/jpeg' || mime==='image/webp');
-      const quality = lossy ? Math.min(1, Math.max(0.1, parseFloat($('quality').value) || 0.92)) : 1;
-      const maxSide = parseInt($('maxSide').value, 10);
-      const bg = $('bgColor').value;
-      const suffix = ( $('suffix').value || '-converted').replace(/[/\\?%*:|"<>]/g,'_') || '-converted';
+      results.innerHTML=""; statusEl.textContent="Converting…"; enableZip(false);
+      dzShow(); dzTag('Converting…','busy'); dzSet(2);
 
-      results.innerHTML = "";
-      statusEl.textContent = "Converting…";
-      enableZip(false);
-
-      showStatusBar("Converting files...", '#4f46e5');
-      let ok = 0;
-      for (let i=0;i<state.items.length;i++){
-        const it = state.items[i];
+      let ok=0;
+      for(let i=0;i<state.items.length;i++){
         try{
-          const { blob, w, h } = await convertOne(it, mime, quality, maxSide, bg);
+          const it=state.items[i]; const { blob,w,h }=await convertOne(it,mime,quality,maxSide,bg);
           const name = `${base(it.name)}${suffix}.${extFor(mime)}`;
-          it.converted = { blob, name, size: blob.size, w, h };
-          ok++;
-          renderResult(it);
-        }catch(err){
-          console.error(err);
-          renderResult(it, true);
-        }
-        statusEl.textContent = `Converting… ${i+1}/${state.items.length}`;
-        statusBar.style.width = `${((i+1)/state.items.length)*100}%`;
+          it.converted={ blob,name,size:blob.size,w,h }; ok++; renderResult(it);
+        }catch(e){ console.warn(e); renderResult(state.items[i], true); }
+        dzSet(Math.min(90, Math.round(((i+1)/state.items.length)*90)));
+        statusEl.textContent=`Converting… ${i+1}/${state.items.length}`;
       }
-      statusEl.textContent = `Done. Converted ${ok}/${state.items.length} file(s).`;
-      if (ok>0) enableZip(true);
-
-      statusBar.style.width = '100%';
-      statusBar.style.backgroundColor = '#34d399';
-      statusMessage.textContent = "Conversion complete!";
-      setTimeout(hideStatusBar, 2000);
+      statusEl.textContent=`Done. Converted ${ok}/${state.items.length} file(s).`;
+      if(ok>0) enableZip(true);
+      dzSet(100); dzTag('Ready to download','idle'); setTimeout(dzHide,600);
     });
 
     function renderResult(item, failed=false){
-      const row = document.createElement('div');
-      row.className = 'list-item';
-      row.style.cssText = 'display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:12px;background:var(--panel)';
-
-      const preview = document.createElement('div');
-      preview.style.width='64px'; preview.style.height='64px';
-      preview.style.borderRadius='8px'; preview.style.overflow='hidden';
+      const row=document.createElement('div');
+      row.className='list-item';
+      row.style.cssText='display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:8px 10px;border-radius:12px;background:var(--panel)';
+      const preview=document.createElement('div'); preview.style.width='64px'; preview.style.height='64px'; preview.style.borderRadius='8px'; preview.style.overflow='hidden';
 
       if(!failed){
-        const url = URL.createObjectURL(item.converted.blob);
-        const img = document.createElement('img');
-        img.src = url; img.style.width='64px'; img.style.height='64px'; img.style.objectFit='cover';
-        preview.append(img);
-        setTimeout(()=> URL.revokeObjectURL(url), 5000);
-      } else {
-        preview.textContent = '—';
-        preview.style.textAlign='center'; preview.style.color='var(--muted)'; preview.style.lineHeight='64px';
-      }
+        const url=URL.createObjectURL(item.converted.blob); const img=document.createElement('img');
+        img.src=url; img.style.width='64px'; img.style.height='64px'; img.style.objectFit='cover'; preview.append(img);
+        setTimeout(()=>URL.revokeObjectURL(url),5000);
+      } else { preview.textContent='—'; preview.style.textAlign='center'; preview.style.color='var(--muted)'; preview.style.lineHeight='64px'; }
 
-      const meta = document.createElement('div');
+      const meta=document.createElement('div');
       meta.innerHTML = failed
         ? `<div style="font-weight:600">${item.name}</div><div style="color:#c00;font-size:12px">Failed to convert</div>`
         : `<div style="font-weight:600">${item.converted.name}</div><div style="color:var(--muted);font-size:12px">${(item.converted.size/1024).toFixed(1)} KB • ${item.converted.w}×${item.converted.h}</div>`;
 
-      const act = document.createElement('div');
+      const act=document.createElement('div');
       if(!failed){
-        const a = document.createElement('a'); a.className='btn'; a.textContent='Download';
-        const url = URL.createObjectURL(item.converted.blob);
-        a.href = url; a.download = item.converted.name;
-        a.addEventListener('click', ()=> {
-          setTimeout(()=> URL.revokeObjectURL(url), 2000);
-          showStatusBar("Download initiated.", '#34d399');
-          statusBar.style.width = '100%';
-          setTimeout(hideStatusBar, 2000);
-        });
+        const a=document.createElement('a'); a.className='btn'; a.textContent='Download';
+        const url=URL.createObjectURL(item.converted.blob); a.href=url; a.download=item.converted.name;
+        a.addEventListener('click', ()=>{ setTimeout(()=>URL.revokeObjectURL(url),2000); dzShow(); dzTag('Downloading…','busy'); dzSet(70); setTimeout(()=>{ dzSet(100); dzTag('Downloaded','idle'); setTimeout(dzHide,600); },400); });
         act.append(a);
       }
-
-      row.append(preview, meta, act);
-      results.append(row);
+      row.append(preview,meta,act); results.append(row);
     }
 
-    // === ZIP all ===
     $('downloadAllBtn').addEventListener('click', async ()=>{
-      const files = state.items.filter(x=>x.converted).map(x=>x.converted);
-      if (files.length===0) return;
-      statusEl.textContent = 'Packaging ZIP…';
-      showStatusBar("Packaging ZIP file...", '#4f46e5');
-      const zip = new JSZip();
-      for (const f of files) zip.file(f.name, f.blob);
-      const blob = await zip.generateAsync({ type:'blob' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url; a.download = 'converted-images.zip';
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(()=> URL.revokeObjectURL(url), 2000);
-      statusEl.textContent = 'ZIP ready.';
-      
-      statusBar.style.width = '100%';
-      statusBar.style.backgroundColor = '#34d399';
-      statusMessage.textContent = "ZIP file downloaded!";
-      setTimeout(hideStatusBar, 2000);
+      const files=state.items.filter(x=>x.converted).map(x=>x.converted); if(!files.length) return;
+      dzShow(); dzTag('Packaging ZIP…','busy'); dzSet(40);
+      const zip=new JSZip(); for(const f of files) zip.file(f.name, f.blob);
+      const blob=await zip.generateAsync({type:'blob'}); dzSet(85);
+      const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='converted-images.zip';
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),2000);
+      dzSet(100); dzTag('ZIP downloaded','idle'); setTimeout(dzHide,600);
     });
 
-    // === Clear ===
     $('clearBtn').addEventListener('click', ()=>{
       state.items.forEach(it=> it.url && URL.revokeObjectURL(it.url));
-      state.items = [];
-      list.innerHTML = "";
-      results.innerHTML = "";
-      statusEl.textContent = "";
-      enableConvert(false);
-      enableZip(false);
-      
-      showStatusBar("Cleared.", '#4f46e5');
-      statusBar.style.width = '100%';
-      statusBar.style.backgroundColor = '#34d399';
-      setTimeout(hideStatusBar, 2000);
+      state.items=[]; list.innerHTML=""; results.innerHTML=""; statusEl.textContent=""; enableConvert(false); enableZip(false);
+      dzShow(); dzTag('Cleared','idle'); dzSet(100); setTimeout(dzHide,500);
     });
   </script>
 

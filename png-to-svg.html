@@ -14,10 +14,10 @@
   <meta property="og:url" content="https://toolhouzz.com/png-to-svg.html">
   <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
 
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Free PNG to SVG Converter – ToolHouzz">
-<meta name="twitter:description" content="Batch convert PNGs to SVGs. Vectorize or embed images in your browser – no uploads, private, and fast.">
-<meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Free PNG to SVG Converter – ToolHouzz">
+  <meta name="twitter:description" content="Batch convert PNGs to SVGs. Vectorize or embed images in your browser – no uploads, private, and fast.">
+  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
@@ -27,6 +27,7 @@
     .grid{display:grid;gap:14px}
     .card{background:var(--card,#fff);border:1px solid var(--border-strong,#d1d5db);border-radius:14px;padding:14px}
     .info-card{background:var(--card,#fff);border:1px solid var(--border,#e5e7eb);border-radius:14px;padding:14px;overflow:visible}
+    .btn[disabled]{opacity:.55;cursor:not-allowed}
 
     /* Dropzone */
     .dropzone{
@@ -38,7 +39,28 @@
     .dz-cta{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted,#6b7280)}
     .dz-cta .big{font-weight:900;color:var(--ink,#0f172a)}
     .dz-or{font-size:12px;color:var(--muted)}
-    .btn[disabled]{opacity:.55;cursor:not-allowed}
+
+    /* In-dropzone progress (inside Choose box) */
+    .dz-progress-wrap{ position:relative; }
+    .dz-progress-rail{
+      position:absolute; left:14px; right:14px; bottom:12px;
+      height:12px; border-radius:999px; overflow:hidden;
+      background:#fff; border:1px solid #e0e7ff; display:none;
+    }
+    .dz-progress-bar{
+      height:100%; width:0%;
+      background:linear-gradient(90deg, #f59e0b, #d97706);
+      transition:width .12s linear;
+    }
+    .dz-progress-text{
+      position:absolute; right:18px; bottom:30px; font-size:12px; font-weight:800; color:#92400e; display:none;
+      user-select:none;
+    }
+    .dz-tag{
+      display:inline-block; font-size:12px; padding:2px 8px; border-radius:999px; border:1px solid #ffedd5;
+      background:#fff7ed; color:#9a3412; margin-left:6px;
+    }
+    .dz-tag.idle{ background:#eef2ff; color:#3730a3; border-color:#e0e7ff }
 
     /* File list */
     .file-list{display:grid;gap:10px}
@@ -62,7 +84,7 @@
     /* Previews */
     .pane{overflow:auto;max-height:460px;border:1px dashed var(--border-strong);border-radius:12px;padding:10px;background:#fff}
     .pane img, .pane svg{display:block;max-width:100%}
-    .spinner{width:16px;height:16px;border-radius:999px;border:2px solid var(--border-strong);border-top-color:#4f46e5;animation:sp 1s linear infinite}
+    .spinner{width:16px;height:16px;border-radius:999px;border:2px solid var(--border-strong);border-top-color:#f59e0b;animation:sp 1s linear infinite}
     @keyframes sp{to{transform:rotate(360deg)}}
   </style>
 </head>
@@ -82,16 +104,20 @@
   <section id="tool" class="tools" style="padding:20px 22px 10px">
     <div class="grid" style="grid-template-columns:1fr;max-width:980px">
       <div class="card">
-        <!-- Dropzone -->
-        <div id="dropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload PNGs by dropping files or pressing Enter to browse">
+        <!-- Dropzone with progress -->
+        <div id="dropzone" class="dropzone dz-progress-wrap" tabindex="0" role="button" aria-label="Upload PNGs by dropping files or pressing Enter to browse">
           <div class="dz-cta">
             <div class="big">Drop PNGs here</div>
             <div class="dz-or">or</div>
             <button class="btn" id="browseBtn" type="button" aria-describedby="tip">Choose PNGs</button>
+            <span id="dzStatus" class="dz-tag idle">Idle</span>
             <div id="tip" style="font-size:12px;color:var(--muted)">Logos/flat art trace best (max 20 MB each).</div>
           </div>
+          <!-- hidden input (not clickable due to overlay pattern; we trigger programmatically) -->
           <input id="fileInput" type="file" accept="image/png" multiple
                  style="position:absolute;inset:0;opacity:0;pointer-events:none" aria-hidden="true" />
+          <div class="dz-progress-rail" id="dzProgRail" aria-hidden="true"><div class="dz-progress-bar" id="dzProgBar"></div></div>
+          <div class="dz-progress-text" id="dzProgText">0%</div>
         </div>
 
         <!-- Files -->
@@ -160,15 +186,6 @@
           <li>Preview and Download the selected ones — or Zip all.</li>
         </ol>
       </div>
-
-      <div class="info-card" style="margin-top:12px">
-        <h3>Try more tools</h3>
-        <div class="related-grid">
-          <a class="link-card" href="file-converter.html"><strong>File Converter</strong><small>Convert images, docs & more</small><span class="btn go">Open</span></a>
-          <a class="link-card" href="image-to-pdf.html"><strong>Images → PDF</strong><small>Make a clean PDF</small><span class="btn go">Open</span></a>
-          <a class="link-card" href="compress-pdf.html"><strong>Compress PDF</strong><small>Make big PDFs small</small><span class="btn go">Open</span></a>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -182,6 +199,7 @@
 
     // Elements
     const dz = $('dropzone'), fileInput = $('fileInput'), browseBtn = $('browseBtn');
+    const dzStatus = $('dzStatus'), dzProgRail = $('dzProgRail'), dzProgBar = $('dzProgBar'), dzProgText = $('dzProgText');
     const fileList = $('fileList');
     const modeEl = $('mode'), outNameEl = $('outName');
     const statusEl = $('status');
@@ -196,7 +214,17 @@
     let files = [];
     let lastSVGById = new Map();
 
-    // Helpers
+    // Progress helpers
+    function dzSet(p){ p=Math.max(0,Math.min(100,p|0)); dzProgBar.style.width=p+'%'; dzProgText.textContent=p+'%'; }
+    function dzShow(){ dzProgRail.style.display='block'; dzProgText.style.display='block'; dzSet(0); }
+    function dzHide(){ dzProgRail.style.display='none'; dzProgText.style.display='none'; dzSet(0); }
+    function dzTag(text, state='busy'){
+      dzStatus.textContent = text;
+      dzStatus.classList.remove('idle');
+      if(state==='idle') dzStatus.classList.add('idle');
+    }
+
+    // Misc helpers
     const fmtBytes = b => b < 1024 ? b + ' B' : b < 1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB';
     const setBusy = (on, msg='Working…') => { statusEl.innerHTML = on ? `<span class="spinner"></span><span>${msg}</span>` : ''; };
     const setButtons = () => {
@@ -236,10 +264,7 @@
           </div>
         `;
         row.querySelector('.thumb').src = f.dataURL || '';
-        row.querySelector('.thumb').alt = 'PNG thumbnail';
-        row.querySelector('input[type="checkbox"]').addEventListener('change', (e) => {
-          f.selected = e.target.checked; setButtons();
-        });
+        row.querySelector('input[type="checkbox"]').addEventListener('change', (e) => { f.selected = e.target.checked; setButtons(); });
         row.addEventListener('click', (e) => {
           const act = e.target?.dataset?.act;
           if (!act) return;
@@ -256,26 +281,30 @@
       files = files.filter(x => x.id !== id);
       lastSVGById.delete(id);
       renderList();
-      // Clear previews if the selected one was removed
       if (!files.some(f => f.selected)) {
         pngPreviewWrap.style.display = 'none';
         svgPreviewWrap.style.display = 'none';
       }
     }
 
-    // Add files
+    // Add files with progress in dropzone
     async function addFiles(list){
       const toAdd = Array.from(list || []);
-      for (const f of toAdd){
+      if (!toAdd.length) return;
+      dzShow(); dzTag('Adding…'); dzSet(2);
+      for (let i=0;i<toAdd.length;i++){
+        const f = toAdd[i];
         if (!f) continue;
         if (!(f.type.startsWith('image/png') || f.name.toLowerCase().endsWith('.png'))) continue;
-        if (f.size > MAX_SIZE) { continue; }
+        if (f.size > MAX_SIZE) continue;
         const id = Math.random().toString(36).slice(2,9);
         const dataURL = await readAsDataURL(f);
         const img = await dataURLToImage(dataURL);
         files.push({ file: f, id, dataURL, w: img.naturalWidth || img.width, h: img.naturalHeight || img.height, selected: true });
+        dzSet(Math.min(95, Math.round(((i+1)/toAdd.length)*90)+5));
       }
       renderList();
+      dzSet(100); dzTag(`Selected ${files.length} file(s)`, 'idle'); setTimeout(dzHide, 700);
     }
 
     // Dropzone wiring
@@ -286,17 +315,16 @@
     dz.addEventListener('drop', e => addFiles(e.dataTransfer.files));
     dz.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
 
-    // Clear all
     clearBtn.addEventListener('click', () => {
       files = []; lastSVGById.clear(); renderList();
       pngPreviewWrap.style.display = 'none'; svgPreviewWrap.style.display = 'none';
       statusEl.textContent = '';
+      dzShow(); dzTag('Cleared','idle'); dzSet(100); setTimeout(dzHide,600);
     });
 
     // Builders
     async function buildEmbedSVG(f){
       const w = f.w || 100, h = f.h || 100;
-      // White background rect helps avoid “transparent corner cutouts” in some viewers
       return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid meet">
         <rect width="${w}" height="${h}" fill="white"/>
         <image href="${f.dataURL}" width="${w}" height="${h}"/>
@@ -335,7 +363,6 @@
       if (!list?.length) return;
       setBusy(true, 'Rendering preview…');
       try{
-        // Show only first selected in the panes to keep UI simple
         const f = list[0];
         pngPane.innerHTML = `<img alt="PNG preview" src="${f.dataURL}">`;
         pngPreviewWrap.style.display = 'block';
@@ -350,32 +377,37 @@
 
     async function convertFiles(list){
       if (!list?.length) return;
-      setBusy(true, 'Converting…');
+      setBusy(true, 'Converting…'); dzShow(); dzTag('Converting…'); dzSet(5);
       try{
-        for (const f of list){
+        for (let i=0;i<list.length;i++){
+          const f = list[i];
           const svg = (modeEl.value === 'embed') ? await buildEmbedSVG(f) : await buildTraceSVG(f);
           lastSVGById.set(f.id, svg);
           downloadBlob(outNameFor(f), new Blob([svg], {type:'image/svg+xml'}));
+          dzSet(Math.min(95, Math.round(((i+1)/list.length)*90)+5));
         }
-        setBusy(false);
-        statusEl.textContent = 'Done.';
-      }catch(e){ console.error(e); setBusy(false); statusEl.textContent='Conversion failed.'; }
+        setBusy(false); statusEl.textContent = 'Done.';
+        dzSet(100); dzTag('Downloaded','idle'); setTimeout(dzHide,700);
+      }catch(e){ console.error(e); setBusy(false); statusEl.textContent='Conversion failed.'; dzHide(); }
     }
 
     async function zipAll(){
       if (!files.length) return;
-      setBusy(true, 'Zipping…');
+      setBusy(true, 'Zipping…'); dzShow(); dzTag('Zipping…'); dzSet(10);
       try{
         const zip = new JSZip();
-        for (const f of files){
+        for (let i=0;i<files.length;i++){
+          const f = files[i];
           const svg = lastSVGById.get(f.id) || (modeEl.value === 'embed' ? await buildEmbedSVG(f) : await buildTraceSVG(f));
           lastSVGById.set(f.id, svg);
           zip.file(outNameFor(f), svg);
+          dzSet(Math.min(90, Math.round(((i+1)/files.length)*80)+10));
         }
         const blob = await zip.generateAsync({type:'blob'});
         downloadBlob('svgs.zip', blob);
         setBusy(false); statusEl.textContent='Zip ready.';
-      }catch(e){ console.error(e); setBusy(false); statusEl.textContent='Zip failed.'; }
+        dzSet(100); dzTag('ZIP downloaded','idle'); setTimeout(dzHide,700);
+      }catch(e){ console.error(e); setBusy(false); statusEl.textContent='Zip failed.'; dzHide(); }
     }
 
     // Bulk buttons
@@ -383,8 +415,8 @@
     convertBtn.addEventListener('click', () => convertFiles(files.filter(f => f.selected)));
     zipBtn.addEventListener('click', zipAll);
 
-    // Initial buttons state
-    setButtons();
+    // Init
+    renderList();
   </script>
 
   <!-- Inject standard header + footer -->

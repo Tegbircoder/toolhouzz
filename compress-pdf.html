@@ -22,13 +22,38 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="th-layout.css" />
-  <style>.nav-right{gap:14px}</style>
+  <style>
+    .nav-right{gap:14px}
+
+    /* === Progress UI inside the Choose PDF box === */
+    .dz-progress-wrap{
+      position:relative;
+    }
+    .dz-progress-rail{
+      position:absolute; left:12px; right:12px; bottom:12px;
+      height:12px; border-radius:999px; overflow:hidden;
+      background:#eef2ff; border:1px solid #e0e7ff; display:none;
+    }
+    .dz-progress-bar{
+      height:100%; width:0%;
+      background:linear-gradient(90deg, #4f46e5, #7c3aed);
+      transition:width .12s linear;
+    }
+    .dz-progress-text{
+      position:absolute; right:18px; bottom:30px; font-size:12px; font-weight:700; color:#3730a3; display:none;
+      user-select:none;
+    }
+    .dz-tag{
+      display:inline-block; font-size:12px; padding:2px 8px; border-radius:999px; border:1px solid #e0e7ff;
+      background:#eef2ff; color:#3730a3; margin-left:6px;
+    }
+  </style>
 </head>
 <body class="theme-light">
   <section class="tool-hero" data-theme="orange">
     <div class="hero-inner">
       <h1 class="hero-title">Compress PDF</h1>
-      <p class="hero-sub">Shrink PDFs by rasterizing pages at your chosen quality & resolution. Private, on-device.</p>
+      <p class="hero-sub">Shrink PDFs by rasterizing pages at your chosen quality &amp; resolution. Private, on-device.</p>
       <a class="btn primary" href="#tool" style="margin-top:14px">Start</a>
     </div>
   </section>
@@ -59,10 +84,21 @@
           </div>
         </div>
 
-        <div id="dropzone" class="dropzone" style="margin-top:14px;border-radius:12px;padding:18px;background:var(--panel);text-align:center">
-          <p style="margin:0 0 10px"><strong>Drop a PDF here</strong> or click to select</p>
+        <!-- DROPZONE with embedded progress UI -->
+        <div id="dropzone" class="dropzone dz-progress-wrap" style="margin-top:14px;border-radius:12px;padding:18px;background:var(--panel);text-align:center; position:relative;">
+          <p style="margin:0 0 10px">
+            <strong>Drop a PDF here</strong> or click to select
+            <span id="dzStatus" class="dz-tag">Idle</span>
+          </p>
           <input id="fileInput" type="file" accept="application/pdf" style="display:none" />
           <button class="btn" id="browseBtn" type="button">Choose PDF</button>
+
+          <!-- progress rail + percent text -->
+          <div class="dz-progress-rail" id="dzProgRail" aria-hidden="true">
+            <div class="dz-progress-bar" id="dzProgBar"></div>
+          </div>
+          <div class="dz-progress-text" id="dzProgText">0%</div>
+
           <div style="font-size:12px;color:var(--muted);margin-top:8px">Note: Rasterizing makes text non-searchable for maximum size reduction.</div>
         </div>
 
@@ -103,14 +139,47 @@
   <script>
     const $ = id => document.getElementById(id);
     const statusEl = $('status'), pagesWrap = $('pages'), compressBtn = $('compressBtn');
+
+    // Progress elements inside the dropzone
+    const dz = $('dropzone');
+    const dzStatus = $('dzStatus');
+    const dzProgRail = $('dzProgRail');
+    const dzProgBar = $('dzProgBar');
+    const dzProgText = $('dzProgText');
+
+    function dzSet(percent){
+      const p = Math.max(0, Math.min(100, percent|0));
+      dzProgBar.style.width = p + '%';
+      dzProgText.textContent = p + '%';
+    }
+    function dzShowProgress(){
+      dzProgRail.style.display = 'block';
+      dzProgText.style.display = 'block';
+      dzSet(0);
+    }
+    function dzHideProgress(){
+      dzProgRail.style.display = 'none';
+      dzProgText.style.display = 'none';
+      dzSet(0);
+    }
+    function dzSetTag(text, kind='idle'){
+      dzStatus.textContent = text;
+      if (kind==='ok'){ dzStatus.style.background='#ecfdf5'; dzStatus.style.color='#065f46'; dzStatus.style.borderColor='#d1fae5'; }
+      else if(kind==='busy'){ dzStatus.style.background='#fff7ed'; dzStatus.style.color='#9a3412'; dzStatus.style.borderColor='#ffedd5'; }
+      else { dzStatus.style.background='#eef2ff'; dzStatus.style.color='#3730a3'; dzStatus.style.borderColor='#e0e7ff'; }
+    }
+
     let loadedPdf = null;
 
-    // --- FIX: prevent double-open ---
+    // --- Prevent double-open ---
     $('browseBtn').addEventListener('click', (e)=>{ e.stopPropagation(); $('fileInput').click(); });
-    const dz = $('dropzone');
     dz.addEventListener('click', (e)=>{ if (e.target.closest('button')) return; $('fileInput').click(); });
 
-    $('fileInput').onchange = async (e) => { const f = e.target.files[0]; if(f) await loadPdfFile(f); e.target.value=""; };
+    $('fileInput').onchange = async (e) => {
+      const f = e.target.files[0];
+      if (f) await loadPdfFile(f);
+      e.target.value="";
+    };
 
     ['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.style.borderColor='var(--border-stronger)'; }));
     ['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.style.borderColor='var(--border-strong)'; }));
@@ -120,33 +189,46 @@
     });
 
     async function loadPdfFile(file){
-      statusEl.textContent = "Loading PDF…";
+      dzSetTag('Loading…','busy');
+      dzShowProgress(); dzSet(5);
       pagesWrap.innerHTML = "";
       compressBtn.disabled = true;
+      statusEl.textContent = "Loading PDF…";
 
       const buf = await file.arrayBuffer();
+      dzSet(25);
+
       const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      dzSet(45);
 
       loadedPdf = { pdf, numPages: pdf.numPages };
       const thumbCount = Math.min(5, pdf.numPages);
+
       for (let i=1; i<=thumbCount; i++){
         const page = await pdf.getPage(i);
         const vp = page.getViewport({ scale: 0.3 });
         const c = document.createElement('canvas'); const ctx = c.getContext('2d');
         c.width = vp.width; c.height = vp.height;
         await page.render({ canvasContext: ctx, viewport: vp }).promise;
-
         const item = document.createElement('div'); item.className = 'list-item';
         item.style.padding = '8px'; item.style.borderRadius = '12px';
         const img = document.createElement('img'); img.src = c.toDataURL('image/png');
         img.style.width = '100%'; img.style.borderRadius = '8px';
         item.append(img); pagesWrap.append(item);
+        dzSet(45 + Math.round((i/thumbCount)*35)); // up to ~80% during thumbs
       }
+
+      dzSet(90);
+      dzSetTag(`Selected: ${file.name}`,'ok');
       statusEl.textContent = `Loaded ${pdf.numPages} page(s). Choose settings and press Compress.`;
       compressBtn.disabled = false;
+      setTimeout(dzHideProgress, 400);
     }
 
-    $('clearBtn').onclick = () => { loadedPdf = null; pagesWrap.innerHTML = ""; statusEl.textContent = ""; compressBtn.disabled = true; };
+    $('clearBtn').onclick = () => {
+      loadedPdf = null; pagesWrap.innerHTML = ""; statusEl.textContent = "";
+      compressBtn.disabled = true; dzSetTag('Idle'); dzHideProgress();
+    };
 
     $('compressBtn').onclick = async () => {
       if (!loadedPdf){ statusEl.textContent = "Load a PDF first."; return; }
@@ -154,15 +236,19 @@
       const scale = parseFloat($('scale').value);
       const outName = ($('outName').value || 'compressed.pdf').trim().replace(/[/\\?%*:|"<>]/g,'_') || 'compressed.pdf';
 
+      dzShowProgress(); dzSetTag('Compressing…','busy');
       statusEl.textContent = "Rendering & compressing pages…";
+
       const { jsPDF } = window.jspdf;
 
+      // Prepare first page to set doc size/orientation
       const firstPage = await loadedPdf.pdf.getPage(1);
       const firstVp = firstPage.getViewport({ scale });
       const orientation = firstVp.width >= firstVp.height ? 'l' : 'p';
       const doc = new jsPDF({ unit: 'pt', format: [firstVp.width, firstVp.height], orientation });
 
-      for (let i=1; i<=loadedPdf.pdf.numPages; i++){
+      const total = loadedPdf.pdf.numPages;
+      for (let i=1; i<=total; i++){
         const page = await loadedPdf.pdf.getPage(i);
         const vp = page.getViewport({ scale });
         if (i>1) doc.addPage([vp.width, vp.height], vp.width >= vp.height ? 'l' : 'p');
@@ -173,10 +259,29 @@
 
         const dataURL = c.toDataURL('image/jpeg', quality);
         doc.addImage(dataURL, 'JPEG', 0, 0, vp.width, vp.height, undefined, 'FAST');
+
+        // Real progress based on pages rendered (reserve last 10% for save)
+        dzSet(Math.min(90, Math.round((i/total)*90)));
         c.width = c.height = 0;
       }
-      doc.save(outName);
+
+      // Create blob and trigger download ourselves so we can finish progress UI
+      dzSetTag('Preparing download…','busy');
+      const blob = doc.output('blob'); // synchronous
+      dzSet(95);
+
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = outName;
+      document.body.appendChild(link);
+      link.click();
+      URL.revokeObjectURL(link.href);
+      link.remove();
+
+      dzSet(100);
+      dzSetTag('Downloaded','ok');
       statusEl.textContent = "Done! Your compressed PDF was downloaded.";
+      setTimeout(dzHideProgress, 600);
     };
   </script>
 
