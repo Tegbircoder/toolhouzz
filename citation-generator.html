@@ -21,19 +21,47 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
-  <!-- Header/Footer layout styles -->
   <link rel="stylesheet" href="th-layout.css" />
+  <link rel="stylesheet" href="th-layout.css">
+  <script defer src="th-layout.js"></script>
+
   <style>
     .flex{display:flex;gap:8px;flex-wrap:wrap}
     .stack{display:grid;gap:10px}
     .mono{font-family:ui-monospace, Menlo, Consolas, monospace}
     /* Spacing for About / Privacy / Terms in injected header */
     .nav-right{gap:14px}
+    
+    /* Mobile-friendly adjustments for a clean layout */
+    @media (max-width: 600px) {
+        .row {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+    }
+
+    /* New styles for the status bar */
+    .status-bar-container { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; padding: 10px; background-color: transparent; }
+    .status-bar { height: 6px; width: 0; background-color: var(--accent); transition: width 0.3s ease-out; }
+    .status-message {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .status-message.show { opacity: 1; }
   </style>
 </head>
 <body class="theme-light">
-<!-- Header is injected by th-layout.js -->
-
 <section class="tool-hero" data-theme="purple">
   <div class="hero-inner">
     <h1 class="hero-title">Citation Generator</h1>
@@ -111,10 +139,33 @@
   </div>
 </section>
 
-<!-- Footer is injected by th-layout.js -->
+<div id="statusBarContainer" class="status-bar-container" style="display:none;">
+    <div class="status-bar" id="statusBar"></div>
+    <div class="status-message" id="statusMessage"></div>
+</div>
 
 <script>
   const $ = id=>document.getElementById(id);
+
+  // New elements for the status bar
+  const statusBarContainer = document.getElementById('statusBarContainer');
+  const statusBar = document.getElementById('statusBar');
+  const statusMessage = document.getElementById('statusMessage');
+  
+  function showStatusBar(message, color) {
+    statusBarContainer.style.display = 'block';
+    statusBar.style.width = '0%';
+    statusBar.style.backgroundColor = color;
+    statusMessage.textContent = message;
+    statusMessage.classList.add('show');
+  }
+
+  function hideStatusBar() {
+    statusBarContainer.style.display = 'none';
+    statusBar.style.width = '0%';
+    statusBar.style.backgroundColor = 'var(--accent)';
+    statusMessage.classList.remove('show');
+  }
 
   const authors=[];
   function renderAuthors(){ $('authList').textContent = authors.length ? authors.join('; ') : 'No authors added'; }
@@ -202,6 +253,7 @@
   }
 
   $('generate').onclick = ()=>{
+    showStatusBar("Generating citation...", '#4f46e5');
     const style = $('style').value, type=$('stype').value;
     let txt='';
     if(type==='web'){
@@ -218,15 +270,31 @@
       if(style==='Chicago') txt=chicagoJour();
     }
     $('out').value = txt.trim();
+    statusBar.style.width = '100%';
+    statusBar.style.backgroundColor = '#34d399';
+    statusMessage.textContent = "Generation complete!";
+    setTimeout(hideStatusBar, 2000);
   };
-  $('copy').onclick = ()=>{ $('out').select(); document.execCommand('copy'); };
+
+  $('copy').onclick = ()=>{
+    $('out').select();
+    document.execCommand('copy');
+    showStatusBar("Text copied to clipboard.", '#34d399');
+    statusBar.style.width = '100%';
+    setTimeout(hideStatusBar, 2000);
+  };
+
   $('download').onclick = ()=>{
+    showStatusBar("Preparing download...", '#4f46e5');
     const blob = new Blob([$('out').value||''], {type:'text/plain'}); const a=document.createElement('a');
     a.href=URL.createObjectURL(blob); a.download='citations.txt'; document.body.appendChild(a); a.click(); a.remove();
+    statusBar.style.width = '100%';
+    statusBar.style.backgroundColor = '#34d399';
+    statusMessage.textContent = "Download complete!";
+    setTimeout(hideStatusBar, 2000);
   };
 </script>
 
-<!-- Injects the standard header + footer -->
 <script src="th-layout.js"></script>
 </body>
 </html>

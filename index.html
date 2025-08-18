@@ -4,8 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ToolHouzz — Free Calculators, Converters & Mini Games</title>
-  
-  
+
   <meta name="description" content="Fast, privacy-first web tools: calculators, PDF/image converters, and mini games. No login. Works in your browser.">
   <link rel="canonical" href="https://toolhouzz.com/">
 
@@ -17,9 +16,37 @@
   <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
   <meta name="twitter:card" content="summary_large_image">
 
-  
+  <!-- Performance: preconnect fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&family=Playfair+Display:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
   <link rel="icon" href="assets/logo.png">
+
+  <!-- Structured data: Organization + WebSite (with SearchAction) -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Organization",
+    "name":"ToolHouzz",
+    "url":"https://toolhouzz.com/",
+    "logo":"https://toolhouzz.com/assets/logo.png"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebSite",
+    "url":"https://toolhouzz.com/",
+    "name":"ToolHouzz",
+    "potentialAction":{
+      "@type":"SearchAction",
+      "target":"https://toolhouzz.com/?q={search_term_string}",
+      "query-input":"required name=search_term_string"
+    }
+  }
+  </script>
+
   <style>
     :root{
       --hero-font:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
@@ -57,6 +84,10 @@
     .nav-item>button:hover,.nav-item>button[aria-expanded="true"]{color:var(--primary-color);border-bottom-color:var(--accent-color)}
     .caret{width:14px;height:14px;display:inline-block}
     .nav-right{gap:1rem}
+    /* Header right links should NOT turn purple when visited */
+    .site-header .nav-right a{color:var(--secondary-color);text-decoration:none;font-weight:600}
+    .site-header .nav-right a:hover{color:var(--primary-color)}
+    .site-header .nav-right a:visited{color:var(--secondary-color)}
 
     .backdrop{position:fixed;inset:0;background:rgba(15,23,42,.32);
       backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
@@ -147,13 +178,30 @@
     @media (max-width: 900px){ .footer-grid{grid-template-columns:1fr 1fr} }
     @media (max-width: 600px){ .footer-grid{grid-template-columns:1fr} }
 
-    /* ===== Responsive dropdown fix ===== */
+    /* ===== Previous responsive tweak (kept for panel sizing only) ===== */
     @media (max-width: 860px){
-      .nav-center{order:3;margin-top:.35rem}
-      .nav-right{order:2}
-      .nav-left{order:1}
       .menu-panel{width:min(720px,94vw)}
       .drop-grid{grid-template-columns:1fr 1fr}
+    }
+
+    /* ===== NEW: Hamburger + drawer for mobile on index ===== */
+    .hamb{display:none;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--border-color);border-radius:10px;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.02),0 2px 6px rgba(0,0,0,.06);cursor:pointer;margin-left:.25rem}
+    .hamb span{display:block;width:20px;height:2px;background:var(--primary-color);border-radius:2px;margin:3px 0}
+
+    .side-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.38);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .16s ease;z-index:340}
+    .side-backdrop.show{opacity:1;pointer-events:auto}
+    .drawer{position:fixed;top:0;left:0;height:100vh;width:min(86vw,320px);background:#fff;border-right:1px solid var(--border-color);box-shadow:0 18px 40px rgba(0,0,0,.18),0 8px 18px rgba(0,0,0,.08);transform:translateX(-105%);transition:transform .18s ease-out;z-index:350;padding:12px 14px 18px;overflow:auto}
+    .drawer.show{transform:translateX(0)}
+    .drawer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+    .drawer-close{background:none;border:0;font-size:26px;line-height:1;cursor:pointer;color:#6b7280}
+    .drawer-nav h5{margin:.5rem 0 .35rem;font:800 12px var(--secondary-font);color:#6b7280;letter-spacing:.08em;text-transform:uppercase}
+    .drawer-nav a{display:block;padding:.5rem .4rem;border-radius:10px;color:var(--primary-color);text-decoration:none;border:1px solid transparent}
+    .drawer-nav a:hover{background:#f3f7ff;color:#1d4ed8;border-color:#dbeafe}
+
+    @media (max-width: 860px){
+      .nav-center, .nav-right{display:none !important;}
+      .nav-left{gap:.5rem}
+      .hamb{display:inline-flex}
     }
   </style>
 </head>
@@ -161,7 +209,12 @@
   <!-- ===== Header ===== -->
   <header class="site-header" id="siteHeader">
     <div class="nav-left">
-      <a class="brand" href="index.html" aria-label="ToolHouzz home">ToolHouzz</a>
+      <!-- Home URL set to "/" for consistency -->
+      <a class="brand" href="/" aria-label="ToolHouzz home">ToolHouzz</a>
+      <!-- Mobile hamburger -->
+      <button class="hamb" id="hambBtn" aria-label="Open menu" aria-controls="mobileDrawer" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </div>
 
     <div class="nav-center" role="menubar" aria-label="Primary">
@@ -195,8 +248,54 @@
     </div>
   </header>
 
-  <!-- Backdrop -->
+  <!-- Backdrop (desktop dropdowns) -->
   <div class="backdrop" id="backdrop" hidden></div>
+
+  <!-- Mobile drawer + overlay -->
+  <div class="side-backdrop" id="sideBackdrop" hidden></div>
+  <aside class="drawer" id="mobileDrawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div class="brand" style="font-family:var(--primary-font);font-weight:700">ToolHouzz</div>
+      <button class="drawer-close" id="closeDrawer" aria-label="Close menu">×</button>
+    </div>
+
+    <nav class="drawer-nav">
+      <h5>Calculators</h5>
+      <a href="bmi.html">BMI Calculator</a>
+      <a href="bmr.html">BMR Calculator</a>
+      <a href="calorie-macros.html">Calorie &amp; Macros</a>
+      <a href="age.html">Age Calculator</a>
+      <a href="salary-calculator.html">Salary Calculator</a>
+      <a href="retirement-calculator.html">Retirement Calculator</a>
+      <a href="sales-tax-cad.html">Sales Tax (CAD)</a>
+      <a href="loan.html">Loan Calculator</a>
+      <a href="mortgage.html">Mortgage Calculator</a>
+      <a href="budget.html">Budget Planner</a>
+      <a href="gpa.html">GPA Calculator</a>
+
+      <h5 style="margin-top:.75rem">Converters</h5>
+      <a href="image-to-pdf.html">Image → PDF</a>
+      <a href="pdf-to-images.html">PDF → Images</a>
+      <a href="merge-pdfs.html">Merge PDFs</a>
+      <a href="pdf-split-reorder.html">Split &amp; Reorder PDF</a>
+      <a href="compress-pdf.html">Compress PDF</a>
+      <a href="png-to-svg.html">PNG → SVG</a>
+      <a href="unit-converter.html">Unit Converter</a>
+      <a href="file-converter.html">File Converter</a>
+      <a href="qr.html">QR Code Generator</a>
+
+      <h5 style="margin-top:.75rem">Mini Games</h5>
+      <a href="tic-tac-toe.html">Tic-Tac-Toe</a>
+      <a href="flappy.html">Flappy</a>
+      <a href="timer-stop.html">Timer Stop Challenge</a>
+
+      <h5 style="margin-top:.75rem">Site</h5>
+      <a href="blog.html">Blog</a>
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+    </nav>
+  </aside>
 
   <!-- ===== Dropdown Panels ===== -->
   <div class="menu-panel" id="panel-calc" role="dialog" aria-modal="true" aria-labelledby="calc-title">
@@ -302,21 +401,21 @@
       <div>
         <h2 class="section-title">Calculators</h2>
         <div style="display:flex;flex-direction:column;gap:1.4rem;width:100%;align-items:center">
-          <a class="card" href="bmi.html" data-name="bmi calculator" data-tags="health weight body mass bmi calculator healthy range"><div class="icon"><img class="icon-img" src="assets/icons/bmi.svg" alt="BMI icon"></div><h3>BMI Calculator</h3></a>
-          <a class="card" href="bmr.html" data-name="bmr calculator" data-tags="bmr basal metabolic rate calories tdee mifflin st jeor"><div class="icon"><img class="icon-img" src="assets/icons/bmr.svg" alt="BMR icon"></div><h3>BMR Calculator</h3></a>
-          <a class="card" href="calorie-macros.html" data-name="calorie macros tracker" data-tags="calorie calories macro macros protein carbs fat nutrition tracker"><div class="icon"><img class="icon-img" src="assets/icons/calorie-macros.svg" alt="Calorie & Macros icon"></div><h3>Calorie &amp; Macros Tracker</h3></a>
+          <a class="card" href="bmi.html" data-name="bmi calculator" data-tags="health weight body mass bmi calculator healthy range"><div class="icon"><img class="icon-img" src="assets/icons/bmi.svg" alt="BMI icon" loading="lazy"></div><h3>BMI Calculator</h3></a>
+          <a class="card" href="bmr.html" data-name="bmr calculator" data-tags="bmr basal metabolic rate calories tdee mifflin st jeor"><div class="icon"><img class="icon-img" src="assets/icons/bmr.svg" alt="BMR icon" loading="lazy"></div><h3>BMR Calculator</h3></a>
+          <a class="card" href="calorie-macros.html" data-name="calorie macros tracker" data-tags="calorie calories macro macros protein carbs fat nutrition tracker"><div class="icon"><img class="icon-img" src="assets/icons/calorie-macros.svg" alt="Calorie & Macros icon" loading="lazy"></div><h3>Calorie &amp; Macros Tracker</h3></a>
 
-          <a class="card" href="salary-calculator.html" data-name="salary calculator" data-tags="salary hourly monthly annual gross pay rate"><div class="icon"><img class="icon-img" src="assets/icons/salary-calculator.svg" alt="Salary icon"></div><h3>Salary Calculator</h3></a>
-          <a class="card" href="retirement-calculator.html" data-name="retirement calculator" data-tags="retirement future value nest egg fv inflation investment"><div class="icon"><img class="icon-img" src="assets/icons/retirement-calculator.svg" alt="Retirement icon"></div><h3>Retirement Calculator</h3></a>
-          <a class="card" href="sales-tax-cad.html" data-name="sales tax (cad)" data-tags="cad canada hst gst pst qst tax calculator"><div class="icon"><img class="icon-img" src="assets/icons/sales-tax-cad.svg" alt="Sales Tax icon"></div><h3>Sales Tax (CAD)</h3></a>
-          <a class="card" href="percentage-calculator.html" data-name="percentage calculator" data-tags="percent change increase decrease of what percent study"><div class="icon"><img class="icon-img" src="assets/icons/percentage-calculator.svg" alt="Percentage icon"></div><h3>Percentage Calculator</h3></a>
+          <a class="card" href="salary-calculator.html" data-name="salary calculator" data-tags="salary hourly monthly annual gross pay rate"><div class="icon"><img class="icon-img" src="assets/icons/salary-calculator.svg" alt="Salary icon" loading="lazy"></div><h3>Salary Calculator</h3></a>
+          <a class="card" href="retirement-calculator.html" data-name="retirement calculator" data-tags="retirement future value nest egg fv inflation investment"><div class="icon"><img class="icon-img" src="assets/icons/retirement-calculator.svg" alt="Retirement icon" loading="lazy"></div><h3>Retirement Calculator</h3></a>
+          <a class="card" href="sales-tax-cad.html" data-name="sales tax (cad)" data-tags="cad canada hst gst pst qst tax calculator"><div class="icon"><img class="icon-img" src="assets/icons/sales-tax-cad.svg" alt="Sales Tax icon" loading="lazy"></div><h3>Sales Tax (CAD)</h3></a>
+          <a class="card" href="percentage-calculator.html" data-name="percentage calculator" data-tags="percent change increase decrease of what percent study"><div class="icon"><img class="icon-img" src="assets/icons/percentage-calculator.svg" alt="Percentage icon" loading="lazy"></div><h3>Percentage Calculator</h3></a>
 
-          <a class="card" href="loan.html" data-name="loan calculator" data-tags="finance emi interest amortization payment"><div class="icon"><img class="icon-img" src="assets/icons/loan.svg" alt="Loan icon"></div><h3>Loan Calculator</h3></a>
-          <a class="card" href="mortgage.html" data-name="mortgage calculator" data-tags="home mortgage emi interest amortization"><div class="icon"><img class="icon-img" src="assets/icons/house.svg" alt="Mortgage icon"></div><h3>Mortgage Calculator</h3></a>
-          <a class="card" href="age.html" data-name="age calculator" data-tags="birthday next birthday date of birth dob"><div class="icon"><img class="icon-img" src="assets/icons/cake.svg" alt="Age/Birthday icon"></div><h3>Age Calculator</h3></a>
-          <a class="card" href="days-between.html" data-name="days between dates" data-tags="date difference days weeks inclusive exclusive leftover full weeks"><div class="icon"><img class="icon-img" src="assets/icons/days-between.svg" alt="Days Between icon"></div><h3>Days Between Dates</h3></a>
-          <a class="card" href="hours-between.html" data-name="hours between times" data-tags="time difference hours minutes seconds duration across midnight"><div class="icon"><img class="icon-img" src="assets/icons/hours-between.svg" alt="Time Difference icon"></div><h3>Hours Between Times</h3></a>
-          <a class="card" href="budget.html" data-name="budget planner" data-tags="finance savings expenses monthly budget plan charts 50 30 20"><div class="icon"><img class="icon-img" src="assets/icons/budget.svg" alt="Budget icon"></div><h3>Budget Planner</h3></a>
+          <a class="card" href="loan.html" data-name="loan calculator" data-tags="finance emi interest amortization payment"><div class="icon"><img class="icon-img" src="assets/icons/loan.svg" alt="Loan icon" loading="lazy"></div><h3>Loan Calculator</h3></a>
+          <a class="card" href="mortgage.html" data-name="mortgage calculator" data-tags="home mortgage emi interest amortization"><div class="icon"><img class="icon-img" src="assets/icons/house.svg" alt="Mortgage icon" loading="lazy"></div><h3>Mortgage Calculator</h3></a>
+          <a class="card" href="age.html" data-name="age calculator" data-tags="birthday next birthday date of birth dob"><div class="icon"><img class="icon-img" src="assets/icons/cake.svg" alt="Age/Birthday icon" loading="lazy"></div><h3>Age Calculator</h3></a>
+          <a class="card" href="days-between.html" data-name="days between dates" data-tags="date difference days weeks inclusive exclusive leftover full weeks"><div class="icon"><img class="icon-img" src="assets/icons/days-between.svg" alt="Days Between icon" loading="lazy"></div><h3>Days Between Dates</h3></a>
+          <a class="card" href="hours-between.html" data-name="hours between times" data-tags="time difference hours minutes seconds duration across midnight"><div class="icon"><img class="icon-img" src="assets/icons/hours-between.svg" alt="Time Difference icon" loading="lazy"></div><h3>Hours Between Times</h3></a>
+          <a class="card" href="budget.html" data-name="budget planner" data-tags="finance savings expenses monthly budget plan charts 50 30 20"><div class="icon"><img class="icon-img" src="assets/icons/budget.svg" alt="Budget icon" loading="lazy"></div><h3>Budget Planner</h3></a>
         </div>
       </div>
 
@@ -327,29 +426,29 @@
           <a class="card" href="image-to-pdf.html"
              data-name="image to pdf"
              data-tags="image to pdf images to pdf photo to pdf pictures to pdf jpg jpeg png webp heic convert to pdf document">
-            <div class="icon"><img class="icon-img" src="assets/icons/image-to-pdf.svg" alt="Image to PDF icon"></div>
+            <div class="icon"><img class="icon-img" src="assets/icons/image-to-pdf.svg" alt="Image to PDF icon" loading="lazy"></div>
             <h3>Image → PDF</h3>
           </a>
 
           <a class="card" href="pdf-to-images.html"
              data-name="pdf to images"
              data-tags="pdf to images pdf to image pdf2img export pdf pages to png jpg jpeg webp convert pdf pages images">
-            <div class="icon"><img class="icon-img" src="assets/icons/pdf-to-images.svg" alt="PDF to Images icon"></div>
+            <div class="icon"><img class="icon-img" src="assets/icons/pdf-to-images.svg" alt="PDF to Images icon" loading="lazy"></div>
             <h3>PDF → Images</h3>
           </a>
 
-          <a class="card" href="merge-pdfs.html" data-name="merge pdfs" data-tags="pdf combine join append pages"><div class="icon"><img class="icon-img" src="assets/icons/merge.svg" alt="Merge PDFs icon"></div><h3>Merge PDFs</h3></a>
-          <a class="card" href="pdf-split-reorder.html" data-name="split reorder pdf" data-tags="pdf split extract pages reorder rearrange"><div class="icon"><img class="icon-img" src="assets/icons/pdf-split-reorder.svg" alt="Split & Reorder icon"></div><h3>Split &amp; Reorder PDF</h3></a>
-          <a class="card" href="compress-pdf.html" data-name="compress pdf" data-tags="pdf reduce size smaller optimization"><div class="icon"><img class="icon-img" src="assets/icons/compress.svg" alt="Compress PDF icon"></div><h3>Compress PDF</h3></a>
-          <a class="card" href="png-to-svg.html" data-name="png to svg" data-tags="image vector trace outline convert raster to svg"><div class="icon"><img class="icon-img" src="assets/icons/png-to-svg.svg" alt="PNG to SVG icon"></div><h3>PNG → SVG</h3></a>
-          <a class="card" href="unit-converter.html" data-name="unit converter" data-tags="length weight temperature speed metric imperial"><div class="icon"><img class="icon-img" src="assets/icons/scale.svg" alt="Unit Converter icon"></div><h3>Unit Converter</h3></a>
-          <a class="card" href="qr.html" data-name="qr code generator" data-tags="qr qrcode barcode text url link code"><div class="icon"><img class="icon-img" src="assets/icons/qr.svg" alt="QR Code icon"></div><h3>QR Code Generator</h3></a>
+          <a class="card" href="merge-pdfs.html" data-name="merge pdfs" data-tags="pdf combine join append pages"><div class="icon"><img class="icon-img" src="assets/icons/merge.svg" alt="Merge PDFs icon" loading="lazy"></div><h3>Merge PDFs</h3></a>
+          <a class="card" href="pdf-split-reorder.html" data-name="split reorder pdf" data-tags="pdf split extract pages reorder rearrange"><div class="icon"><img class="icon-img" src="assets/icons/pdf-split-reorder.svg" alt="Split & Reorder icon" loading="lazy"></div><h3>Split &amp; Reorder PDF</h3></a>
+          <a class="card" href="compress-pdf.html" data-name="compress pdf" data-tags="pdf reduce size smaller optimization"><div class="icon"><img class="icon-img" src="assets/icons/compress.svg" alt="Compress PDF icon" loading="lazy"></div><h3>Compress PDF</h3></a>
+          <a class="card" href="png-to-svg.html" data-name="png to svg" data-tags="image vector trace outline convert raster to svg"><div class="icon"><img class="icon-img" src="assets/icons/png-to-svg.svg" alt="PNG to SVG icon" loading="lazy"></div><h3>PNG → SVG</h3></a>
+          <a class="card" href="unit-converter.html" data-name="unit converter" data-tags="length weight temperature speed metric imperial"><div class="icon"><img class="icon-img" src="assets/icons/scale.svg" alt="Unit Converter icon" loading="lazy"></div><h3>Unit Converter</h3></a>
+          <a class="card" href="qr.html" data-name="qr code generator" data-tags="qr qrcode barcode text url link code"><div class="icon"><img class="icon-img" src="assets/icons/qr.svg" alt="QR Code icon" loading="lazy"></div><h3>QR Code Generator</h3></a>
 
           <a class="card" href="genetic-barcode.html"
              data-name="genetic barcode"
              data-tags="barcode genetic id code generator qr print card luhn unique hash">
             <div class="icon">
-              <img class="icon-img" src="assets/icons/barcode.svg" alt="Genetic Barcode icon" onerror="this.src='assets/icons/qr.svg'">
+              <img class="icon-img" src="assets/icons/barcode.svg" alt="Genetic Barcode icon" loading="lazy" onerror="this.src='assets/icons/qr.svg'">
             </div>
             <h3>Genetic Barcode</h3>
           </a>
@@ -358,12 +457,12 @@
              data-name="genetic barcode reader"
              data-tags="barcode reader scan qr validate verify id luhn">
             <div class="icon">
-              <img class="icon-img" src="assets/icons/scan.svg" alt="Genetic Barcode Reader icon" onerror="this.src='assets/icons/qr.svg'">
+              <img class="icon-img" src="assets/icons/scan.svg" alt="Genetic Barcode Reader icon" loading="lazy" onerror="this.src='assets/icons/qr.svg'">
             </div>
             <h3>Genetic Barcode Reader</h3>
           </a>
 
-          <a class="card" href="file-converter.html" data-name="file converter" data-tags="image file convert jpg jpeg png webp heic gif svg pdf doc audio video"><div class="icon"><img class="icon-img" src="assets/icons/file-converter.svg" alt="File Converter icon"></div><h3>File Converter</h3></a>
+          <a class="card" href="file-converter.html" data-name="file converter" data-tags="image file convert jpg jpeg png webp heic gif svg pdf doc audio video"><div class="icon"><img class="icon-img" src="assets/icons/file-converter.svg" alt="File Converter icon" loading="lazy"></div><h3>File Converter</h3></a>
         </div>
       </div>
 
@@ -371,20 +470,20 @@
       <div>
         <h2 class="section-title">Study &amp; Writing</h2>
         <div style="display:flex;flex-direction:column;gap:1.4rem;width:100%;align-items:center">
-          <a class="card" href="gpa.html" data-name="gpa calculator" data-tags="gpa grade point average final needed exam requirement study school"><div class="icon"><img class="icon-img" src="assets/icons/gpa.svg" alt="GPA icon"></div><h3>GPA Calculator</h3></a>
-          <a class="card" href="percentage-calculator.html" data-name="percentage calculator" data-tags="percent change increase decrease of what percent study writing"><div class="icon"><img class="icon-img" src="assets/icons/percentage-calculator.svg" alt="Percentage icon"></div><h3>Percentage Calculator</h3></a>
+          <a class="card" href="gpa.html" data-name="gpa calculator" data-tags="gpa grade point average final needed exam requirement study school"><div class="icon"><img class="icon-img" src="assets/icons/gpa.svg" alt="GPA icon" loading="lazy"></div><h3>GPA Calculator</h3></a>
+          <a class="card" href="percentage-calculator.html" data-name="percentage calculator" data-tags="percent change increase decrease of what percent study writing"><div class="icon"><img class="icon-img" src="assets/icons/percentage-calculator.svg" alt="Percentage icon" loading="lazy"></div><h3>Percentage Calculator</h3></a>
 
-          <a class="card" href="citation-generator.html" data-name="citation generator" data-tags="apa mla chicago cite references bibliography"><div class="icon"><img class="icon-img" src="assets/icons/citation-generator.svg" alt="Citation icon"></div><h3>Citation Generator</h3></a>
-          <a class="card" href="word-counter.html" data-name="word character counter" data-tags="count words characters reading time readability flesch"><div class="icon"><img class="icon-img" src="assets/icons/word-counter.svg" alt="Word counter icon"></div><h3>Word &amp; Readability</h3></a>
-          <a class="card" href="flashcards.html" data-name="flashcards" data-tags="study memorize spaced repetition csv import export"><div class="icon"><img class="icon-img" src="assets/icons/flashcards.svg" alt="Flashcards icon"></div><h3>Flashcards</h3></a>
-          <a class="card" href="pomodoro.html" data-name="pomodoro timer" data-tags="focus study timer productivity music stats cycles"><div class="icon"><img class="icon-img" src="assets/icons/pomodoro.svg" alt="Pomodoro icon"></div><h3>Pomodoro Timer</h3></a>
+          <a class="card" href="citation-generator.html" data-name="citation generator" data-tags="apa mla chicago cite references bibliography"><div class="icon"><img class="icon-img" src="assets/icons/citation-generator.svg" alt="Citation icon" loading="lazy"></div><h3>Citation Generator</h3></a>
+          <a class="card" href="word-counter.html" data-name="word character counter" data-tags="count words characters reading time readability flesch"><div class="icon"><img class="icon-img" src="assets/icons/word-counter.svg" alt="Word counter icon" loading="lazy"></div><h3>Word &amp; Readability</h3></a>
+          <a class="card" href="flashcards.html" data-name="flashcards" data-tags="study memorize spaced repetition csv import export"><div class="icon"><img class="icon-img" src="assets/icons/flashcards.svg" alt="Flashcards icon" loading="lazy"></div><h3>Flashcards</h3></a>
+          <a class="card" href="pomodoro.html" data-name="pomodoro timer" data-tags="focus study timer productivity music stats cycles"><div class="icon"><img class="icon-img" src="assets/icons/pomodoro.svg" alt="Pomodoro icon" loading="lazy"></div><h3>Pomodoro Timer</h3></a>
         </div>
 
         <h2 class="section-title" style="margin-top:2rem">Mini Games</h2>
         <div style="display:flex;flex-direction:column;gap:1.4rem;width:100%;align-items:center">
-          <a class="card" href="tic-tac-toe.html" data-name="tic tac toe (single player)" data-tags="game brain board x o ai single-player"><div class="icon"><img class="icon-img" src="assets/icons/brain.svg" alt="Tic-Tac-Toe icon"></div><h3>Tic-Tac-Toe (Single Player)</h3></a>
-          <a class="card" href="flappy.html" data-name="flappy game" data-tags="game arcade endless jump fly bird"><div class="icon"><img class="icon-img" src="assets/icons/gamepad.svg" alt="Flappy icon"></div><h3>Flappy</h3></a>
-          <a class="card" href="timer-stop.html" data-name="timer stop challenge" data-tags="game timing reflex stop exact time accuracy mini-game"><div class="icon"><img class="icon-img" src="assets/icons/timer-stop.svg" alt="Timer icon"></div><h3>Timer Stop Challenge</h3></a>
+          <a class="card" href="tic-tac-toe.html" data-name="tic tac toe (single player)" data-tags="game brain board x o ai single-player"><div class="icon"><img class="icon-img" src="assets/icons/brain.svg" alt="Tic-Tac-Toe icon" loading="lazy"></div><h3>Tic-Tac-Toe (Single Player)</h3></a>
+          <a class="card" href="flappy.html" data-name="flappy game" data-tags="game arcade endless jump fly bird"><div class="icon"><img class="icon-img" src="assets/icons/gamepad.svg" alt="Flappy icon" loading="lazy"></div><h3>Flappy</h3></a>
+          <a class="card" href="timer-stop.html" data-name="timer stop challenge" data-tags="game timing reflex stop exact time accuracy mini-game"><div class="icon"><img class="icon-img" src="assets/icons/timer-stop.svg" alt="Timer icon" loading="lazy"></div><h3>Timer Stop Challenge</h3></a>
         </div>
       </div>
     </div>
@@ -470,7 +569,7 @@
 
   <script>
     // Year
-    document.getElementById('year').textContent = new Date().getFullYear();
+    const yearEl = document.getElementById('year'); if (yearEl) yearEl.textContent = new Date().getFullYear();
 
     // Dropdown behavior (hover on desktop, click/tap everywhere)
     const header = document.getElementById('siteHeader');
@@ -545,20 +644,44 @@
     document.addEventListener('keydown', e=>{ if(e.key==='Escape') closePanel(); });
     document.querySelectorAll('[data-close]').forEach(x=>x.addEventListener('click', closePanel));
 
-    // Search (aliases help)
+    // ===== Mobile drawer for index =====
+    const hamb = document.getElementById('hambBtn');
+    const drawer = document.getElementById('mobileDrawer');
+    const sideBackdrop = document.getElementById('sideBackdrop');
+    const closeDrawerBtn = document.getElementById('closeDrawer');
+
+    function openDrawer(){
+      drawer.classList.add('show');
+      drawer.setAttribute('aria-hidden','false');
+      sideBackdrop.hidden = false;
+      requestAnimationFrame(()=> sideBackdrop.classList.add('show'));
+      hamb?.setAttribute('aria-expanded','true');
+    }
+    function closeDrawer(){
+      drawer.classList.remove('show');
+      drawer.setAttribute('aria-hidden','true');
+      hamb?.setAttribute('aria-expanded','false');
+      sideBackdrop.classList.remove('show');
+      setTimeout(()=>{ if(!drawer.classList.contains('show')) sideBackdrop.hidden = true; },160);
+    }
+
+    hamb?.addEventListener('click', openDrawer);
+    closeDrawerBtn?.addEventListener('click', closeDrawer);
+    sideBackdrop?.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDrawer(); });
+    window.addEventListener('resize', ()=>{ if(window.innerWidth>860) closeDrawer(); });
+
+    // ===== Search (aliases help) + support ?q= =====
     const searchInput = document.getElementById('searchInput');
     const gridEl = document.getElementById('toolsGrid');
     const noResults = document.getElementById('noResults');
     const cards = [...document.querySelectorAll('.card')];
 
-    // Aliases (expanded, now includes 'blog', 'news', 'article')
     const aliases = {
       jpg:'jpg jpeg image photo pictures', jpeg:'jpg jpeg image photo pictures',
       png:'png image', webp:'webp image', heic:'heic image', pdf:'pdf document',
-
       'image to pdf':'image to pdf images to pdf photo to pdf picture to pdf img2pdf image2pdf',
       img2pdf:'image to pdf images to pdf', image2pdf:'image to pdf images to pdf',
-
       'pdf to images':'pdf to images pdf to image pdf2img pdf2image pdf to png pdf to jpg pdf to jpeg pdf to webp export pages',
       pdf2img:'pdf to images pdf to png pdf to jpg pdf to jpeg',
       pdf2image:'pdf to images pdf to png pdf to jpg pdf to jpeg',
@@ -566,8 +689,6 @@
       'pdf to jpg':'pdf to images jpg jpeg',
       'pdf to jpeg':'pdf to images jpg jpeg',
       'pdf to webp':'pdf to images webp',
-
-      // Genetic Barcode search helpers
       genetic:'genetic barcode id code',
       barcode:'barcode genetic id code',
       id:'id code barcode genetic',
@@ -575,8 +696,6 @@
       reader:'reader scan',
       scan:'scan reader barcode',
       'genetic barcode reader':'scan barcode id',
-
-      // Core calculators
       cad:'canada canadian sales tax gst pst qst hst',
       canada:'cad canada sales tax gst pst qst hst',
       'sales tax':'tax cad canada hst gst pst qst',
@@ -589,18 +708,13 @@
       salary:'pay wage hourly yearly monthly',
       gpa:'gpa grade point average school study',
       'gpa calculator':'grade point average',
-
-      // Time & games
       timer:'timer stop challenge game',
       'timer stop':'timer stop challenge',
       'time difference':'hours between times duration',
       'days between':'date difference days weeks leftover full',
-
-      // Blog / content
       blog:'news article post posts guide tips how-to',
       article:'blog news guide tutorial',
       news:'blog article posts',
-
       qr:'qr qrcode barcode code', loan:'loan emi interest finance', mortgage:'mortgage home emi finance',
       svg:'svg vector', apa:'apa mla chicago citation references cite',
       mla:'mla apa chicago citation references cite', chicago:'chicago apa mla citation references cite',
@@ -623,7 +737,6 @@
         card.style.display = ok? '' : 'none';
         if(ok) matches++;
       });
-      // Also filter blog preview cards
       const posts = [...document.querySelectorAll('.post-card')];
       let postMatches = 0;
       posts.forEach(post=>{
@@ -633,19 +746,30 @@
         if(ok) postMatches++;
       });
 
-      if(matches===0 && postMatches===0){ 
-        gridEl.style.display='none'; 
+      if(matches===0 && postMatches===0){
+        gridEl.style.display='none';
         document.querySelector('.blog-grid').style.display='none';
-        document.getElementById('noResults').style.display='block'; 
-        document.getElementById('noResults').textContent='No tools or posts found'; 
+        noResults.style.display='block';
+        noResults.textContent='No tools or posts found';
       } else {
         gridEl.style.display='';
         document.querySelector('.blog-grid').style.display='';
-        document.getElementById('noResults').style.display='none';
+        noResults.style.display='none';
       }
     }
+
+    // input listener
     searchInput.addEventListener('input', e=>search(e.target.value));
-    search('');
+
+    // support ?q=searchterm from URL (for SearchAction schema)
+    const params = new URLSearchParams(location.search);
+    const q = params.get('q') || '';
+    if (q) {
+      searchInput.value = q;
+      search(q);
+    } else {
+      search('');
+    }
   </script>
 </body>
 </html>

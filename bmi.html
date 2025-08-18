@@ -20,11 +20,8 @@
   <meta name="twitter:description" content="Instantly check your BMI, find your ideal weight range, and understand your health status. 100% free and mobile-friendly.">
   <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
 
-
-
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
 
-  <!-- Global sticky header + footer -->
   <link rel="stylesheet" href="th-layout.css">
   <script defer src="th-layout.js"></script>
 
@@ -66,6 +63,63 @@
     .legend>div{display:flex;flex-direction:column;align-items:center;font-size:12px;color:var(--muted)}
     .legend .chip{width:100%;height:8px;border-radius:999px}
     .legend .cU{background:#ef4444}.legend .cH{background:#22c55e}.legend .cO{background:#f59e0b}.legend .cOb{background:#ef4444}
+    
+    /* Mobile-friendly adjustments for a clean layout */
+    @media (max-width: 600px) {
+        .row {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+        .row > div {
+            min-width: auto;
+        }
+        .row .row {
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+        .toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .toolbar .btn {
+            width: 100%;
+        }
+        .soft {
+            grid-template-columns: 1fr !important;
+        }
+        .soft > div {
+            margin-top: 16px;
+        }
+        .soft > div:first-child {
+            margin-top: 0;
+        }
+        .soft .bigNum {
+            text-align: center;
+        }
+        .legend {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    /* New styles for the status bar */
+    .status-bar-container { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; padding: 10px; background-color: transparent; }
+    .status-bar { height: 6px; width: 0; background-color: var(--accent); transition: width 0.3s ease-out; }
+    .status-message {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .status-message.show { opacity: 1; }
   </style>
 </head>
 <body>
@@ -144,10 +198,20 @@
     </div>
   </section>
 
+  <div id="statusBarContainer" class="status-bar-container" style="display:none;">
+    <div class="status-bar" id="statusBar"></div>
+    <div class="status-message" id="statusMessage"></div>
+  </div>
+
   <script>
   (() => {
     const $ = (id) => document.getElementById(id);
     const clamp=(v,min,max)=>Math.min(Math.max(v,min),max);
+
+    // New elements for the status bar
+    const statusBarContainer = document.getElementById('statusBarContainer');
+    const statusBar = document.getElementById('statusBar');
+    const statusMessage = document.getElementById('statusMessage');
 
     const ftWrap=$('ftWrap'); $('hUnit').addEventListener('change',()=>{ ftWrap.style.display=$('hUnit').value==='ftin'?'grid':'none'; });
 
@@ -166,16 +230,48 @@
     }
     function pinLeftFor(bmi){ return clamp(((bmi-15)/20)*100,0,100); }
 
+    // New functions for the status bar
+    function showStatusBar(message, color) {
+        statusBarContainer.style.display = 'block';
+        statusBar.style.width = '0%';
+        statusBar.style.backgroundColor = color;
+        statusMessage.textContent = message;
+        statusMessage.classList.add('show');
+    }
+
+    function hideStatusBar() {
+        statusBarContainer.style.display = 'none';
+        statusBar.style.width = '0%';
+        statusBar.style.backgroundColor = 'var(--accent)';
+        statusMessage.classList.remove('show');
+    }
+
     $('calcBmi').onclick=()=>{
+      showStatusBar("Calculating...", '#4f46e5');
       const kg=toKg($('wVal').value,$('wUnit').value);
       const m =toMeters($('hVal').value,$('hUnit').value);
       const out=$('bmiOut'), pin=$('bmiPin'), tips=$('bmiTips');
-      if(!kg||!m){ out.textContent='—'; tips.textContent='Enter valid weight & height.'; return; }
+      if(!kg||!m){ 
+        out.textContent='—'; 
+        tips.textContent='Enter valid weight & height.'; 
+        statusBar.style.width = '100%';
+        statusBar.style.backgroundColor = '#ef4444'; // Red for error
+        statusMessage.textContent = "Error: Invalid input.";
+        setTimeout(hideStatusBar, 3000);
+        return; 
+      }
+      
       const bmi=kg/(m*m), info=classify(bmi);
       out.textContent=bmi.toFixed(1)+' — '+info.cat;
       pin.style.left=pinLeftFor(bmi)+'%';
       tips.innerHTML=`<span style="font-weight:800;color:${info.color}">${info.cat}</span> · ${info.msg}`;
       const age=parseFloat($('age').value)||null; if(age&&age<18) tips.innerHTML+=' <em>(ranges differ for children/teens)</em>';
+
+      // Simulate completion
+      statusBar.style.width = '100%';
+      statusBar.style.backgroundColor = '#34d399'; // Green for completion
+      statusMessage.textContent = "Calculation complete!";
+      setTimeout(hideStatusBar, 2000);
     };
 
     ['wVal','hVal','ft','inch','age'].forEach(id=>{

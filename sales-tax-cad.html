@@ -32,6 +32,14 @@
     .subhead{font-weight:900;margin:10px 0 6px}
     .try-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
     .rateRow{display:flex;gap:8px;align-items:end}
+    /* Global tool layout rules — make every tool stack like Budget on small screens */
+@media (max-width: 900px){
+  .tools .grid{ grid-template-columns: 1fr !important; }
+}
+@media (max-width: 600px){
+  .tools .row{ grid-template-columns: 1fr !important; gap: 12px; }
+}
+
   </style>
 </head>
 <body class="theme-light">

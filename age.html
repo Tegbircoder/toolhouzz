@@ -22,7 +22,6 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
 
-  <!-- Global sticky header + footer -->
   <link rel="stylesheet" href="th-layout.css">
   <script defer src="th-layout.js"></script>
 
@@ -61,6 +60,26 @@
 
     .chartBox{border:1.5px solid var(--border-strong);border-radius:14px;background:#fff;padding:14px}
     .chartLabel{display:block;font-weight:900;margin-bottom:6px}
+
+    /* New styles for the status bar */
+    .status-bar-container { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; padding: 10px; background-color: transparent; }
+    .status-bar { height: 6px; width: 0; background-color: var(--accent); transition: width 0.3s ease-out; }
+    .status-message {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .status-message.show { opacity: 1; }
   </style>
 </head>
 <body>
@@ -115,11 +134,21 @@
       </div>
     </div>
   </section>
+  
+  <div id="statusBarContainer" class="status-bar-container" style="display:none;">
+    <div class="status-bar" id="statusBar"></div>
+    <div class="status-message" id="statusMessage"></div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
   <script>
     const $ = id => document.getElementById(id);
     const fmtInt = n => Number.isFinite(n) ? n.toLocaleString() : '—';
+
+    // New elements for the status bar
+    const statusBarContainer = document.getElementById('statusBarContainer');
+    const statusBar = document.getElementById('statusBar');
+    const statusMessage = document.getElementById('statusMessage');
 
     function partsBetween(a,b){
       let from=new Date(a), to=new Date(b); if(to<from)[from,to]=[to,from];
@@ -195,10 +224,39 @@
       bars.data.datasets[0].data=[age.weeks, age.days+age.weeks*7, totalHours];
       bars.update('none');
     }
+    
+    // New functions for the status bar
+    function showStatusBar(message, color) {
+        statusBarContainer.style.display = 'block';
+        statusBar.style.width = '0%';
+        statusBar.style.backgroundColor = color;
+        statusMessage.textContent = message;
+        statusMessage.classList.add('show');
+    }
+
+    function hideStatusBar() {
+        statusBarContainer.style.display = 'none';
+        statusBar.style.width = '0%';
+        statusBar.style.backgroundColor = 'var(--accent)';
+        statusMessage.classList.remove('show');
+    }
 
     function start(){
       const dobVal=$('dob').value;
       if(!dobVal){alert('Please select your Date of Birth');return;}
+      
+      showStatusBar("Calculating...", '#4f46e5'); // Blue for in-progress
+
+      setTimeout(() => {
+          statusBar.style.width = '100%';
+          statusBar.style.backgroundColor = '#34d399'; // Green for completion
+          statusMessage.textContent = "Calculation complete!";
+      }, 500);
+
+      setTimeout(() => {
+          hideStatusBar();
+      }, 2000);
+
       const [y,m,d]=dobVal.split('-').map(Number);
       dobObj=new Date(y,(m||1)-1,(d||1));
       const tobVal=$('tob').value;

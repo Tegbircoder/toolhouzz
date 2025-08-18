@@ -21,13 +21,52 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <!-- Header/Footer layout styles -->
   <link rel="stylesheet" href="th-layout.css" />
-  <style>.nav-right{gap:14px}</style>
+  <style>
+    .nav-right{gap:14px}
+    /* Mobile-friendly adjustments for a clean layout */
+    @media (max-width: 600px) {
+        .tool-hero .hero-sub {
+            padding: 0 10px;
+        }
+        .tools .grid {
+            padding: 0 16px;
+        }
+        .card {
+            padding: 12px;
+        }
+        .card > div:last-child {
+            flex-direction: column;
+            gap: 12px;
+            align-items: stretch;
+        }
+        .card .btn {
+            width: 100%;
+        }
+    }
+
+    /* New styles for the status bar */
+    .status-bar-container { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; padding: 10px; background-color: transparent; }
+    .status-bar { height: 6px; width: 0; background-color: var(--accent); transition: width 0.3s ease-out; }
+    .status-message {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .status-message.show { opacity: 1; }
+  </style>
 </head>
 <body class="theme-light">
-  <!-- Header is injected by th-layout.js -->
-
   <section class="tool-hero" data-theme="indigo">
     <div class="hero-inner">
       <h1 class="hero-title">Flappy</h1>
@@ -48,14 +87,36 @@
     </div>
   </section>
 
-  <!-- Footer is injected by th-layout.js -->
+  <div id="statusBarContainer" class="status-bar-container" style="display:none;">
+    <div class="status-bar" id="statusBar"></div>
+    <div class="status-message" id="statusMessage"></div>
+  </div>
 
   <script src="app.js"></script>
   <script>
     const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
     const startBtn=document.getElementById('startBtn'), scoreEl=document.getElementById('score'), bestEl=document.getElementById('best');
+    const statusBarContainer = document.getElementById('statusBarContainer');
+    const statusBar = document.getElementById('statusBar');
+    const statusMessage = document.getElementById('statusMessage');
+
     let bird, vel, pipes, t, running=false, score=0, best=Number(localStorage.getItem('flappyBest')||0), nextGap=0;
     bestEl.textContent='Best: '+best;
+
+    function showStatusBar(message, color, width) {
+        statusBarContainer.style.display = 'block';
+        statusBar.style.width = width;
+        statusBar.style.backgroundColor = color;
+        statusMessage.textContent = message;
+        statusMessage.classList.add('show');
+    }
+
+    function hideStatusBar() {
+        statusBarContainer.style.display = 'none';
+        statusBar.style.width = '0%';
+        statusBar.style.backgroundColor = 'var(--accent)';
+        statusMessage.classList.remove('show');
+    }
 
     function reset(){
       bird={x:120, y:cv.height/2, r:14};
@@ -67,8 +128,17 @@
       pipes.push({x:cv.width+40, w:60, top:topH, gap:gap, passed:false});
     }
     function flap(){ vel=-7.5; }
-    function start(){ reset(); running=true; loop(); }
-    function end(){ running=false; localStorage.setItem('flappyBest', String(Math.max(best, score))); best=Number(localStorage.getItem('flappyBest')); bestEl.textContent='Best: '+best; }
+    function start(){ 
+      reset(); 
+      running=true; 
+      loop();
+    }
+    function end(){ 
+      running=false; 
+      localStorage.setItem('flappyBest', String(Math.max(best, score))); 
+      best=Number(localStorage.getItem('flappyBest')); 
+      bestEl.textContent='Best: '+best; 
+    }
 
     function collide(p){
       if(bird.x+bird.r > p.x && bird.x-bird.r < p.x+p.w){
@@ -101,9 +171,16 @@
     startBtn.onclick=()=>{ if(!running){ start(); } };
     cv.addEventListener('pointerdown', flap);
     window.addEventListener('keydown', e=>{ if(e.code==='Space') flap(); });
+
+    window.onload = function() {
+        showStatusBar("Loading game...", '#4f46e5', '50%');
+        setTimeout(() => {
+            showStatusBar("Ready!", '#34d399', '100%');
+        }, 1000);
+        setTimeout(hideStatusBar, 2500);
+    };
   </script>
 
-  <!-- Injects the standard header + footer -->
   <script src="th-layout.js"></script>
 </body>
 </html>

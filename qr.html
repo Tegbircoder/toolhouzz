@@ -4,8 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Free QR Code Generator – Create & Download QR Codes for Links, Wi-Fi & More | ToolHouzz</title>
-  
-  
+
   <meta name="description" content="Generate QR codes instantly for URLs, Wi-Fi access, text, email, and more with our free QR Code Generator. Download as PNG or SVG. Works entirely in your browser – fast, private, and mobile-friendly.">
   <link rel="canonical" href="https://toolhouzz.com/qr.html">
 
@@ -21,10 +20,10 @@
   <meta name="twitter:description" content="Generate QR codes for links, Wi-Fi, and more. Download PNG/SVG instantly – no uploads, private, and fast.">
   <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
 
-  
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&family=Playfair+Display:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="th-layout.css" />
+  <script defer src="th-layout.js"></script>
   <style>
     .hero{background:
       radial-gradient(900px 360px at 10% -20%, rgba(99,102,241,.12), transparent 60%),
@@ -37,7 +36,14 @@
     .link-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
     .link-card{display:grid;gap:6px;padding:14px;border-radius:12px;border:1.5px solid var(--border-strong);background:#fff}
     .link-card small{color:var(--muted)}
-    
+
+    /* — Mobile stacking like Budget — */
+    @media (max-width: 900px){
+      .tools .grid{ grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 600px){
+      .row{ grid-template-columns:1fr !important; gap:12px; }
+    }
   </style>
 </head>
 <body class="theme-light">
@@ -60,7 +66,7 @@
   <section class="tools" style="padding:20px 22px 10px">
     <div class="grid" style="grid-template-columns:1.15fr .85fr;max-width:1100px;align-items:start">
 
-      <!-- Left: Builder -->
+      <!-- Left: Builder + Preview (preview sits under the controls so on mobile it naturally goes below) -->
       <div class="card">
         <h2 class="tool-title">Build</h2>
 
@@ -123,7 +129,7 @@
         </details>
       </div>
 
-      <!-- Right: Presets & More -->
+      <!-- Right: Presets & More (goes BELOW on mobile) -->
       <div class="card" style="background:#fbfcff">
         <h2 class="tool-title">Presets</h2>
         <div class="preset" data-t="url" style="margin-bottom:8px">
@@ -168,9 +174,7 @@
     let q=null;
     const $=id=>document.getElementById(id);
 
-    function eccValue(k){
-      return (QRCode.CorrectLevel[k] ?? QRCode.CorrectLevel.M);
-    }
+    function eccValue(k){ return (QRCode.CorrectLevel[k] ?? QRCode.CorrectLevel.M); }
 
     function build(){
       $('wrap').innerHTML='';
@@ -187,7 +191,6 @@
       $('note').textContent = 'Generated.';
       setTimeout(()=> $('note').textContent = '', 1200);
     }
-
     $('gen').onclick = build;
 
     $('savePng').onclick=()=>{
@@ -229,8 +232,5 @@
       $('text').focus();
     });
   </script>
-
-  <!-- Inject standard header + footer -->
-  <script src="th-layout.js"></script>
 </body>
 </html>

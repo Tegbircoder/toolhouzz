@@ -22,11 +22,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="th-layout.css">
-  <script defer src="th-layout.js"></script>
-  <style>
-    .k{border:1px solid var(--border-strong);border-radius:12px;padding:16px;background:#fff}
-    .big{font-size:1.4rem;font-weight:900}
-  </style>
 </head>
 <body class="theme-light">
   <section class="hero" style="padding:54px 22px 28px">
@@ -52,8 +47,8 @@
           <button class="btn primary" id="calc">Calculate</button>
           <button class="btn" id="now">Use Now</button>
         </div>
-        <div class="k" style="margin-top:12px">
-          <div class="big" id="long">—</div>
+        <div class="k" style="margin-top:12px; border:1px solid var(--border-strong);border-radius:12px;padding:16px;background:#fff">
+          <div class="big" id="long" style="font-size:1.4rem;font-weight:900">—</div>
           <div class="muted" style="margin-top:8px">
             Total: <span id="h">—</span> hours • <span id="m">—</span> minutes • <span id="s">—</span> seconds
           </div>
@@ -61,9 +56,30 @@
       </div>
     </div>
   </section>
+  <div class="status-bar-container">
+    <div class="status-bar" id="statusBar"></div>
+    <div class="status-message" id="statusMessage"></div>
+  </div>
 
+  <script defer src="th-layout.js"></script>
   <script>
     const $=id=>document.getElementById(id);
+    const statusBar = $('statusBar');
+    const statusMessage = $('statusMessage');
+
+    function updateStatus(message, showBar = false) {
+      statusMessage.textContent = message;
+      statusMessage.classList.add('show');
+      if (showBar) {
+        statusBar.style.width = '100%';
+        statusBar.style.transition = 'width 25s linear';
+      } else {
+        statusBar.style.width = '0';
+        statusBar.style.transition = 'none';
+        setTimeout(() => statusMessage.classList.remove('show'), 3000);
+      }
+    }
+
     function toSec(h,m,s){return h*3600+m*60+s;}
     function parse(t){const [H,M,S] = t.split(':').map(x=>+x||0);return toSec(H,M,S);}
     function fmtLong(total){
@@ -71,6 +87,7 @@
       return `${h} hours ${m} minutes ${s} seconds`;
     }
     function go(){
+      updateStatus("Calculating...", true);
       let a = parse($('t1').value || '00:00:00');
       let b = parse($('t2').value || '00:00:00');
       if ($('nextDay').checked && b<=a) b += 24*3600;
@@ -79,12 +96,15 @@
       $('h').textContent = (diff/3600).toFixed(6);
       $('m').textContent = (diff/60).toFixed(2);
       $('s').textContent = diff;
+      updateStatus("Calculation complete.");
     }
     $('calc').onclick = go;
     $('now').onclick = ()=>{
+      updateStatus("Using current time...", true);
       const now = new Date(); const z=n=>String(n).padStart(2,'0');
       const cur = `${z(now.getHours())}:${z(now.getMinutes())}:${z(now.getSeconds())}`;
       $('t1').value = cur; $('t2').value = cur; $('nextDay').checked = false; go();
+      updateStatus("Time set to now.");
     };
     go();
   </script>

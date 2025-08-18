@@ -29,6 +29,14 @@
     .info-card{border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff}
     .subhead{font-weight:900;margin:10px 0 6px}
     .try-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+
+    /* — Mobile stacking like Budget — */
+    @media (max-width: 900px){
+      .tools .grid{ grid-template-columns:1fr !important; }
+    }
+    @media (max-width: 600px){
+      .row{ grid-template-columns:1fr !important; gap:12px; }
+    }
   </style>
 </head>
 <body class="theme-light">
@@ -40,7 +48,8 @@
   </section>
 
   <section class="tools">
-    <div class="grid" style="grid-template-columns:1.1fr 1fr;gap:16px;max-width:1100px">
+    <div class="grid" style="grid-template-columns:1.1fr 1fr;gap:16px;max-width:1100px;align-items:start">
+      <!-- Left: Inputs -->
       <div class="card">
         <div class="row">
           <div><label>Current age</label><input id="age" class="search" type="number" value="25" min="10" max="80"></div>
@@ -53,8 +62,6 @@
           <div><label>Inflation %</label><input id="inf" class="search" type="number" value="2" step="0.1"></div>
         </div>
         <div class="toolbar" style="margin-top:10px"><button class="btn primary" id="calc">Calculate</button></div>
-
-        <div class="chartWrap"><canvas id="growChart"></canvas></div>
 
         <div class="info-card" style="margin-top:12px">
           <div class="subhead">What this calculator means</div>
@@ -69,8 +76,12 @@
         </div>
       </div>
 
+      <!-- Right: Visualization + KPIs (goes BELOW on mobile) -->
       <div class="card">
-        <div class="kpi"><label>Future value (nominal)</label><div id="fv">—</div></div>
+        <label class="chartLabel" style="display:block;font-weight:900">Growth Over Time</label>
+        <div class="chartWrap"><canvas id="growChart"></canvas></div>
+
+        <div class="kpi" style="margin-top:12px"><label>Future value (nominal)</label><div id="fv">—</div></div>
         <div class="kpi" style="margin-top:10px"><label>Future value in today’s CAD</label><div id="real">—</div></div>
         <div class="kpi" style="margin-top:10px"><label>Years to invest</label><div id="yrs">—</div></div>
 
@@ -78,8 +89,8 @@
           <div class="subhead">Try more tools</div>
           <div class="try-grid">
             <a class="card" href="salary-calculator.html"><div class="icon"><img class="icon-img" src="assets/icons/budget.svg" alt=""></div><h3>Salary</h3></a>
-            <a class="card" href="sales-tax-cad.html"><div class="icon"><img class="icon-img" src="assets/icons/scale.svg" alt=""></div><h3>Sales Tax (CAD)</h3></a>
-            <a class="card" href="percentage-calculator.html"><div class="icon"><img class="icon-img" src="assets/icons/scale.svg" alt=""></div><h3>Percentage</h3></a>
+            <a class="card" href="sales-tax-cad.html"><div class="icon"><img class="icon-img" src="assets/icons/sales-tax-cad.svg" alt=""></div><h3>Sales Tax (CAD)</h3></a>
+            <a class="card" href="percentage-calculator.html"><div class="icon"><img class="icon-img" src="assets/icons/percentage-calculator.svg" alt=""></div><h3>Percentage</h3></a>
           </div>
         </div>
       </div>

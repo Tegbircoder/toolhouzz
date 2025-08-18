@@ -3,46 +3,49 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Free GPA Calculator – Calculate Weighted & Unweighted GPA on a 4.0 Scale | ToolHouzz</title>
-  <meta name="description" content="Easily calculate your GPA on a 4.0 scale with our free GPA Calculator. Supports weighted and unweighted grades, course credits, and multiple semesters. Perfect for high school, college, and university students.">
+  <title>Free GPA Calculator – Weighted & Unweighted (4.0 Scale) | ToolHouzz</title>
+  <meta name="description" content="Calculate unweighted and weighted GPA on a 4.0 scale. Add courses, credits, levels (Regular/Honors/AP), import CSV, and see quick stats.">
   <link rel="canonical" href="https://toolhouzz.com/gpa.html">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="ToolHouzz">
-  <meta property="og:title" content="Free GPA Calculator – Weighted & Unweighted GPA Tool">
-  <meta property="og:description" content="Calculate your GPA with weights, credits, and multiple semesters. Works for high school, college, and university students.">
+  <meta property="og:title" content="Free GPA Calculator – Weighted & Unweighted (4.0)">
+  <meta property="og:description" content="Add courses with credits and levels. See unweighted & weighted GPA and quick stats.">
   <meta property="og:url" content="https://toolhouzz.com/gpa.html">
   <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Free GPA Calculator – ToolHouzz">
-  <meta name="twitter:description" content="Quickly find your weighted or unweighted GPA on a 4.0 scale. Supports credits and multiple semesters. Perfect for students.">
-  <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
   <link rel="icon" href="assets/logo.png">
+
+  <!-- Site styles + shared header/footer -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="th-layout.css">
+  <script defer src="th-layout.js"></script>
+
   <style>
     :root{
-      --bg:#f6f8fc; --card:#fff; --ink:#0f172a; --muted:#64748b;
-      --border:#e5e7eb; --border-strong:#d1d5db;
-      --pri:#6366f1; --pri-600:#4f46e5; --pri-700:#4338ca;
-      --good:#16a34a; --bad:#ef4444;
       --radius:14px;
+      --ink:#0f172a; --muted:#64748b;
+      --border:var(--border, #e5e7eb);
+      --border-strong:var(--border-strong, #d1d5db);
+      --pri-600:#4f46e5;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
-    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-    a{color:inherit;text-decoration:none}
-    .site-header{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;background:#fff;border-bottom:1px solid var(--border)}
-    .brand{font-weight:900;letter-spacing:.4px}
-    .nav-right{display:flex;gap:14px}
-    .hero{padding:48px 18px 22px;text-align:center;background:linear-gradient(180deg,#eef2ff,transparent)}
-    .hero-title{margin:0;font-weight:900;font-size:clamp(32px,6.4vw,52px)}
-    .hero-sub{margin:8px 0 0;color:#475569}
-    .tools{padding:18px}
-    .grid{max-width:1100px;margin:0 auto;display:grid;gap:14px;grid-template-columns:1fr}
+    body{margin:0;color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+
+    .hero{padding:54px 22px 26px;text-align:center;background:linear-gradient(180deg,#eef2ff,transparent)}
+    .hero-title{margin:0;font-weight:900;letter-spacing:-.02em;font-size:clamp(32px,6.2vw,52px)}
+    .hero-sub{margin:8px auto 0;max-width:900px;color:#475569}
+
+    .tools{padding:18px 22px 28px}
+    .grid{max-width:1200px;margin:0 auto;display:grid;gap:16px;grid-template-columns:1fr}
+    @media (min-width: 1000px){ .grid{grid-template-columns:1.15fr .85fr} }
+
     .card{background:#fff;border:1.5px solid var(--border-strong);border-radius:var(--radius);padding:14px}
-    .tool-title{margin:0 0 8px}
+    .tool-title{margin:0 0 10px}
     label{display:block;font-weight:800;color:#6b7280;font-size:12px;margin:0 0 6px 2px}
     .search{height:44px;width:100%;border:1.5px solid var(--border-strong);border-radius:12px;padding:0 12px;background:#fff;outline:none}
     .search:focus{border-color:#818cf8;box-shadow:0 0 0 3px rgba(99,102,241,.16)}
@@ -51,21 +54,14 @@
     .btn.primary:hover{filter:brightness(1.05)}
     .btn.ghost{background:#f8fafc}
     .muted{color:var(--muted)}
-    .note{font-size:12px;color:var(--muted)}
-    .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border-strong);background:#f8fafc;padding:6px 10px;border-radius:999px;font-weight:700}
+    .pill{display:inline-flex;align-items:center;border:1px solid var(--border-strong);background:#f8fafc;padding:6px 10px;border-radius:999px;font-weight:800}
 
-    /* ------- Controls (overflow-safe) ------- */
-    .controls{
-      display:grid; gap:10px;
-      grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
-      align-items:end;
-    }
-    .controls .actions{
-      grid-column:1/-1; display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;
-    }
+    /* Controls grid */
+    .controls{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));align-items:end}
+    .controls .actions{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
     .controls .group{min-width:0}
 
-    /* ------- Table ------- */
+    /* Table */
     table{width:100%;border-collapse:separate;border-spacing:0;border:1px solid var(--border-strong);border-radius:12px;overflow:hidden;background:#fff}
     th,td{padding:10px;border-bottom:1px solid var(--border)}
     thead th{background:#f3f6ff;text-align:left;color:#334155;font-weight:800}
@@ -75,307 +71,304 @@
     .del{width:34px;height:34px;border-radius:10px;border:1.5px solid var(--border-strong);background:#fff;cursor:pointer}
     .del:hover{background:#fef2f2;border-color:#fecaca}
 
-    /* Small stat cards */
     .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
     .stat{border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff}
     .stat b{display:block;font-size:22px;margin-top:2px}
-
-    /* Footer */
-    .footer{padding:18px 16px;border-top:1px solid var(--border);background:#fff;margin-top:14px;color:var(--muted)}
   </style>
 </head>
-<body>
+<body class="theme-light">
 
-<header class="site-header">
-  <a class="brand" href="index.html">TOOLHOUZZ</a>
-  <nav class="nav-right">
-    <a href="about.html">About</a>
-    <a href="privacy.html">Privacy</a>
-    <a href="terms.html">Terms</a>
-  </nav>
-</header>
+  <!-- Header & footer are injected by th-layout.js (same navbar as index) -->
 
-<section class="hero">
-  <h1 class="hero-title">GPA Calculator</h1>
-  <p class="hero-sub">Simple, flexible, and mobile-friendly. Set bonuses/caps, add courses, and see both unweighted & weighted GPA.</p>
-</section>
+  <section class="hero">
+    <h1 class="hero-title">GPA Calculator</h1>
+    <p class="hero-sub">Enter your <b>courses, credits, letter grades,</b> and <b>level</b> (Regular/Honors/AP). See both <b>unweighted</b> and <b>weighted</b> GPA instantly.</p>
+  </section>
 
-<section class="tools">
-  <div class="grid">
-    <div class="card">
-      <h3 class="tool-title">Your courses</h3>
+  <section class="tools">
+    <div class="grid">
+      <!-- Left: main calculator -->
+      <div class="card">
+        <h3 class="tool-title">Your courses</h3>
 
-      <!-- Top controls -->
-      <div class="controls" style="margin-bottom:8px">
-        <div class="group">
-          <label>Grade scale</label>
-          <select id="gradeScale" class="search">
-            <option value="cap4">4.0 (A+ capped at 4.0)</option>
-            <option value="a43">4.0 (A+ = 4.3)</option>
-          </select>
+        <!-- Global settings -->
+        <div class="controls" style="margin-bottom:8px">
+          <div class="group">
+            <label>Grade scale</label>
+            <select id="gradeScale" class="search" aria-label="Grade scale">
+              <option value="cap4">4.0 (A+ capped at 4.0)</option>
+              <option value="a43">4.0 (A+ = 4.3)</option>
+            </select>
+          </div>
+          <div class="group">
+            <label>Honors bonus</label>
+            <input id="honorsBonus" class="search" type="number" inputmode="decimal" step="0.1" value="0.5">
+          </div>
+          <div class="group">
+            <label>AP/IB bonus</label>
+            <input id="apBonus" class="search" type="number" inputmode="decimal" step="0.1" value="1">
+          </div>
+          <div class="group">
+            <label>Weighted cap</label>
+            <input id="weightedCap" class="search" type="number" inputmode="decimal" step="0.1" value="5" placeholder="Cap at 5.0">
+          </div>
+
+          <div class="actions">
+            <input id="csvInput" type="file" accept=".csv,text/csv" hidden>
+            <button class="btn ghost" id="importBtn" type="button">Import from CSV / Sheets</button>
+            <button class="btn primary" id="addBtn" type="button">+ Add course</button>
+            <button class="btn" id="sampleBtn" type="button">Sample data</button>
+            <button class="btn" id="clearBtn" type="button">Clear</button>
+          </div>
         </div>
-        <div class="group">
-          <label>Honors bonus</label>
-          <input id="honorsBonus" class="search" type="number" inputmode="decimal" step="0.1" value="0.5">
-        </div>
-        <div class="group">
-          <label>AP/IB bonus</label>
-          <input id="apBonus" class="search" type="number" inputmode="decimal" step="0.1" value="1">
-        </div>
-        <div class="group">
-          <label>Weighted cap</label>
-          <input id="weightedCap" class="search" type="number" inputmode="decimal" step="0.1" value="5" placeholder="Cap at 5.0">
+
+        <!-- Table -->
+        <div style="overflow:auto">
+          <table aria-label="Courses">
+            <thead>
+              <tr>
+                <th>Course</th>
+                <th>Credits</th>
+                <th>Grade</th>
+                <th>Level</th>
+                <th class="num">Points / credit (weighted)</th>
+                <th class="actions"></th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+            <tfoot>
+              <tr>
+                <td><b>Total</b></td>
+                <td id="tCred" class="num">0.0</td>
+                <td colspan="1" class="num"><b>Unweighted GPA</b></td>
+                <td class="num" id="uwGpa">0.00</td>
+                <td class="num" colspan="2"><b>Weighted GPA</b> <span id="wGpaVal" style="margin-left:8px">0.00</span></td>
+              </tr>
+            </tfoot>
+          </table>
         </div>
 
-        <div class="actions">
-          <input id="csvInput" type="file" accept=".csv,text/csv" hidden>
-          <button class="btn ghost" id="importBtn" type="button">Import from CSV / Sheets</button>
-          <button class="btn primary" id="addBtn" type="button">+ Add course</button>
-          <button class="btn" id="sampleBtn" type="button">Sample data</button>
-          <button class="btn" id="clearBtn" type="button">Clear</button>
+        <!-- Quick stats -->
+        <div class="stats">
+          <div class="stat"><div class="muted">Courses</div><b id="courseCount">0</b></div>
+          <div class="stat"><div class="muted">Total credits</div><b id="creditTotal">0.0</b></div>
+          <div class="stat"><div class="muted">Highest points/credit (weighted)</div><b id="maxPts">0.00</b></div>
         </div>
       </div>
 
-      <!-- Table -->
-      <div style="overflow:auto">
-        <table aria-label="Courses">
-          <thead>
-            <tr>
-              <th>Course</th>
-              <th>Credits</th>
-              <th>Grade</th>
-              <th>Level</th>
-              <th class="num">Points</th>
-              <th class="actions"></th>
-            </tr>
-          </thead>
-          <tbody id="rows"></tbody>
-          <tfoot>
-            <tr>
-              <td><b>Total</b></td>
-              <td id="tCred" class="num">0.0</td>
-              <td colspan="1" class="num" id="uwLabel"><b>Unweighted GPA</b></td>
-              <td class="num" id="uwGpa">0.00</td>
-              <td class="num" id="wGpa" colspan="2"><b>Weighted GPA</b> <span id="wGpaVal" style="margin-left:8px">0.00</span></td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
+      <!-- Right: help + target calc -->
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="card">
+          <h3 class="tool-title">How to use</h3>
+          <ol class="muted" style="margin:6px 0 0 18px">
+            <li>Click <b>+ Add course</b>, then enter <b>credits</b>, pick a <b>letter grade</b>, and choose <b>level</b>.</li>
+            <li>Use the <b>Grade scale</b> and <b>bonuses</b> to match your school’s policy. Weighted GPA is capped by <b>Weighted cap</b>.</li>
+            <li>Totals update automatically. Import a CSV with columns: <code>course, credits, grade, level</code>.</li>
+          </ol>
+          <div class="muted" style="margin-top:10px">
+            Letter-grade points (unweighted, 4.0 cap): A=4.0, A−=3.7, B+=3.3, …, D=1.0, F=0.0.  
+            Add bonuses: Honors +<span id="hBonusMini">0.5</span>, AP/IB +<span id="apBonusMini">1</span> (capped).
+          </div>
+        </div>
 
-      <!-- Stats -->
-      <div class="stats">
-        <div class="stat">
-          <div class="note">Courses</div>
-          <b id="courseCount">0</b>
-        </div>
-        <div class="stat">
-          <div class="note">Total credits</div>
-          <b id="creditTotal">0.0</b>
-        </div>
-        <div class="stat">
-          <div class="note">Highest course points (weighted)</div>
-          <b id="maxPts">0.00</b>
+        <div class="card">
+          <h3 class="tool-title">Target: what do I need on the final?</h3>
+          <div class="controls">
+            <div class="group">
+              <label>Current course average (%)</label>
+              <input id="curAvg" class="search" type="number" inputmode="decimal" placeholder="e.g., 86">
+            </div>
+            <div class="group">
+              <label>Final exam weight (%)</label>
+              <input id="finalWeight" class="search" type="number" inputmode="decimal" placeholder="e.g., 30">
+            </div>
+            <div class="group">
+              <label>Desired overall (%)</label>
+              <input id="desiredOverall" class="search" type="number" inputmode="decimal" placeholder="e.g., 90">
+            </div>
+            <div class="actions" style="justify-content:flex-start">
+              <button class="btn primary" id="needBtn" type="button">Calculate</button>
+              <div id="needOut" class="pill" aria-live="polite">—</div>
+            </div>
+          </div>
+          <div class="muted" style="margin-top:8px">Formula: <code>goal = current×(1−w) + final×w</code> → <code>final = (goal − current×(1−w)) / w</code></div>
         </div>
       </div>
     </div>
+  </section>
 
-    <!-- Target calculator -->
-    <div class="card">
-      <h3 class="tool-title">Target: what do I need on the final?</h3>
-      <div class="controls">
-        <div class="group">
-          <label>Current course average (%)</label>
-          <input id="curAvg" class="search" type="number" inputmode="decimal" placeholder="e.g., 86">
-        </div>
-        <div class="group">
-          <label>Final exam weight (%)</label>
-          <input id="finalWeight" class="search" type="number" inputmode="decimal" placeholder="e.g., 30">
-        </div>
-        <div class="group">
-          <label>Desired overall (%)</label>
-          <input id="desiredOverall" class="search" type="number" inputmode="decimal" placeholder="e.g., 90">
-        </div>
-        <div class="actions" style="justify-content:flex-start">
-          <button class="btn primary" id="needBtn" type="button">Calculate</button>
-          <div id="needOut" class="pill" aria-live="polite">—</div>
-        </div>
-      </div>
-      <div class="note" style="margin-top:8px">Formula: goal = current×(1−w) + final×w → final = (goal − current×(1−w)) / w</div>
-    </div>
-  </div>
-</section>
+  <script>
+    const $ = id => document.getElementById(id);
 
-<footer class="footer"><p>© <span id="year"></span> ToolHouzz.</p></footer>
+    // Keep the mini help text in sync with the bonuses
+    function syncMiniBonuses(){
+      $('hBonusMini').textContent = ($('honorsBonus').value || '0');
+      $('apBonusMini').textContent = ($('apBonus').value || '0');
+    }
 
-<script>
-  const $ = id => document.getElementById(id);
-  $('year').textContent = new Date().getFullYear();
+    /* ---------------- Data ---------------- */
+    let courses = []; // {name, credits, grade, level}
+    const GRADES = ['A+','A','A-','B+','B','B-','C+','C','C-','D+','D','F'];
+    const LEVELS = ['Regular','Honors','AP/IB'];
 
-  /* ---------------- Data ---------------- */
-  let courses = []; // {name, credits, grade, level}
+    function gradePointsUnweighted(grade){
+      const scale = $('gradeScale').value; // cap4 or a43
+      const mapCap4 = { 'A+':4.0,'A':4.0,'A-':3.7,'B+':3.3,'B':3.0,'B-':2.7,'C+':2.3,'C':2.0,'C-':1.7,'D+':1.3,'D':1.0,'F':0.0 };
+      const mapA43 =  { 'A+':4.3,'A':4.0,'A-':3.7,'B+':3.3,'B':3.0,'B-':2.7,'C+':2.3,'C':2.0,'C-':1.7,'D+':1.3,'D':1.0,'F':0.0 };
+      return (scale==='a43'? mapA43 : mapCap4)[grade] ?? 0;
+    }
+    function bonusFor(level){
+      const h = parseFloat($('honorsBonus').value || '0');
+      const ap = parseFloat($('apBonus').value || '0');
+      return level==='Honors' ? h : (level==='AP/IB' ? ap : 0);
+    }
+    function weightedCap(){ return parseFloat($('weightedCap').value || '5') || 5; }
 
-  const GRADES = ['A+','A','A-','B+','B','B-','C+','C','C-','D+','D','F'];
-  const LEVELS = ['Regular','Honors','AP/IB'];
+    /* ---------------- Rendering ---------------- */
+    function render(){
+      const tbody = $('rows'); tbody.innerHTML='';
 
-  function gradePointsUnweighted(grade){
-    const scale = $('gradeScale').value; // cap4 or a43
-    const mapCap4 = { 'A+':4.0,'A':4.0,'A-':3.7,'B+':3.3,'B':3.0,'B-':2.7,'C+':2.3,'C':2.0,'C-':1.7,'D+':1.3,'D':1.0,'F':0.0 };
-    const mapA43 =  { 'A+':4.3,'A':4.0,'A-':3.7,'B+':3.3,'B':3.0,'B-':2.7,'C+':2.3,'C':2.0,'C-':1.7,'D+':1.3,'D':1.0,'F':0.0 };
-    return (scale==='a43'? mapA43 : mapCap4)[grade] ?? 0;
-  }
-  function bonusFor(level){
-    const h = parseFloat($('honorsBonus').value || '0');
-    const ap = parseFloat($('apBonus').value || '0');
-    return level==='Honors' ? h : (level==='AP/IB' ? ap : 0);
-  }
-  function weightedCap(){ return parseFloat($('weightedCap').value || '5') || 5; }
+      let totalCred = 0, uwQP = 0, wQP = 0, maxCoursePts = 0, count = 0;
 
-  /* ---------------- Rendering ---------------- */
-  function render(){
-    const tbody = $('rows'); tbody.innerHTML='';
+      courses.forEach((c, idx)=>{
+        const tr = document.createElement('tr');
 
-    let totalCred = 0, uwQP = 0, wQP = 0, maxCoursePts = 0, count = 0;
+        // inputs
+        const name = document.createElement('input');
+        name.className = 'search'; name.value = c.name || ''; name.placeholder='e.g., Biology';
+        name.oninput = () => { c.name = name.value; };
 
-    courses.forEach((c, idx)=>{
-      const tr = document.createElement('tr');
+        const cred = document.createElement('input');
+        cred.className='search'; cred.type='number'; cred.inputMode='decimal'; cred.min='0'; cred.step='0.5';
+        cred.value = c.credits ?? '';
+        cred.oninput = () => { c.credits = parseFloat(cred.value)||0; updateTotals(); };
 
-      // inputs
-      const name = document.createElement('input');
-      name.className = 'search'; name.value = c.name || ''; name.placeholder='e.g., Biology';
-      name.oninput = () => { c.name = name.value; };
+        const grade = document.createElement('select');
+        grade.className='search'; grade.style.height='44px';
+        GRADES.forEach(g=>{ const o=document.createElement('option'); o.textContent=g; grade.appendChild(o); });
+        grade.value = c.grade || 'A';
+        grade.onchange = () => { c.grade = grade.value; updateTotals(); };
 
-      const cred = document.createElement('input');
-      cred.className='search'; cred.type='number'; cred.inputMode='decimal'; cred.min='0'; cred.step='0.5';
-      cred.value = c.credits ?? '';
-      cred.oninput = () => { c.credits = parseFloat(cred.value)||0; updateTotals(); };
+        const level = document.createElement('select');
+        level.className='search'; level.style.height='44px';
+        LEVELS.forEach(l=>{ const o=document.createElement('option'); o.textContent=l; level.appendChild(o); });
+        level.value = c.level || 'Regular';
+        level.onchange = () => { c.level = level.value; updateTotals(); };
 
-      const grade = document.createElement('select');
-      grade.className='search'; grade.style.height='44px';
-      GRADES.forEach(g=>{ const o=document.createElement('option'); o.textContent=g; grade.appendChild(o); });
-      grade.value = c.grade || 'A';
-      grade.onchange = () => { c.grade = grade.value; updateTotals(); };
+        // points cell (per-credit, weighted)
+        const base = gradePointsUnweighted(grade.value);
+        const perCreditWeighted = Math.min(base + bonusFor(level.value), weightedCap());
+        maxCoursePts = Math.max(maxCoursePts, perCreditWeighted);
 
-      const level = document.createElement('select');
-      level.className='search'; level.style.height='44px';
-      LEVELS.forEach(l=>{ const o=document.createElement('option'); o.textContent=l; level.appendChild(o); });
-      level.value = c.level || 'Regular';
-      level.onchange = () => { c.level = level.value; updateTotals(); };
+        const pts = document.createElement('td');
+        pts.className='num';
+        pts.textContent = perCreditWeighted.toFixed(2);
 
-      // points cell (per-credit, weighted)
-      const base = gradePointsUnweighted(grade.value);
-      const perCreditWeighted = Math.min(base + bonusFor(level.value), weightedCap());
-      maxCoursePts = Math.max(maxCoursePts, perCreditWeighted);
+        // delete button
+        const delTd = document.createElement('td'); delTd.className='actions';
+        const del = document.createElement('button'); del.className='del'; del.title='Remove'; del.innerHTML='✕';
+        del.onclick = () => { courses.splice(idx,1); render(); };
+        delTd.appendChild(del);
 
-      const pts = document.createElement('td');
-      pts.className='num';
-      pts.textContent = perCreditWeighted.toFixed(2);
+        // assemble row
+        const cNameTd = document.createElement('td'); cNameTd.appendChild(name);
+        const cCredTd = document.createElement('td'); cCredTd.appendChild(cred);
+        const cGradeTd = document.createElement('td'); cGradeTd.appendChild(grade);
+        const cLevelTd = document.createElement('td'); cLevelTd.appendChild(level);
 
-      // delete
-      const delTd = document.createElement('td'); delTd.className='actions';
-      const del = document.createElement('button'); del.className='del'; del.title='Remove';
-      del.innerHTML='✕';
-      del.onclick = () => { courses.splice(idx,1); render(); };
-      delTd.appendChild(del);
+        tr.append(cNameTd, cCredTd, cGradeTd, cLevelTd, pts, delTd);
+        tbody.appendChild(tr);
 
-      // assemble row
-      const cNameTd = document.createElement('td'); cNameTd.appendChild(name);
-      const cCredTd = document.createElement('td'); cCredTd.appendChild(cred);
-      const cGradeTd = document.createElement('td'); cGradeTd.appendChild(grade);
-      const cLevelTd = document.createElement('td'); cLevelTd.appendChild(level);
+        // totals (only if credits > 0)
+        const cr = parseFloat(cred.value)||0;
+        if (cr>0){
+          count++;
+          totalCred += cr;
+          uwQP += base * cr;
+          wQP  += perCreditWeighted * cr;
+        }
+      });
 
-      tr.append(cNameTd, cCredTd, cGradeTd, cLevelTd, pts, delTd);
-      tbody.appendChild(tr);
+      const uwGpa = totalCred ? (uwQP/totalCred) : 0;
+      const wGpa  = totalCred ? (wQP/totalCred) : 0;
 
-      // totals math (only if credits > 0)
-      const cr = parseFloat(cred.value)||0;
-      if (cr>0){
-        count++;
-        totalCred += cr;
-        const uw = base * cr;
-        const w  = perCreditWeighted * cr;
-        uwQP += uw; wQP += w;
-      }
+      $('tCred').textContent   = totalCred.toFixed(1);
+      $('uwGpa').textContent   = uwGpa.toFixed(2);
+      $('wGpaVal').textContent = wGpa.toFixed(2);
+
+      $('courseCount').textContent = String(count);
+      $('creditTotal').textContent = totalCred.toFixed(1);
+      $('maxPts').textContent      = maxCoursePts.toFixed(2);
+
+      syncMiniBonuses();
+    }
+
+    function updateTotals(){ render(); }
+
+    /* ---------------- Actions ---------------- */
+    $('addBtn').onclick = () => {
+      courses.push({ name:'', credits:3, grade:'A', level:'Regular' });
+      render();
+    };
+
+    $('sampleBtn').onclick = () => {
+      courses = [
+        { name:'Biology',   credits:3, grade:'B',  level:'AP/IB'  },
+        { name:'English',   credits:4, grade:'A',  level:'Honors' },
+        { name:'History',   credits:3, grade:'A-', level:'Regular'},
+        { name:'Algebra II',credits:4, grade:'D',  level:'AP/IB'  },
+      ];
+      render();
+    };
+
+    $('clearBtn').onclick = () => { courses = []; render(); };
+
+    // CSV import: columns (with or without header): course, credits, grade, level
+    $('importBtn').onclick = () => $('csvInput').click();
+    $('csvInput').onchange = async (e) => {
+      const file = e.target.files?.[0]; e.target.value='';
+      if(!file) return;
+      const text = await file.text();
+      const lines = text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+      if(!lines.length) return;
+
+      const out = [];
+      lines.forEach((line,i)=>{
+        const parts = line.split(',').map(s=>s.trim());
+        // Detect header (contains 'course' etc.)
+        const head = parts.join(' ').toLowerCase();
+        if(i===0 && /course|credits|grade|level/.test(head)) return;
+
+        const [name, cred, grade, level] = parts;
+        const g = (grade||'').toUpperCase();
+        const lvl = /hon/i.test(level||'') ? 'Honors' : (/ap|ib/i.test(level||'') ? 'AP/IB' : 'Regular');
+        const cr = parseFloat(cred)||0;
+        if(!name || !cr) return;
+        out.push({ name, credits:cr, grade: GRADES.includes(g)? g : 'A', level:lvl });
+      });
+      if(out.length){ courses = out; render(); }
+    };
+
+    // Settings that affect calculations
+    ['gradeScale','honorsBonus','apBonus','weightedCap'].forEach(id=>{
+      $(id).addEventListener('input', updateTotals);
+      $(id).addEventListener('change', updateTotals);
     });
 
-    // totals footer + mini stats
-    const uwGpa = totalCred ? (uwQP/totalCred) : 0;
-    const wGpa  = totalCred ? (wQP/totalCred) : 0;
+    // Target calculator
+    $('needBtn').onclick = () => {
+      const cur = parseFloat($('curAvg').value || '0');
+      const w   = (parseFloat($('finalWeight').value || '0'))/100;
+      const goal= parseFloat($('desiredOverall').value || '0');
+      if(!(w>0)){ $('needOut').textContent='Enter final weight'; return; }
+      const final = (goal - cur*(1-w))/w;
+      $('needOut').textContent = Number.isFinite(final) ? `${final.toFixed(1)}% needed` : 'Check inputs';
+      $('needOut').style.background = Number.isFinite(final) && final<=100 ? '#ecfdf5' : '#fff7ed';
+      $('needOut').style.borderColor = Number.isFinite(final) && final<=100 ? '#bbf7d0' : '#fed7aa';
+    };
 
-    $('tCred').textContent   = totalCred.toFixed(1);
-    $('uwGpa').textContent   = uwGpa.toFixed(2);
-    $('wGpaVal').textContent = wGpa.toFixed(2);
-
-    $('courseCount').textContent = String(count);
-    $('creditTotal').textContent = totalCred.toFixed(1);
-    $('maxPts').textContent      = maxCoursePts.toFixed(2);
-  }
-
-  function updateTotals(){ render(); }
-
-  /* ---------------- Actions ---------------- */
-  $('addBtn').onclick = () => {
-    courses.push({ name:'', credits:3, grade:'A', level:'Regular' });
+    // Boot
     render();
-  };
-
-  $('sampleBtn').onclick = () => {
-    courses = [
-      { name:'Biology',  credits:3, grade:'B',  level:'AP/IB'  },
-      { name:'English',  credits:4, grade:'A',  level:'Honors' },
-      { name:'History',  credits:3, grade:'A-', level:'Regular'},
-      { name:'Algebra II',credits:4, grade:'D', level:'AP/IB'  },
-    ];
-    render();
-  };
-
-  $('clearBtn').onclick = () => { courses = []; render(); };
-
-  // CSV import: columns (with or without header): course, credits, grade, level
-  $('importBtn').onclick = () => $('csvInput').click();
-  $('csvInput').onchange = async (e) => {
-    const file = e.target.files?.[0]; e.target.value='';
-    if(!file) return;
-    const text = await file.text();
-    const lines = text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
-    if(!lines.length) return;
-
-    const out = [];
-    lines.forEach((line,i)=>{
-      const parts = line.split(',').map(s=>s.trim());
-      // Try to detect a header (contains 'course' word)
-      const head = parts.join(' ').toLowerCase();
-      if(i===0 && /course|credits|grade|level/.test(head)) return;
-
-      const [name, cred, grade, level] = parts;
-      const g = (grade||'').toUpperCase();
-      const lvl = /hon/i.test(level||'') ? 'Honors' : (/ap|ib/i.test(level||'') ? 'AP/IB' : 'Regular');
-      const cr = parseFloat(cred)||0;
-      if(!name || !cr) return;
-      out.push({ name, credits:cr, grade: GRADES.includes(g)? g : 'A', level:lvl });
-    });
-    if(out.length){ courses = out; render(); }
-  };
-
-  // Controls that affect calculations
-  ['gradeScale','honorsBonus','apBonus','weightedCap'].forEach(id=>{
-    $(id).addEventListener('input', updateTotals);
-    $(id).addEventListener('change', updateTotals);
-  });
-
-  // Target calculator
-  $('needBtn').onclick = () => {
-    const cur = parseFloat($('curAvg').value || '0');
-    const w   = (parseFloat($('finalWeight').value || '0'))/100;
-    const goal= parseFloat($('desiredOverall').value || '0');
-    if(!(w>0)){ $('needOut').textContent='Enter final weight'; return; }
-    const final = (goal - cur*(1-w))/w;
-    $('needOut').textContent = Number.isFinite(final) ? `${final.toFixed(1)}% needed` : 'Check inputs';
-    $('needOut').style.background = Number.isFinite(final) && final<=100 ? '#ecfdf5' : '#fff7ed';
-    $('needOut').style.borderColor = Number.isFinite(final) && final<=100 ? '#bbf7d0' : '#fed7aa';
-  };
-
-  // Boot
-  render();
-</script>
+  </script>
 </body>
 </html>

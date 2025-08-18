@@ -64,11 +64,57 @@
     .tip{background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:13px}
 
     .btn.primary{font-weight:900}
+
+    /* Mobile-friendly adjustments for a clean layout */
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr !important;
+      }
+      .tipList {
+        grid-template-columns: 1fr;
+      }
+      .kpiBox {
+        padding: 10px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .row {
+        grid-template-columns: 1fr !important;
+        gap: 16px;
+      }
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .toolbar .btn {
+        width: 100%;
+      }
+    }
+
+    /* New styles for the status bar */
+    .status-bar-container { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; padding: 10px; background-color: transparent; }
+    .status-bar { height: 6px; width: 0; background-color: var(--accent); transition: width 0.3s ease-out; }
+    .status-message {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .status-message.show { opacity: 1; }
   </style>
 </head>
 <body class="theme-light">
 
-  <!-- Hero -->
   <section class="hero" style="padding:54px 22px 28px">
     <div class="hero-inner">
       <h1 class="hero-title">Budget Planner</h1>
@@ -79,10 +125,8 @@
     </div>
   </section>
 
-  <!-- Tool -->
   <section class="tools">
     <div class="grid" style="grid-template-columns:1.2fr 1fr;align-items:start;gap:16px">
-      <!-- Left: Inputs -->
       <div class="card" id="inputsCard">
         <h2 class="tool-title">Plan</h2>
 
@@ -100,7 +144,6 @@
         <div class="row" style="margin-top:8px">
           <div>
             <label for="itemName">Add Expense</label>
-            <!-- Autofill suggestions -->
             <input id="itemName" class="search" type="text" list="expenseHints" placeholder="Name (e.g., Rent, Groceries, Car Payment)">
             <datalist id="expenseHints">
               <option value="Rent / Mortgage">
@@ -139,7 +182,6 @@
           <span class="muted" id="status" style="margin-left:auto"></span>
         </div>
 
-        <!-- List -->
         <div style="margin-top:12px">
           <table id="itemsTable">
             <thead>
@@ -160,7 +202,6 @@
         </div>
       </div>
 
-      <!-- Right: Summary & Charts -->
       <div class="card">
         <h2 class="tool-title">Insights</h2>
 
@@ -206,6 +247,11 @@
       </div>
     </div>
   </section>
+
+  <div id="statusBarContainer" class="status-bar-container" style="display:none;">
+      <div class="status-bar" id="statusBar"></div>
+      <div class="status-message" id="statusMessage"></div>
+  </div>
 
   <script src="app.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
@@ -268,12 +314,17 @@
   $('itemAmount').addEventListener('keydown', e => { if(e.key==='Enter') { e.preventDefault(); addItemFromForm(); } });
 
   function addItemFromForm(){
+    showStatusBar("Adding expense...", '#4f46e5');
     const name = $('itemName').value.trim() || 'Untitled';
     const amount = num($('itemAmount').value);
     const kind = $('itemKind').value;
     state.items.push({ id: crypto.randomUUID(), name, amount, kind });
     $('itemName').value = ''; $('itemAmount').value = '';
     renderItems(); compute();
+    statusBar.style.width = '100%';
+    statusBar.style.backgroundColor = '#34d399';
+    statusMessage.textContent = "Expense added.";
+    setTimeout(hideStatusBar, 2000);
   }
 
   function removeItem(id){
@@ -489,9 +540,15 @@
 
   // ---------- Save / Load / Copy
   function save(){
+    showStatusBar("Saving...", '#4f46e5');
     const payload = JSON.stringify(state);
     localStorage.setItem(STORE_KEY, payload);
     $('status').textContent = 'Saved.';
+    
+    statusBar.style.width = '100%';
+    statusBar.style.backgroundColor = '#34d399';
+    statusMessage.textContent = "Save successful!";
+    setTimeout(hideStatusBar, 2000);
   }
 
   function load(){
@@ -539,6 +596,26 @@
     }catch{
       $('status').textContent = 'Copy failed (permissions).';
     }
+  }
+
+  // New functions for the status bar
+  const statusBarContainer = document.getElementById('statusBarContainer');
+  const statusBar = document.getElementById('statusBar');
+  const statusMessage = document.getElementById('statusMessage');
+
+  function showStatusBar(message, color) {
+      statusBarContainer.style.display = 'block';
+      statusBar.style.width = '0%';
+      statusBar.style.backgroundColor = color;
+      statusMessage.textContent = message;
+      statusMessage.classList.add('show');
+  }
+
+  function hideStatusBar() {
+      statusBarContainer.style.display = 'none';
+      statusBar.style.width = '0%';
+      statusBar.style.backgroundColor = 'var(--accent)';
+      statusMessage.classList.remove('show');
   }
 
   // ---------- Init

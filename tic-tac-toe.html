@@ -23,6 +23,7 @@
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="th-layout.css" />
   <style>
+    /* ... (Your original inline styles for the board) ... */
     .board{display:grid;grid-template-columns:repeat(3, min(26vw,110px));gap:10px;user-select:none}
     .board .cell{
       width:min(26vw,110px); height:min(26vw,110px);
@@ -41,8 +42,6 @@
   </style>
 </head>
 <body class="theme-light">
-  <!-- Header injected by th-layout.js -->
-
   <section class="tool-hero" data-theme="teal">
     <div class="hero-inner">
       <h1 class="hero-title">Tic-Tac-Toe</h1>
@@ -79,13 +78,22 @@
     </div>
   </section>
 
-  <!-- Footer injected by th-layout.js -->
+  <div id="statusBarContainer" class="status-bar-container" style="display:none;">
+    <div class="status-bar" id="statusBar"></div>
+    <div class="status-message" id="statusMessage"></div>
+  </div>
+
   <script src="app.js"></script>
   <script>
     const boardEl = document.getElementById('board');
     const statusEl = document.getElementById('status');
     const newBtn = document.getElementById('newGame');
     const hardToggle = document.getElementById('hardMode');
+
+    // New elements for the status bar
+    const statusBarContainer = document.getElementById('statusBarContainer');
+    const statusBar = document.getElementById('statusBar');
+    const statusMessage = document.getElementById('statusMessage');
 
     let cells, over;
 
@@ -94,6 +102,7 @@
       over = false;
       draw();
       statusEl.textContent = 'Your turn (X)';
+      hideStatusBar(); // Hide the status bar on a new game
     }
 
     function draw(){
@@ -113,6 +122,7 @@
     function play(i){
       if(over || cells[i]) return;
       cells[i] = 'X';
+      showUploadStatus(); // Simulate "upload"
       updateAfterMove();
       if(over) return;
 
@@ -122,6 +132,7 @@
           cells[moveIndex] = 'O';
         }
         updateAfterMove();
+        showDownloadStatus(); // Simulate "download"
       }, 140);
     }
 
@@ -223,6 +234,42 @@
         return best;
       }
     }
+
+    // New functions for the status bar
+    function showUploadStatus() {
+      statusBarContainer.style.display = 'block';
+      statusBar.style.width = '25%';
+      // In a real scenario, this would be a real progress update.
+      // For this game, we'll just simulate it.
+      setTimeout(() => {
+        statusBar.style.width = '75%';
+      }, 50);
+      setTimeout(() => {
+        statusBar.style.width = '100%';
+        statusBar.style.backgroundColor = '#34d399'; // Green for completion
+      }, 100);
+    }
+    
+    function showDownloadStatus() {
+        // The game's turn change is fast, so the bar goes to 100% quickly
+        statusBar.style.width = '100%';
+        statusBar.style.backgroundColor = '#34d399';
+        showMessage("Processing complete. Your turn!");
+        setTimeout(hideStatusBar, 2000);
+    }
+
+    function showMessage(msg) {
+        statusMessage.textContent = msg;
+        statusMessage.classList.add('show');
+    }
+
+    function hideStatusBar() {
+      statusBarContainer.style.display = 'none';
+      statusBar.style.width = '0';
+      statusBar.style.backgroundColor = 'var(--accent)';
+      statusMessage.classList.remove('show');
+    }
+
 
     newBtn.onclick = init;
     init();

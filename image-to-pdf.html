@@ -21,14 +21,10 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
-  <!-- Shared header/footer -->
   <link rel="stylesheet" href="th-layout.css" />
   <style>.nav-right{gap:14px}</style>
 </head>
 <body class="theme-light">
-  <!-- Header injected by th-layout.js -->
-
-  <!-- Colorful Hero -->
   <section class="tool-hero" data-theme="indigo">
     <div class="hero-inner">
       <h1 class="hero-title">Image → PDF Converter</h1>
@@ -81,7 +77,6 @@
         </div>
       </div>
 
-      <!-- How to + Related -->
       <div class="info-card" style="margin-top:12px">
         <h3>How to use</h3>
         <ol class="tip-list">
@@ -105,7 +100,6 @@
           <a class="link-card" href="bmi.html"><strong>BMI Calculator</strong><small>See your range on a color meter</small><span class="btn go">Try</span></a>
           <a class="link-card" href="age.html"><strong>Age (Live)</strong><small>Know your age down to the second</small><span class="btn go">Try</span></a>
         </div>
-        <!-- Small quick links row (mini-cards) -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px">
           <a class="link-card" href="tic-tac-toe.html"><strong>Mini Games</strong><small>Flappy, Tic-Tac-Toe</small><span>→</span></a>
           <a class="link-card" href="file-converter.html"><strong>Image Converter</strong><small>PNG/JPG/WebP</small><span>→</span></a>
@@ -114,8 +108,10 @@
       </div>
     </div>
   </section>
-
-  <!-- Footer injected by th-layout.js -->
+  <div class="status-bar-container">
+    <div class="status-bar" id="statusBar"></div>
+    <div class="status-message" id="statusMessage"></div>
+  </div>
 
   <script src="app.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
@@ -126,6 +122,21 @@
     const browseBtn = document.getElementById('browseBtn');
     const list = document.getElementById('list');
     const statusEl = document.getElementById('status');
+    const statusBar = document.getElementById('statusBar');
+    const statusMessage = document.getElementById('statusMessage');
+
+    function updateStatus(message, showBar = false) {
+      statusMessage.textContent = message;
+      statusMessage.classList.add('show');
+      if (showBar) {
+        statusBar.style.width = '100%';
+        statusBar.style.transition = 'width 25s linear';
+      } else {
+        statusBar.style.width = '0';
+        statusBar.style.transition = 'none';
+        setTimeout(() => statusMessage.classList.remove('show'), 3000);
+      }
+    }
 
     const readImage = (file) => new Promise((resolve,reject)=>{
       const fr = new FileReader();
@@ -186,7 +197,8 @@
     });
 
     document.getElementById('makePdfBtn').onclick = async ()=>{
-      if (state.items.length === 0){ statusEl.textContent = "Add at least one image."; return; }
+      if (state.items.length === 0){ updateStatus("Add at least one image."); statusEl.textContent = "Add at least one image."; return; }
+      updateStatus("Building PDF...", true);
       statusEl.textContent = "Building PDF…";
 
       const size = document.getElementById('pageSize').value;
@@ -218,13 +230,13 @@
         doc.addImage(it.url, 'JPEG', x, y, drawW, drawH, undefined, 'FAST');
       }
       doc.save('images-to-pdf.pdf');
+      updateStatus("Done! Your PDF was downloaded.");
       statusEl.textContent = "Done! Your PDF was downloaded.";
     };
 
     document.getElementById('clearBtn').onclick = ()=>{ state.items = []; renderList(); statusEl.textContent = ""; };
   </script>
 
-  <!-- Inject standard header + footer -->
   <script src="th-layout.js"></script>
 </body>
 </html>

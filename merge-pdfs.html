@@ -86,6 +86,10 @@
       </div>
     </div>
   </section>
+  <div class="status-bar-container">
+    <div class="status-bar" id="statusBar"></div>
+    <div class="status-message" id="statusMessage"></div>
+  </div>
 
   <script src="app.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" crossorigin="anonymous"></script>
@@ -93,6 +97,20 @@
     const state = { items: [] };
     const $ = id => document.getElementById(id);
     const list = $('list'), statusEl = $('status'), outNameEl = $('outName'), keepMetaEl = $('keepMeta');
+    const statusBar = $('statusBar'), statusMessage = $('statusMessage');
+
+    function updateStatus(message, showBar = false) {
+      statusMessage.textContent = message;
+      statusMessage.classList.add('show');
+      if (showBar) {
+        statusBar.style.width = '100%';
+        statusBar.style.transition = 'width 25s linear';
+      } else {
+        statusBar.style.width = '0';
+        statusBar.style.transition = 'none';
+        setTimeout(() => statusMessage.classList.remove('show'), 3000);
+      }
+    }
 
     function renderList(){
       list.innerHTML = "";
@@ -148,7 +166,8 @@
     });
 
     $('mergeBtn').onclick = async ()=>{
-      if (state.items.length < 2){ statusEl.textContent="Add at least two PDF files."; return; }
+      if (state.items.length < 2){ updateStatus("Add at least two PDF files."); statusEl.textContent="Add at least two PDF files."; return; }
+      updateStatus("Merging...", true);
       statusEl.textContent = "Merging…";
 
       const { PDFDocument } = PDFLib;
@@ -166,6 +185,7 @@
           pages.forEach(p=> outPdf.addPage(p));
         }catch(err){
           console.error(err);
+          updateStatus(`Skipped an encrypted/invalid PDF: ${item.file.name}`);
           statusEl.textContent = `Skipped an encrypted/invalid PDF: ${item.file.name}`;
         }
       }
@@ -178,6 +198,7 @@
       const a = document.createElement('a'); a.href = url; a.download = name;
       document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
 
+      updateStatus("Done! Your merged PDF was downloaded.");
       statusEl.textContent = "Done! Your merged PDF was downloaded.";
     };
 

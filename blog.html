@@ -8,6 +8,7 @@
   <meta name="description" content="Updates, tips, and guides from ToolHouzz.">
   <link rel="canonical" href="https://toolhouzz.com/blog.html">
 
+  <!-- Open Graph / Twitter -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="ToolHouzz">
   <meta property="og:title" content="Blog — ToolHouzz">
@@ -16,40 +17,522 @@
   <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
   <meta name="twitter:card" content="summary_large_image">
 
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Performance: preconnect fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&family=Playfair+Display:wght@400;700&family=Lato:wght@400;700&display=swap">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800;900&family=Playfair+Display:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.min.fb3c4a7d.css">
-  <link rel="stylesheet" href="th-layout.min.3ff5e211.css">
+  <link rel="icon" href="assets/logo.png">
+
+  <!-- Structured data: Organization + WebSite + Blog -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Organization",
+    "name":"ToolHouzz",
+    "url":"https://toolhouzz.com/",
+    "logo":"https://toolhouzz.com/assets/logo.png"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"WebSite",
+    "url":"https://toolhouzz.com/",
+    "name":"ToolHouzz",
+    "potentialAction":{
+      "@type":"SearchAction",
+      "target":"https://toolhouzz.com/?q={search_term_string}",
+      "query-input":"required name=search_term_string"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Blog",
+    "name":"ToolHouzz Blog",
+    "url":"https://toolhouzz.com/blog.html",
+    "description":"Updates, tips, and guides from ToolHouzz."
+  }
+  </script>
+
   <style>
+    :root{
+      --hero-font:'Inter',system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      --primary-font:'Playfair Display',serif; --secondary-font:'Lato',sans-serif;
+
+      --primary-color:#0f172a; --secondary-color:#5b6474; --accent-color:#4f46e5;
+      --background-color:#f5f9ff; --card-bg:#ffffff; --border-color:#e2e8f0;
+      --header-z:300; --backdrop-z:240; --panel-z:280; --attach-gap:8px;
+    }
+    html,body{height:100%}
+    body{margin:0;background:var(--background-color);color:var(--primary-color);font-family:var(--secondary-font);line-height:1.6}
+
+    /* ===== Header (same as index) ===== */
+    .site-header{
+      background:var(--card-bg);
+      border-bottom:1px solid var(--border-color);
+      padding:1rem 1.25rem;
+      display:flex;align-items:center;justify-content:space-between;gap:1rem;
+      position:sticky;top:0;z-index:var(--header-z);
+      box-shadow:0 1px 0 rgba(0,0,0,.02), 0 3px 6px rgba(0,0,0,.08);
+    }
+    .nav-left,.nav-center,.nav-right{display:flex;align-items:center}
+    .nav-center{flex:1;justify-content:center}
+    .brand{font-family:var(--primary-font);font-size:1.8rem;font-weight:700;color:var(--primary-color);text-decoration:none;letter-spacing:.2px}
+    .nav{display:flex;align-items:center;gap:.75rem}
+    .nav a{color:var(--secondary-color);text-decoration:none;font-weight:600}
+    .nav a:hover{color:var(--primary-color)}
+    .nav-item{position:relative;margin-left:1rem}
+    .nav-item>button{
+      background:none;border:0;cursor:pointer;font:600 1rem var(--secondary-font);
+      color:var(--secondary-color);padding:0 0 .25rem;border-bottom:2px solid transparent;
+      display:inline-flex;align-items:center;gap:.35rem;transition:.2s;
+    }
+    .nav-item>button:hover,.nav-item>button[aria-expanded="true"]{color:var(--primary-color);border-bottom-color:var(--accent-color)}
+    .caret{width:14px;height:14px;display:inline-block}
+    .nav-right{gap:1rem}
+    .site-header .nav-right a{color:var(--secondary-color);font-weight:600}
+    .site-header .nav-right a:hover{color:var(--primary-color)}
+    .site-header .nav-right a:visited{color:var(--secondary-color)}
+
+    .backdrop{position:fixed;inset:0;background:rgba(15,23,42,.32);
+      backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+      opacity:0;pointer-events:none;transition:opacity .16s ease;z-index:var(--backdrop-z)}
+    .backdrop.show{opacity:1;pointer-events:auto}
+
+    .menu-panel{
+      position:fixed;left:50%;transform:translateX(-50%) translateY(-6px);
+      background:var(--card-bg);
+      border:1px solid var(--border-color);border-radius:14px;padding:14px 14px 18px;
+      width:min(1000px,92vw);display:none;z-index:var(--panel-z);
+      box-shadow:0 18px 40px rgba(0,0,0,.18),0 8px 18px rgba(0,0,0,.08)
+    }
+    .menu-panel.show{display:block;animation:panelIn .16s ease-out forwards}
+    @keyframes panelIn{from{opacity:0;transform:translateX(-50%) translateY(-8px) scale(.985)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+    .menu-head{display:flex;justify-content:space-between;align-items:center;padding:2px 2px 10px}
+    .menu-title{font:800 13px var(--secondary-font);color:#6b7280;letter-spacing:.08em;text-transform:uppercase}
+    .menu-close{background:none;border:0;font-size:22px;line-height:1;cursor:pointer;color:#6b7280}
+    .drop-grid{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:1rem}
+    .dd-col h5{margin:.2rem 0 .5rem;font:800 12px var(--secondary-font);color:#6b7280;letter-spacing:.08em;text-transform:uppercase}
+    .dd-col a{display:block;padding:.5rem .55rem;border-radius:10px;color:var(--primary-color);text-decoration:none;border:1px solid transparent}
+    .dd-col a:hover{background:#f3f7ff;color:#1d4ed8;border-color:#dbeafe}
+
+    /* ===== Mobile hamburger + drawer ===== */
+    .hamb{display:none;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--border-color);border-radius:10px;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.02),0 2px 6px rgba(0,0,0,.06);cursor:pointer;margin-left:.25rem}
+    .hamb span{display:block;width:20px;height:2px;background:var(--primary-color);border-radius:2px;margin:3px 0}
+    .side-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.38);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .16s ease;z-index:340}
+    .side-backdrop.show{opacity:1;pointer-events:auto}
+    .drawer{position:fixed;top:0;left:0;height:100vh;width:min(86vw,320px);background:#fff;border-right:1px solid var(--border-color);box-shadow:0 18px 40px rgba(0,0,0,.18),0 8px 18px rgba(0,0,0,.08);transform:translateX(-105%);transition:transform .18s ease-out;z-index:350;padding:12px 14px 18px;overflow:auto}
+    .drawer.show{transform:translateX(0)}
+    .drawer-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+    .drawer-close{background:none;border:0;font-size:26px;line-height:1;cursor:pointer;color:#6b7280}
+    .drawer-nav h5{margin:.5rem 0 .35rem;font:800 12px var(--secondary-font);color:#6b7280;letter-spacing:.08em;text-transform:uppercase}
+    .drawer-nav a{display:block;padding:.5rem .4rem;border-radius:10px;color:var(--primary-color);text-decoration:none;border:1px solid transparent}
+    .drawer-nav a:hover{background:#f3f7ff;color:#1d4ed8;border-color:#dbeafe}
+    @media (max-width: 860px){ .nav-center,.nav-right{display:none !important;} .nav-left{gap:.5rem} .hamb{display:inline-flex} }
+
+    /* ===== Page content ===== */
     main{max-width:900px;margin:80px auto;padding:24px}
     .soon{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:24px;box-shadow:0 6px 24px rgba(0,0,0,.06)}
     h1{font-family:var(--primary-font);font-size:2rem;margin:0 0 8px}
-    p{color:var(--muted)}
+    p{color:var(--secondary-color)}
+    section{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:20px;margin-top:24px}
+
+    /* ===== Footer ===== */
+    .site-footer{background:#0f172a;color:#b0bdd8;padding:3rem 1.25rem 2.25rem;margin-top:2.5rem}
+    .footer-grid{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(180px,1fr));gap:1.75rem}
+    .site-footer h4{font-family:var(--primary-font);color:#e6ecff;font-weight:700;margin:0 0 .75rem}
+    .site-footer a{color:#b0bdd8;display:block;margin:.35rem 0;text-decoration:none}
+    .site-footer a:hover{color:#9db2ff}
+    .legal{max-width:1320px;margin:2rem auto 0;text-align:center;font-size:.85rem;color:#8b97b8}
+    .brand small{display:block;margin-top:.25rem;color:#9db2ff}
+    @media (max-width: 900px){ .footer-grid{grid-template-columns:1fr 1fr} }
+    @media (max-width: 600px){ .footer-grid{grid-template-columns:1fr} }
+
+    /* ===== Status bar (yours, slightly tweaked) ===== */
+    .status-bar-container { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; padding: 10px; background-color: transparent; }
+    .status-bar { height: 6px; width: 0; background-color: var(--accent-color); transition: width 0.3s ease-out; }
+    .status-message {
+      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background-color: rgba(0,0,0,.75); color:#fff; padding:8px 16px; border-radius:8px;
+      font-size:14px; opacity:0; transition:opacity .3s ease; pointer-events:none; white-space:nowrap;
+    }
+    .status-message.show { opacity: 1; }
+    @media (max-width: 600px){ main{margin:40px auto;padding:16px} .soon{padding:16px} }
   </style>
 </head>
 <body class="theme-light">
+
+  <!-- ===== Header ===== -->
+  <header class="site-header" id="siteHeader">
+    <div class="nav-left">
+      <a class="brand" href="/" aria-label="ToolHouzz home">ToolHouzz</a>
+      <button class="hamb" id="hambBtn" aria-label="Open menu" aria-controls="mobileDrawer" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <div class="nav-center" role="menubar" aria-label="Primary">
+      <nav class="nav">
+        <div class="nav-item">
+          <button class="trigger" data-menu="calc" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-calc">
+            Calculators
+            <svg class="caret" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M1.8 5.2a1 1 0 0 1 1.4 0L8 10l4.8-4.8a1 1 0 1 1 1.4 1.4l-5.5 5.5a1 1 0 0 1-1.4 0L1.8 6.6a1 1 0 0 1 0-1.4Z"/></svg>
+          </button>
+        </div>
+        <div class="nav-item">
+          <button class="trigger" data-menu="conv" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-conv">
+            Converters
+            <svg class="caret" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M1.8 5.2a1 1 0 0 1 1.4 0L8 10l4.8-4.8a1 1 0 1 1 1.4 1.4l-5.5 5.5a1 1 0 0 1-1.4 0L1.8 6.6a1 1 0 0 1 0-1.4Z"/></svg>
+          </button>
+        </div>
+        <div class="nav-item">
+          <button class="trigger" data-menu="games" aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-games">
+            Mini Games
+            <svg class="caret" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M1.8 5.2a1 1 0 0 1 1.4 0L8 10l4.8-4.8a1 1 0 1 1 1.4 1.4l-5.5 5.5a1 1 0 0 1-1.4 0L1.8 6.6a1 1 0 0 1 0-1.4Z"/></svg>
+          </button>
+        </div>
+      </nav>
+    </div>
+
+    <div class="nav-right">
+      <a href="blog.html" aria-current="page">Blog</a>
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+    </div>
+  </header>
+
+  <!-- Backdrop (desktop dropdowns) -->
+  <div class="backdrop" id="backdrop" hidden></div>
+
+  <!-- Mobile drawer + overlay -->
+  <div class="side-backdrop" id="sideBackdrop" hidden></div>
+  <aside class="drawer" id="mobileDrawer" aria-hidden="true">
+    <div class="drawer-head">
+      <div class="brand" style="font-family:var(--primary-font);font-weight:700">ToolHouzz</div>
+      <button class="drawer-close" id="closeDrawer" aria-label="Close menu">×</button>
+    </div>
+
+    <nav class="drawer-nav">
+      <h5>Calculators</h5>
+      <a href="bmi.html">BMI Calculator</a>
+      <a href="bmr.html">BMR Calculator</a>
+      <a href="calorie-macros.html">Calorie &amp; Macros</a>
+      <a href="age.html">Age Calculator</a>
+      <a href="salary-calculator.html">Salary Calculator</a>
+      <a href="retirement-calculator.html">Retirement Calculator</a>
+      <a href="sales-tax-cad.html">Sales Tax (CAD)</a>
+      <a href="loan.html">Loan Calculator</a>
+      <a href="mortgage.html">Mortgage Calculator</a>
+      <a href="budget.html">Budget Planner</a>
+      <a href="gpa.html">GPA Calculator</a>
+
+      <h5 style="margin-top:.75rem">Converters</h5>
+      <a href="image-to-pdf.html">Image → PDF</a>
+      <a href="pdf-to-images.html">PDF → Images</a>
+      <a href="merge-pdfs.html">Merge PDFs</a>
+      <a href="pdf-split-reorder.html">Split &amp; Reorder PDF</a>
+      <a href="compress-pdf.html">Compress PDF</a>
+      <a href="png-to-svg.html">PNG → SVG</a>
+      <a href="unit-converter.html">Unit Converter</a>
+      <a href="file-converter.html">File Converter</a>
+      <a href="qr.html">QR Code Generator</a>
+
+      <h5 style="margin-top:.75rem">Mini Games</h5>
+      <a href="tic-tac-toe.html">Tic-Tac-Toe</a>
+      <a href="flappy.html">Flappy</a>
+      <a href="timer-stop.html">Timer Stop Challenge</a>
+
+      <h5 style="margin-top:.75rem">Site</h5>
+      <a href="blog.html" aria-current="page">Blog</a>
+      <a href="about.html">About</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+    </nav>
+  </aside>
+
+  <!-- ===== Dropdown Panels (same as index) ===== -->
+  <div class="menu-panel" id="panel-calc" role="dialog" aria-modal="true" aria-labelledby="calc-title">
+    <div class="menu-head"><div class="menu-title" id="calc-title">Calculators</div><button class="menu-close" data-close aria-label="Close menu">×</button></div>
+    <div class="drop-grid">
+      <div class="dd-col">
+        <h5>Health & Personal</h5>
+        <a href="bmi.html">BMI Calculator</a>
+        <a href="bmr.html">BMR Calculator</a>
+        <a href="calorie-macros.html">Calorie &amp; Macros Tracker</a>
+        <a href="age.html">Age Calculator</a>
+      </div>
+      <div class="dd-col">
+        <h5>Finance</h5>
+        <a href="salary-calculator.html">Salary Calculator</a>
+        <a href="retirement-calculator.html">Retirement Calculator</a>
+        <a href="sales-tax-cad.html">Sales Tax (CAD)</a>
+        <a href="loan.html">Loan Calculator</a>
+        <a href="mortgage.html">Mortgage Calculator</a>
+        <a href="budget.html">Budget Planner</a>
+        <a href="gpa.html">GPA Calculator</a>
+      </div>
+      <div class="dd-col">
+        <h5>Date & Time</h5>
+        <a href="days-between.html">Days Between Dates</a>
+        <a href="hours-between.html">Hours Between Times</a>
+        <a href="timer-stop.html">Timer Stop Challenge</a>
+      </div>
+      <div class="dd-col">
+        <h5>Popular</h5>
+        <a href="percentage-calculator.html">Percentage Calculator</a>
+        <a href="word-counter.html">Word &amp; Readability</a>
+        <a href="gpa.html">GPA (4.0 scale)</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-panel" id="panel-conv" role="dialog" aria-modal="true" aria-labelledby="conv-title">
+    <div class="menu-head"><div class="menu-title" id="conv-title">Converters</div><button class="menu-close" data-close aria-label="Close menu">×</button></div>
+    <div class="drop-grid">
+      <div class="dd-col">
+        <h5>PDF</h5>
+        <a href="image-to-pdf.html">Image → PDF</a>
+        <a href="pdf-to-images.html">PDF → Images</a>
+        <a href="merge-pdfs.html">Merge PDFs</a>
+        <a href="pdf-split-reorder.html">Split &amp; Reorder PDF</a>
+        <a href="compress-pdf.html">Compress PDF</a>
+      </div>
+      <div class="dd-col">
+        <h5>Images</h5>
+        <a href="png-to-svg.html">PNG → SVG</a>
+      </div>
+      <div class="dd-col">
+        <h5>General</h5>
+        <a href="unit-converter.html">Unit Converter</a>
+        <a href="file-converter.html">File Converter</a>
+      </div>
+      <div class="dd-col">
+        <h5>Utility</h5>
+        <a href="qr.html">QR Code Generator</a>
+        <a href="citation-generator.html">Citation Generator</a>
+        <a href="genetic-barcode.html">Genetic Barcode</a>
+        <a href="genetic-barcode-reader.html">Genetic Barcode Reader</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-panel" id="panel-games" role="dialog" aria-modal="true" aria-labelledby="games-title">
+    <div class="menu-head"><div class="menu-title" id="games-title">Mini Games</div><button class="menu-close" data-close aria-label="Close menu">×</button></div>
+    <div class="drop-grid">
+      <div class="dd-col"><h5>Brain</h5><a href="tic-tac-toe.html">Tic-Tac-Toe (Single Player)</a></div>
+      <div class="dd-col"><h5>Arcade</h5><a href="flappy.html">Flappy</a></div>
+      <div class="dd-col"><h5>Timing</h5><a href="timer-stop.html">Timer Stop Challenge</a></div>
+      <div class="dd-col"><h5>Coming Soon</h5><a href="#">More mini games</a></div>
+    </div>
+  </div>
+
+  <!-- ===== Page content ===== -->
   <main>
     <div class="soon">
       <h1>Blog</h1>
       <p>Coming soon. We’ll share product updates and helpful tips here.</p>
     </div>
-  
-    <section id="bmr-guide" style="margin-top:32px">
+
+    <section id="bmr-guide">
       <h2>BMR Guide (Coming Soon)</h2>
       <p>We’re preparing a clear guide to Basal Metabolic Rate and calorie planning.</p>
     </section>
-    <section id="retirement-basics" style="margin-top:32px">
+
+    <section id="retirement-basics">
       <h2>Retirement Basics (Coming Soon)</h2>
       <p>We’ll cover contributions, returns, and inflation in simple language.</p>
     </section>
-    <section id="study-math-percentage" style="margin-top:32px">
+
+    <section id="study-math-percentage">
       <h2>Study Math: Percentage (Coming Soon)</h2>
       <p>Fast tricks for percent-of, increase/decrease, and reverse percent.</p>
     </section>
-
   </main>
-  <script defer src="th-layout.min.c8590f5c.js"></script>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <div class="brand" style="font-family:var(--primary-font);color:#e6ecff;font-weight:700">ToolHouzz</div>
+        <small>Fast, privacy-first utilities.</small>
+      </div>
+      <div>
+        <h4>Calculators</h4>
+        <a href="bmi.html">BMI Calculator</a>
+        <a href="bmr.html">BMR Calculator</a>
+        <a href="gpa.html">GPA Calculator</a>
+        <a href="percentage-calculator.html">Percentage Calculator</a>
+        <a href="budget.html">Budget Planner</a>
+        <a href="age.html">Age Calculator</a>
+        <a href="days-between.html">Days Between Dates</a>
+        <a href="hours-between.html">Hours Between Times</a>
+      </div>
+      <div>
+        <h4>Finance</h4>
+        <a href="salary-calculator.html">Salary Calculator</a>
+        <a href="retirement-calculator.html">Retirement Calculator</a>
+        <a href="sales-tax-cad.html">Sales Tax (CAD)</a>
+        <a href="loan.html">Loan Calculator</a>
+        <a href="mortgage.html">Mortgage Calculator</a>
+      </div>
+      <div>
+        <h4>Converters</h4>
+        <a href="image-to-pdf.html">Image → PDF</a>
+        <a href="pdf-to-images.html">PDF → Images</a>
+        <a href="merge-pdfs.html">Merge PDFs</a>
+        <a href="compress-pdf.html">Compress PDF</a>
+        <a href="genetic-barcode.html">Genetic Barcode</a>
+        <a href="genetic-barcode-reader.html">Genetic Barcode Reader</a>
+        <a href="file-converter.html">File Converter</a>
+        <h4 style="margin-top:1rem">Mini Games</h4>
+        <a href="tic-tac-toe.html">Tic-Tac-Toe</a>
+        <a href="flappy.html">Flappy</a>
+        <a href="timer-stop.html">Timer Stop Challenge</a>
+        <h4 style="margin-top:1rem">Resources</h4>
+        <a href="blog.html" aria-current="page">Blog</a>
+        <h4 style="margin-top:1rem">Legal</h4>
+        <a href="about.html">About</a>
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+      </div>
+    </div>
+    <p class="legal">© <span id="year"></span> ToolHouzz. All rights reserved.</p>
+  </footer>
+
+  <!-- Status bar -->
+  <div id="statusBarContainer" class="status-bar-container" style="display:none;">
+    <div class="status-bar" id="statusBar"></div>
+    <div class="status-message" id="statusMessage"></div>
+  </div>
+
+  <script>
+    // Year
+    const yearEl = document.getElementById('year'); if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+    // Dropdown behavior (same as index)
+    const header = document.getElementById('siteHeader');
+    const backdrop = document.getElementById('backdrop');
+    const panels = {
+      calc: document.getElementById('panel-calc'),
+      conv: document.getElementById('panel-conv'),
+      games: document.getElementById('panel-games')
+    };
+    let openKey = null, closeTimer = null;
+
+    const placePanel = (p)=>{
+      const r = header.getBoundingClientRect();
+      const top = r.bottom + (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--attach-gap'))||8);
+      p.style.top = `${top}px`;
+    };
+    const showBackdrop = ()=>{
+      backdrop.hidden = false;
+      requestAnimationFrame(()=>backdrop.classList.add('show'));
+    };
+    const hideBackdrop = ()=>{
+      backdrop.classList.remove('show');
+      setTimeout(()=>{ if(!openKey) backdrop.hidden = true; }, 160);
+    };
+    function openPanel(key, btn){
+      if(openKey && openKey !== key){
+        panels[openKey].classList.remove('show');
+        const prev = document.querySelector(`.trigger[data-menu="${openKey}"]`);
+        if(prev) prev.setAttribute('aria-expanded','false');
+      }
+      openKey = key;
+      placePanel(panels[key]); showBackdrop();
+      panels[key].classList.add('show');
+      if(btn) btn.setAttribute('aria-expanded','true');
+      panels[key].querySelector('[data-close]')?.focus({preventScroll:true});
+    }
+    function scheduleClose(){ clearTimeout(closeTimer); closeTimer = setTimeout(closePanel, 120); }
+    function cancelClose(){ clearTimeout(closeTimer); }
+    function closePanel(){
+      if(!openKey){ hideBackdrop(); return; }
+      panels[openKey].classList.remove('show');
+      const btn = document.querySelector(`.trigger[data-menu="${openKey}"]`);
+      if(btn) btn.setAttribute('aria-expanded','false');
+      openKey = null; hideBackdrop();
+    }
+    const isDesktopHover = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+    document.querySelectorAll('.trigger').forEach(btn=>{
+      const key = btn.dataset.menu;
+      if(isDesktopHover){
+        btn.addEventListener('mouseenter', ()=>openPanel(key,btn));
+        btn.addEventListener('mouseleave', scheduleClose);
+        panels[key].addEventListener('mouseenter', cancelClose);
+        panels[key].addEventListener('mouseleave', scheduleClose);
+      }
+      btn.addEventListener('click', e=>{
+        e.preventDefault();
+        if(openKey === key){ closePanel(); return; }
+        openPanel(key,btn);
+      });
+      btn.addEventListener('keydown', e=>{
+        if(e.key==='Enter' || e.key===' '){
+          e.preventDefault();
+          if(openKey===key){ closePanel(); return; }
+          openPanel(key,btn);
+        }
+      });
+    });
+    backdrop.addEventListener('click', closePanel);
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closePanel(); });
+    window.addEventListener('resize', ()=>{ if(openKey) placePanel(panels[openKey]); });
+    window.addEventListener('scroll', ()=>{ if(openKey) placePanel(panels[openKey]); });
+
+    // Mobile drawer
+    const hamb = document.getElementById('hambBtn');
+    const drawer = document.getElementById('mobileDrawer');
+    const sideBackdrop = document.getElementById('sideBackdrop');
+    const closeDrawerBtn = document.getElementById('closeDrawer');
+
+    function openDrawer(){
+      drawer.classList.add('show');
+      drawer.setAttribute('aria-hidden','false');
+      sideBackdrop.hidden = false;
+      requestAnimationFrame(()=> sideBackdrop.classList.add('show'));
+      hamb?.setAttribute('aria-expanded','true');
+    }
+    function closeDrawer(){
+      drawer.classList.remove('show');
+      drawer.setAttribute('aria-hidden','true');
+      hamb?.setAttribute('aria-expanded','false');
+      sideBackdrop.classList.remove('show');
+      setTimeout(()=>{ if(!drawer.classList.contains('show')) sideBackdrop.hidden = true; },160);
+    }
+    hamb?.addEventListener('click', openDrawer);
+    closeDrawerBtn?.addEventListener('click', closeDrawer);
+    sideBackdrop?.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDrawer(); });
+    window.addEventListener('resize', ()=>{ if(window.innerWidth>860) closeDrawer(); });
+
+    // Status bar (your effect)
+    const statusBarContainer = document.getElementById('statusBarContainer');
+    const statusBar = document.getElementById('statusBar');
+    const statusMessage = document.getElementById('statusMessage');
+
+    function showStatusBar(message, color) {
+      statusBarContainer.style.display = 'block';
+      statusBar.style.width = '0%';
+      statusBar.style.backgroundColor = color || getComputedStyle(document.documentElement).getPropertyValue('--accent-color').trim() || '#4f46e5';
+      statusMessage.textContent = message;
+      statusMessage.classList.add('show');
+      requestAnimationFrame(()=> statusBar.style.width = '100%');
+    }
+    function hideStatusBar() {
+      statusBarContainer.style.display = 'none';
+      statusBar.style.width = '0%';
+      statusMessage.classList.remove('show');
+    }
+    window.addEventListener('load', () => {
+      showStatusBar('Content loaded.', '#34d399');
+      setTimeout(()=>{ statusMessage.textContent = 'Loading complete.'; }, 150);
+      setTimeout(hideStatusBar, 1800);
+    });
+  </script>
 </body>
 </html>

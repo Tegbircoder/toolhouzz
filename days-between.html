@@ -28,6 +28,50 @@
     .info-card{border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff}
     .subhead{font-weight:900;margin:10px 0 6px}
     .try-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+
+    /* Mobile-friendly adjustments for a clean layout */
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr !important;
+      }
+    }
+    @media (max-width: 600px) {
+      .row {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+      .toolbar .btn {
+        width: 100%;
+      }
+      .try-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* New styles for the status bar */
+    .status-bar-container { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; padding: 10px; background-color: transparent; }
+    .status-bar { height: 6px; width: 0; background-color: var(--accent); transition: width 0.3s ease-out; }
+    .status-message {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.75);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .status-message.show { opacity: 1; }
   </style>
 </head>
 <body class="theme-light">
@@ -86,20 +130,67 @@
     </div>
   </section>
 
+  <div id="statusBarContainer" class="status-bar-container" style="display:none;">
+    <div class="status-bar" id="statusBar"></div>
+    <div class="status-message" id="statusMessage"></div>
+  </div>
+
   <script>
     const $=id=>document.getElementById(id);
+    
+    // New elements for the status bar
+    const statusBarContainer = document.getElementById('statusBarContainer');
+    const statusBar = document.getElementById('statusBar');
+    const statusMessage = document.getElementById('statusMessage');
+
+    function showStatusBar(message, color) {
+        statusBarContainer.style.display = 'block';
+        statusBar.style.width = '0%';
+        statusBar.style.backgroundColor = color;
+        statusMessage.textContent = message;
+        statusMessage.classList.add('show');
+    }
+
+    function hideStatusBar() {
+        statusBarContainer.style.display = 'none';
+        statusBar.style.width = '0%';
+        statusBar.style.backgroundColor = 'var(--accent)';
+        statusMessage.classList.remove('show');
+    }
+
     function midnight(d){const x=new Date(d);x.setHours(0,0,0,0);return x;}
     function go(){
+      showStatusBar("Calculating...", '#4f46e5');
       const a=$('d1').value,b=$('d2').value;
-      if(!a||!b){$('days').textContent='—';$('fullWeeks').textContent='—';$('leftover').textContent='—';return;}
+      if(!a||!b){
+        $('days').textContent='—';$('fullWeeks').textContent='—';$('leftover').textContent='—';
+        statusBar.style.width = '100%';
+        statusBar.style.backgroundColor = '#ef4444';
+        statusMessage.textContent = "Error: Please select two dates.";
+        setTimeout(hideStatusBar, 3000);
+        return;
+      }
       const d1=midnight(a), d2=midnight(b);
       let diff=Math.round((d2-d1)/(1000*60*60*24));
       if ($('inclusive').checked) diff += 1;
       const fw=Math.floor(diff/7), left=Math.max(0, diff - fw*7);
       $('days').textContent=diff; $('fullWeeks').textContent=fw; $('leftover').textContent=left;
+
+      statusBar.style.width = '100%';
+      statusBar.style.backgroundColor = '#34d399';
+      statusMessage.textContent = "Calculation complete!";
+      setTimeout(hideStatusBar, 2000);
     }
     $('calc').onclick=go;
-    $('today').onclick=()=>{const t=new Date().toISOString().slice(0,10);$('d1').value=t;$('d2').value=t;$('inclusive').checked=true;go();};
+    $('today').onclick=()=>{
+      showStatusBar("Setting today's date...", '#4f46e5');
+      const t=new Date().toISOString().slice(0,10);
+      $('d1').value=t;$('d2').value=t;$('inclusive').checked=true;go();
+      statusBar.style.width = '100%';
+      statusBar.style.backgroundColor = '#34d399';
+      statusMessage.textContent = "Dates set!";
+      setTimeout(hideStatusBar, 2000);
+    };
     go();
   </script>
 </body>

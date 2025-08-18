@@ -20,14 +20,27 @@
   <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css" />
-  <!-- Shared header/footer -->
-  <link rel="stylesheet" href="th-layout.css" />
-  <style>.nav-right{gap:14px}</style>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="th-layout.css">
+  <style>
+    .nav-right{gap:14px}
+    .kpiBox{border:1px solid var(--border-strong);border-radius:12px;padding:10px;background:#fff;box-shadow:0 4px 12px rgba(16,24,40,.05)}
+    .kpiLabel{font-size:12px;color:#6b7280}
+    .kpiVal{font-weight:900;font-size:18px;margin-top:4px}
+    .strong{font-weight:800}
+    .chartLabel{display:block;font-weight:900;margin-bottom:6px}
+
+    /* — Mobile stacking like Budget — */
+    @media (max-width: 900px){
+      .tools .grid{ grid-template-columns:1fr !important; }
+    }
+    @media (max-width: 600px){
+      .row{ grid-template-columns:1fr !important; gap:12px; }
+    }
+  </style>
+  <script defer src="th-layout.js"></script>
 </head>
 <body class="theme-light">
-  <!-- Header injected by th-layout.js -->
-
   <section class="hero" style="padding:54px 22px 24px">
     <div class="hero-inner">
       <h1 class="hero-title">Loan Calculator</h1>
@@ -37,7 +50,7 @@
 
   <section class="tools">
     <div class="grid" style="grid-template-columns:1.2fr 1fr;align-items:start">
-      <!-- Left: Inputs + Result + Table -->
+      <!-- Left: Inputs -->
       <div class="card">
         <h2 class="tool-title">Plan</h2>
 
@@ -65,7 +78,6 @@
           <span id="status" class="muted" style="margin-left:auto"></span>
         </div>
 
-        <!-- KPIs -->
         <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px">
           <div class="kpiBox"><div class="kpiLabel">Payment (per period)</div><div class="kpiVal" id="kpiPay">—</div></div>
           <div class="kpiBox"><div class="kpiLabel">Total paid</div><div class="kpiVal" id="kpiTotal">—</div></div>
@@ -73,7 +85,6 @@
           <div class="kpiBox"><div class="kpiLabel">Payoff (est.)</div><div class="kpiVal" id="kpiPayoff">—</div></div>
         </div>
 
-        <!-- Table + pager -->
         <div id="schedule" style="margin-top:12px;overflow:auto;border:1px solid var(--border);border-radius:12px;display:none"></div>
         <div id="pager" style="display:none;gap:8px;align-items:center;margin-top:8px">
           <button class="btn" id="prevBtn">Prev 10</button>
@@ -81,7 +92,6 @@
           <span class="muted" id="pageInfo" style="margin-left:8px"></span>
         </div>
 
-        <!-- How to use -->
         <details style="margin-top:14px">
           <summary style="font-weight:800">How to use this tool</summary>
           <ul style="margin:10px 0 0 18px">
@@ -93,7 +103,7 @@
         </details>
       </div>
 
-      <!-- Right: Charts + Tips -->
+      <!-- Right: Insights (charts) — goes BELOW on mobile -->
       <div class="card">
         <h2 class="tool-title">Insights</h2>
 
@@ -134,20 +144,38 @@ With extra payments, more of each payment goes to principal and the loan ends so
     </div>
   </section>
 
-  <!-- Footer injected by th-layout.js -->
+  <!-- Status bar -->
+  <div class="status-bar-container">
+    <div class="status-bar" id="statusBar"></div>
+    <div class="status-message" id="statusMessage"></div>
+  </div>
 
   <script src="app.js"></script>
-  <!-- Chart.js + DataLabels plugin -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0" crossorigin="anonymous"></script>
 
   <script>
-    // ---------- Helpers
+    // Helpers
     const $ = id => document.getElementById(id);
     const money = v => (isFinite(v) ? v.toLocaleString(undefined,{style:'currency',currency:'USD'}) : '—');
     const fmt2 = v => (isFinite(v) ? v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}) : '—');
     const scheduleLabel = perYear => perYear==26?'every 2 weeks':perYear==4?'each quarter':'each month';
     function pmt(P, r, n){ if (r===0) return P/n; const x = Math.pow(1+r,n); return P * (r*x)/(x-1); }
+
+    const statusBar = $('statusBar');
+    const statusMessage = $('statusMessage');
+    function updateStatus(message, showBar = false) {
+      statusMessage.textContent = message;
+      statusMessage.classList.add('show');
+      if (showBar) {
+        statusBar.style.width = '100%';
+        statusBar.style.transition = 'width 25s linear';
+      } else {
+        statusBar.style.width = '0';
+        statusBar.style.transition = 'none';
+        setTimeout(() => statusMessage.classList.remove('show'), 3000);
+      }
+    }
 
     function buildSchedule(P, apr, years, perYear, extraPer){
       const r = apr/perYear, n = Math.round(years*perYear);
@@ -168,7 +196,7 @@ With extra payments, more of each payment goes to principal and the loan ends so
       return { rows, periods:k, payment:pay, totalInterest, totalPaid: (rows.length>1?rows.slice(1).reduce((s,x)=>s+x[1],0):0) };
     }
 
-    // --- Pagination state
+    // Pagination state
     let rowsAll=null, curPage=0, pageSize=10;
     function renderPage(){
       const host=$('schedule'); if(!rowsAll){ host.style.display='none'; $('pager').style.display='none'; return; }
@@ -179,11 +207,11 @@ With extra payments, more of each payment goes to principal and the loan ends so
 
       host.style.display='block';
       const tbl = document.createElement('table'); tbl.style.width='100%'; tbl.style.borderCollapse='collapse';
-      tbl.innerHTML = `<thead><tr>${header.map(h=>`<th style="text-align:right;padding:10px;border-bottom:1px solid var(--border)">${h}</th>`).join('')}</tr></thead>`;
+      tbl.innerHTML = `<thead><tr>${header.map(h=>`<th style="text-align:right;padding:12px 14px;border-bottom:1px solid var(--border);background:linear-gradient(180deg,#f7f9ff,#eef2ff);color:#1a1d29;font-weight:800">${h}</th>`).join('')}</tr></thead>`;
       const tb = document.createElement('tbody');
       slice.forEach(r=>{
         const tr = document.createElement('tr');
-        tr.innerHTML = r.map((c,i)=>`<td style="text-align:right;padding:10px;border-bottom:1px solid var(--border)">${i===0?c:fmt2(c)}</td>`).join('');
+        tr.innerHTML = r.map((c,i)=>`<td style="text-align:right;padding:12px 14px;border-bottom:1px solid var(--border)">${i===0?c:fmt2(c)}</td>`).join('');
         tb.appendChild(tr);
       });
       tbl.appendChild(tb); host.innerHTML=''; host.appendChild(tbl);
@@ -197,11 +225,12 @@ With extra payments, more of each payment goes to principal and the loan ends so
     $('prevBtn').onclick=()=>{ if(curPage>0){ curPage--; renderPage(); } };
     $('nextBtn').onclick=()=>{ const totalPages=Math.ceil((rowsAll.length-1)/pageSize); if(curPage<totalPages-1){ curPage++; renderPage(); } };
 
-    // ---------- Charts holders
+    // Charts
     let pie=null, bars=null;
     Chart.register(ChartDataLabels);
 
     $('calcBtn').onclick = () => {
+      updateStatus("Calculating...", true);
       const P = +($('amount').value||0);
       const apr = (+($('rate').value||0))/100;
       const years = +($('years').value||0);
@@ -209,7 +238,7 @@ With extra payments, more of each payment goes to principal and the loan ends so
       const extraPer = +($('extra').value||0);
       const status = $('status');
 
-      if (P<=0 || apr<0 || years<=0){ status.textContent = 'Please enter valid numbers.'; return; }
+      if (P<=0 || apr<0 || years<=0){ status.textContent = 'Please enter valid numbers.'; updateStatus("Please enter valid numbers."); return; }
       status.textContent = '';
 
       // Without extra
@@ -217,7 +246,7 @@ With extra payments, more of each payment goes to principal and the loan ends so
       // With extra
       const withX = buildSchedule(P, apr, years, perYear, Math.max(0, extraPer));
 
-      // KPIs (use with extra for payment length)
+      // KPIs
       $('kpiPay').textContent = money(base.payment);
       $('kpiTotal').textContent = money(withX.totalPaid);
       $('kpiInterest').textContent = money(withX.totalInterest);
@@ -227,7 +256,6 @@ With extra payments, more of each payment goes to principal and the loan ends so
       const monthsSaved = Math.max(0, monthsBase - monthsWith);
       const interestSaved = Math.max(0, base.totalInterest - withX.totalInterest);
 
-      // Rough payoff date from now
       const d = new Date(); d.setMonth(d.getMonth() + monthsWith);
       $('kpiPayoff').textContent = d.toLocaleDateString();
 
@@ -238,12 +266,12 @@ With extra payments, more of each payment goes to principal and the loan ends so
         <div><strong>Interest saved:</strong> ${money(interestSaved)}</div>
       `;
 
-      // Render schedule (with extra) + pagination
+      // Render schedule (with extra)
       rowsAll = withX.rows;
       curPage = 0;
       renderPage();
 
-      // CSV (all)
+      // CSV all
       $('csvBtn').disabled = false;
       $('csvBtn').onclick = () => {
         const rows = withX.rows;
@@ -251,9 +279,10 @@ With extra payments, more of each payment goes to principal and the loan ends so
         const blob = new Blob([csv], {type:'text/csv'});
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'loan-amortization.csv';
         document.body.appendChild(a); a.click(); a.remove();
+        updateStatus("CSV downloaded successfully.");
       };
 
-      // Charts (with details)
+      // Charts
       if (window.Chart){
         const c1 = $('pie'); const c2 = $('bars');
         const interest = withX.totalInterest, principal = P;
@@ -276,10 +305,7 @@ With extra payments, more of each payment goes to principal and the loan ends so
                   formatter:(v)=>money(v),
                   color:'#111',
                   backgroundColor:'rgba(255,255,255,.9)',
-                  borderColor:'rgba(17,24,39,.1)',
-                  borderWidth:1,
-                  borderRadius:6,
-                  padding:4,
+                  borderColor:'rgba(17,24,39,.1)', borderWidth:1, borderRadius:6, padding:4,
                   font:{weight:'800',size:12}
                 }
               },
@@ -300,33 +326,19 @@ With extra payments, more of each payment goes to principal and the loan ends so
               plugins:{
                 legend:{ position:'bottom', labels:{font:{weight:'800'}} },
                 datalabels:{
-                  anchor:'end', align:'right', offset:6,
-                  clamp:true, clip:false,
+                  anchor:'end', align:'right', offset:6, clamp:true, clip:false,
                   formatter:(v)=>`${v} months`,
                   color:'#111', font:{weight:'800', size:12}
                 }
               },
-              scales:{ 
-                x:{ beginAtZero:true, ticks:{font:{weight:'700'}} },
-                y:{ ticks:{font:{weight:'800'}} }
-              }
+              scales:{ x:{ beginAtZero:true, ticks:{font:{weight:'700'}} }, y:{ ticks:{font:{weight:'800'}} } }
             }
           });
           $('barNote').textContent = `Without extra: ${monthsBase} months • With extra: ${monthsWith} months • Saved: ${monthsSaved} months`;
         }
       }
+      updateStatus("Calculation complete.");
     };
   </script>
-
-  <style>
-    .kpiBox{border:1px solid var(--border-strong);border-radius:12px;padding:10px;background:#fff;box-shadow:0 4px 12px rgba(16,24,40,.05)}
-    .kpiLabel{font-size:12px;color:#6b7280}
-    .kpiVal{font-weight:900;font-size:18px;margin-top:4px}
-    .strong{font-weight:800}
-    .chartLabel{display:block;font-weight:900;margin-bottom:6px}
-  </style>
-
-  <!-- Inject standard header + footer -->
-  <script src="th-layout.js"></script>
 </body>
 </html>
