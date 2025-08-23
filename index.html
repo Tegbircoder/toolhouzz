@@ -47,14 +47,16 @@
   }
   </script>
 
-  <!-- External CSS -->
-  <link rel="stylesheet" href="assets/index.css?v=2">
+  <!-- Moved CSS out of <style> into assets/index.css -->
+  <link rel="stylesheet" href="assets/index.css">
 </head>
 <body class="theme-light home">
   <!-- ===== Header ===== -->
   <header class="site-header" id="siteHeader">
     <div class="nav-left">
+      <!-- Home URL set to "/" for consistency -->
       <a class="brand" href="/" aria-label="ToolHouzz home">ToolHouzz</a>
+      <!-- Mobile hamburger -->
       <button class="hamb" id="hambBtn" aria-label="Open menu" aria-controls="mobileDrawer" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
@@ -140,8 +142,90 @@
     </nav>
   </aside>
 
-  <!-- ===== Dropdown Panels (calculators, converters, games) ===== -->
-  <!-- (Keep your existing dropdown <div class="menu-panel"> sections here — unchanged) -->
+  <!-- ===== Dropdown Panels ===== -->
+  <div class="menu-panel" id="panel-calc" role="dialog" aria-modal="true" aria-labelledby="calc-title">
+    <div class="menu-head">
+      <div class="menu-title" id="calc-title">Calculators</div>
+      <button class="menu-close" data-close aria-label="Close menu">×</button>
+    </div>
+    <div class="drop-grid">
+      <div class="dd-col">
+        <h5>Health & Personal</h5>
+        <a href="bmi.html">BMI Calculator</a>
+        <a href="bmr.html">BMR Calculator</a>
+        <a href="calorie-macros.html">Calorie &amp; Macros Tracker</a>
+        <a href="age.html">Age Calculator</a>
+      </div>
+      <div class="dd-col">
+        <h5>Finance</h5>
+        <a href="salary-calculator.html">Salary Calculator</a>
+        <a href="retirement-calculator.html">Retirement Calculator</a>
+        <a href="sales-tax-cad.html">Sales Tax (CAD)</a>
+        <a href="loan.html">Loan Calculator</a>
+        <a href="mortgage.html">Mortgage Calculator</a>
+        <a href="budget.html">Budget Planner</a>
+        <a href="gpa.html">GPA Calculator</a>
+      </div>
+      <div class="dd-col">
+        <h5>Date & Time</h5>
+        <a href="days-between.html">Days Between Dates</a>
+        <a href="hours-between.html">Hours Between Times</a>
+        <a href="timer-stop.html">Timer Stop Challenge</a>
+      </div>
+      <div class="dd-col">
+        <h5>Popular</h5>
+        <a href="percentage-calculator.html">Percentage Calculator</a>
+        <a href="word-counter.html">Word &amp; Readability</a>
+        <a href="gpa.html">GPA (4.0 scale)</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-panel" id="panel-conv" role="dialog" aria-modal="true" aria-labelledby="conv-title">
+    <div class="menu-head">
+      <div class="menu-title" id="conv-title">Converters</div>
+      <button class="menu-close" data-close aria-label="Close menu">×</button>
+    </div>
+    <div class="drop-grid">
+      <div class="dd-col">
+        <h5>PDF</h5>
+        <a href="image-to-pdf.html">Image → PDF</a>
+        <a href="pdf-to-images.html">PDF → Images</a>
+        <a href="merge-pdfs.html">Merge PDFs</a>
+        <a href="pdf-split-reorder.html">Split &amp; Reorder PDF</a>
+        <a href="compress-pdf.html">Compress PDF</a>
+      </div>
+      <div class="dd-col">
+        <h5>Images</h5>
+        <a href="png-to-svg.html">PNG → SVG</a>
+      </div>
+      <div class="dd-col">
+        <h5>General</h5>
+        <a href="unit-converter.html">Unit Converter</a>
+        <a href="file-converter.html">File Converter</a>
+      </div>
+      <div class="dd-col">
+        <h5>Utility</h5>
+        <a href="qr.html">QR Code Generator</a>
+        <a href="citation-generator.html">Citation Generator</a>
+        <a href="genetic-barcode.html">Genetic Barcode</a>
+        <a href="genetic-barcode-reader.html">Genetic Barcode Reader</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="menu-panel" id="panel-games" role="dialog" aria-modal="true" aria-labelledby="games-title">
+    <div class="menu-head">
+      <div class="menu-title" id="games-title">Mini Games</div>
+      <button class="menu-close" data-close aria-label="Close menu">×</button>
+    </div>
+    <div class="drop-grid">
+      <div class="dd-col"><h5>Brain</h5><a href="tic-tac-toe.html">Tic-Tac-Toe (Single Player)</a></div>
+      <div class="dd-col"><h5>Arcade</h5><a href="flappy.html">Flappy</a></div>
+      <div class="dd-col"><h5>Timing</h5><a href="timer-stop.html">Timer Stop Challenge</a></div>
+      <div class="dd-col"><h5>Coming Soon</h5><a href="#">More mini games</a></div>
+    </div>
+  </div>
 
   <!-- ===== Hero ===== -->
   <section class="hero">
@@ -155,13 +239,130 @@
     <div id="noResults" class="no-results">No tools found</div>
   </section>
 
-  <!-- ===== Cards (your full tools grid remains here) ===== -->
-  <!-- (Keep your entire <section id="tools"> ... </section> content unchanged) -->
+  <!-- ===== Cards ===== -->
+  <section id="tools" class="tools" aria-label="Tools">
+    <div class="grid" id="toolsGrid">
+      <!-- Column 1 -->
+      <div>
+        <h2 class="section-title">Calculators</h2>
+        <div style="display:flex;flex-direction:column;gap:1.4rem;width:100%;align-items:center">
+          <a class="card" href="bmi.html" data-name="bmi calculator" data-tags="health weight body mass bmi calculator healthy range"><div class="icon"><img class="icon-img" src="assets/icons/bmi.svg" alt="BMI icon" loading="lazy"></div><h3>BMI Calculator</h3></a>
+          <a class="card" href="bmr.html" data-name="bmr calculator" data-tags="bmr basal metabolic rate calories tdee mifflin st jeor"><div class="icon"><img class="icon-img" src="assets/icons/bmr.svg" alt="BMR icon" loading="lazy"></div><h3>BMR Calculator</h3></a>
+          <a class="card" href="calorie-macros.html" data-name="calorie macros tracker" data-tags="calorie calories macro macros protein carbs fat nutrition tracker"><div class="icon"><img class="icon-img" src="assets/icons/calorie-macros.svg" alt="Calorie & Macros icon" loading="lazy"></div><h3>Calorie &amp; Macros Tracker</h3></a>
 
-  <!-- ===== Blog Section ===== -->
-  <!-- (Keep your blog grid <section class="tools" aria-label="From the Blog"> ... unchanged) -->
+          <a class="card" href="salary-calculator.html" data-name="salary calculator" data-tags="salary hourly monthly annual gross pay rate"><div class="icon"><img class="icon-img" src="assets/icons/salary-calculator.svg" alt="Salary icon" loading="lazy"></div><h3>Salary Calculator</h3></a>
+          <a class="card" href="retirement-calculator.html" data-name="retirement calculator" data-tags="retirement future value nest egg fv inflation investment"><div class="icon"><img class="icon-img" src="assets/icons/retirement-calculator.svg" alt="Retirement icon" loading="lazy"></div><h3>Retirement Calculator</h3></a>
+          <a class="card" href="sales-tax-cad.html" data-name="sales tax (cad)" data-tags="cad canada hst gst pst qst tax calculator"><div class="icon"><img class="icon-img" src="assets/icons/sales-tax-cad.svg" alt="Sales Tax icon" loading="lazy"></div><h3>Sales Tax (CAD)</h3></a>
+          <a class="card" href="percentage-calculator.html" data-name="percentage calculator" data-tags="percent change increase decrease of what percent study"><div class="icon"><img class="icon-img" src="assets/icons/percentage-calculator.svg" alt="Percentage icon" loading="lazy"></div><h3>Percentage Calculator</h3></a>
 
-  <!-- ===== Footer ===== -->
+          <a class="card" href="loan.html" data-name="loan calculator" data-tags="finance emi interest amortization payment"><div class="icon"><img class="icon-img" src="assets/icons/Loan.svg" alt="Loan icon" loading="lazy"></div><h3>Loan Calculator</h3></a>
+          <a class="card" href="mortgage.html" data-name="mortgage calculator" data-tags="home mortgage emi interest amortization"><div class="icon"><img class="icon-img" src="assets/icons/house.svg" alt="Mortgage icon" loading="lazy"></div><h3>Mortgage Calculator</h3></a>
+          <a class="card" href="age.html" data-name="age calculator" data-tags="birthday next birthday date of birth dob"><div class="icon"><img class="icon-img" src="assets/icons/cake.svg" alt="Age/Birthday icon" loading="lazy"></div><h3>Age Calculator</h3></a>
+          <a class="card" href="days-between.html" data-name="days between dates" data-tags="date difference days weeks inclusive exclusive leftover full weeks"><div class="icon"><img class="icon-img" src="assets/icons/days-between.svg" alt="Days Between icon" loading="lazy"></div><h3>Days Between Dates</h3></a>
+          <a class="card" href="hours-between.html" data-name="hours between times" data-tags="time difference hours minutes seconds duration across midnight"><div class="icon"><img class="icon-img" src="assets/icons/hours-between.svg" alt="Time Difference icon" loading="lazy"></div><h3>Hours Between Times</h3></a>
+          <a class="card" href="budget.html" data-name="budget planner" data-tags="finance savings expenses monthly budget plan charts 50 30 20"><div class="icon"><img class="icon-img" src="assets/icons/budget.svg" alt="Budget icon" loading="lazy"></div><h3>Budget Planner</h3></a>
+        </div>
+      </div>
+
+      <!-- Column 2 -->
+      <div>
+        <h2 class="section-title">Converters</h2>
+        <div style="display:flex;flex-direction:column;gap:1.4rem;width:100%;align-items:center">
+          <a class="card" href="image-to-pdf.html"
+             data-name="image to pdf"
+             data-tags="image to pdf images to pdf photo to pdf pictures to pdf jpg jpeg png webp heic convert to pdf document">
+            <div class="icon"><img class="icon-img" src="assets/icons/image-to-pdf.svg" alt="Image to PDF icon" loading="lazy"></div>
+            <h3>Image → PDF</h3>
+          </a>
+
+          <a class="card" href="pdf-to-images.html"
+             data-name="pdf to images"
+             data-tags="pdf to images pdf to image pdf2img export pdf pages to png jpg jpeg webp convert pdf pages images">
+            <div class="icon"><img class="icon-img" src="assets/icons/pdf-to-images.svg" alt="PDF to Images icon" loading="lazy"></div>
+            <h3>PDF → Images</h3>
+          </a>
+
+          <a class="card" href="merge-pdfs.html" data-name="merge pdfs" data-tags="pdf combine join append pages"><div class="icon"><img class="icon-img" src="assets/icons/merge.svg" alt="Merge PDFs icon" loading="lazy"></div><h3>Merge PDFs</h3></a>
+          <a class="card" href="pdf-split-reorder.html" data-name="split reorder pdf" data-tags="pdf split extract pages reorder rearrange"><div class="icon"><img class="icon-img" src="assets/icons/pdf-split-reorder.svg" alt="Split & Reorder icon" loading="lazy"></div><h3>Split &amp; Reorder PDF</h3></a>
+          <a class="card" href="compress-pdf.html" data-name="compress pdf" data-tags="pdf reduce size smaller optimization"><div class="icon"><img class="icon-img" src="assets/icons/compress.svg" alt="Compress PDF icon" loading="lazy"></div><h3>Compress PDF</h3></a>
+          <a class="card" href="png-to-svg.html" data-name="png to svg" data-tags="image vector trace outline convert raster to svg"><div class="icon"><img class="icon-img" src="assets/icons/png-to-svg.svg" alt="PNG to SVG icon" loading="lazy"></div><h3>PNG → SVG</h3></a>
+          <a class="card" href="unit-converter.html" data-name="unit converter" data-tags="length weight temperature speed metric imperial"><div class="icon"><img class="icon-img" src="assets/icons/scale.svg" alt="Unit Converter icon" loading="lazy"></div><h3>Unit Converter</h3></a>
+          <a class="card" href="qr.html" data-name="qr code generator" data-tags="qr qrcode barcode text url link code"><div class="icon"><img class="icon-img" src="assets/icons/qr.svg" alt="QR Code icon" loading="lazy"></div><h3>QR Code Generator</h3></a>
+
+          <a class="card" href="genetic-barcode.html"
+             data-name="genetic barcode"
+             data-tags="barcode genetic id code generator qr print card luhn unique hash">
+            <div class="icon">
+              <img class="icon-img" src="assets/icons/barcode.svg" alt="Genetic Barcode icon" loading="lazy" onerror="this.src='assets/icons/qr.svg'">
+            </div>
+            <h3>Genetic Barcode</h3>
+          </a>
+
+          <a class="card" href="genetic-barcode-reader.html"
+             data-name="genetic barcode reader"
+             data-tags="barcode reader scan qr validate verify id luhn">
+            <div class="icon">
+              <img class="icon-img" src="assets/icons/scan.svg" alt="Genetic Barcode Reader icon" loading="lazy" onerror="this.src='assets/icons/qr.svg'">
+            </div>
+            <h3>Genetic Barcode Reader</h3>
+          </a>
+
+          <a class="card" href="file-converter.html" data-name="file converter" data-tags="image file convert jpg jpeg png webp heic gif svg pdf doc audio video"><div class="icon"><img class="icon-img" src="assets/icons/file-converter.svg" alt="File Converter icon" loading="lazy"></div><h3>File Converter</h3></a>
+        </div>
+      </div>
+
+      <!-- Column 3 -->
+      <div>
+        <h2 class="section-title">Study &amp; Writing</h2>
+        <div style="display:flex;flex-direction:column;gap:1.4rem;width:100%;align-items:center">
+          <a class="card" href="gpa.html" data-name="gpa calculator" data-tags="gpa grade point average final needed exam requirement study school"><div class="icon"><img class="icon-img" src="assets/icons/gpa.svg" alt="GPA icon" loading="lazy"></div><h3>GPA Calculator</h3></a>
+          <a class="card" href="percentage-calculator.html" data-name="percentage calculator" data-tags="percent change increase decrease of what percent study writing"><div class="icon"><img class="icon-img" src="assets/icons/percentage-calculator.svg" alt="Percentage icon" loading="lazy"></div><h3>Percentage Calculator</h3></a>
+
+          <a class="card" href="citation-generator.html" data-name="citation generator" data-tags="apa mla chicago cite references bibliography"><div class="icon"><img class="icon-img" src="assets/icons/citation-generator.svg" alt="Citation icon" loading="lazy"></div><h3>Citation Generator</h3></a>
+          <a class="card" href="word-counter.html" data-name="word character counter" data-tags="count words characters reading time readability flesch"><div class="icon"><img class="icon-img" src="assets/icons/word-counter.svg" alt="Word counter icon" loading="lazy"></div><h3>Word &amp; Readability</h3></a>
+          <a class="card" href="flashcards.html" data-name="flashcards" data-tags="study memorize spaced repetition csv import export"><div class="icon"><img class="icon-img" src="assets/icons/flashcards.svg" alt="Flashcards icon" loading="lazy"></div><h3>Flashcards</h3></a>
+          <a class="card" href="pomodoro.html" data-name="pomodoro timer" data-tags="focus study timer productivity music stats cycles"><div class="icon"><img class="icon-img" src="assets/icons/pomodoro.svg" alt="Pomodoro icon" loading="lazy"></div><h3>Pomodoro Timer</h3></a>
+        </div>
+
+        <h2 class="section-title" style="margin-top:2rem">Mini Games</h2>
+        <div style="display:flex;flex-direction:column;gap:1.4rem;width:100%;align-items:center">
+          <a class="card" href="tic-tac-toe.html" data-name="tic tac toe (single player)" data-tags="game brain board x o ai single-player"><div class="icon"><img class="icon-img" src="assets/icons/brain.svg" alt="Tic-Tac-Toe icon" loading="lazy"></div><h3>Tic-Tac-Toe (Single Player)</h3></a>
+          <a class="card" href="flappy.html" data-name="flappy game" data-tags="game arcade endless jump fly bird"><div class="icon"><img class="icon-img" src="assets/icons/gamepad.svg" alt="Flappy icon" loading="lazy"></div><h3>Flappy</h3></a>
+          <a class="card" href="timer-stop.html" data-name="timer stop challenge" data-tags="game timing reflex stop exact time accuracy mini-game"><div class="icon"><img class="icon-img" src="assets/icons/timer-stop.svg" alt="Timer icon" loading="lazy"></div><h3>Timer Stop Challenge</h3></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== From the Blog ===== -->
+  <section class="tools" aria-label="From the Blog">
+    <h2 class="section-title">From the Blog</h2>
+    <div class="blog-grid">
+      <a class="post-card" href="blog.html#bmr-guide" data-name="blog bmr guide" data-tags="blog article health bmr calories tdee">
+        <div class="post-meta">Guides</div>
+        <div class="post-title">BMR Explained: What It Is & Why It Matters</div>
+        <p class="post-excerpt">Understand basal metabolic rate, factors that change it, and how to use our BMR tool for smarter goals.</p>
+        <div class="post-meta">Read more →</div>
+      </a>
+      <a class="post-card" href="blog.html#retirement-basics" data-name="blog retirement basics" data-tags="blog finance retirement investing savings">
+        <div class="post-meta">Finance</div>
+        <div class="post-title">Retirement Planning 101: Start Simple, Grow Smart</div>
+        <p class="post-excerpt">A plain-English walkthrough of contributions, returns, inflation, and how our calculator projects your path.</p>
+        <div class="post-meta">Read more →</div>
+      </a>
+      <a class="post-card" href="blog.html#study-math-percentage" data-name="blog percentage tips" data-tags="blog study math percentage basics">
+        <div class="post-meta">Study</div>
+        <div class="post-title">Percentages: Fast Tricks for Exams</div>
+        <p class="post-excerpt">Quick formulas for “What percent of…”, increase/decrease, and percent change—plus common pitfalls.</p>
+        <div class="post-meta">Read more →</div>
+      </a>
+    </div>
+    <div style="text-align:center;margin-top:1rem">
+      <a href="blog.html" class="post-card" style="display:inline-block;padding:.6rem 1rem;border-radius:10px">View all posts</a>
+    </div>
+  </section>
+
+  <!-- ===== Footer with quick links ===== -->
   <footer class="site-footer">
     <div class="footer-grid">
       <div>
@@ -211,7 +412,7 @@
     <p class="legal">© <span id="year"></span> ToolHouzz. All rights reserved.</p>
   </footer>
 
-  <!-- External JS -->
+  <!-- Moved JS out of <script> into assets/index.js -->
   <script src="assets/index.js" defer></script>
 </body>
 </html>
