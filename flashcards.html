@@ -31,10 +31,12 @@
       --attach-gap:8px;
 
       --pri:#4f46e5;
-      --pri2:#6366f1;
+      --pri2:#0004ff;
       --muted:#64748b;
     }
 
+    /* === Global responsive base (matches other tools) === */
+    *{box-sizing:border-box}
     html,body{height:100%}
     body{font-family:var(--secondary-font);background:var(--background-color);color:var(--primary-color);line-height:1.6;margin:0}
 
@@ -42,22 +44,27 @@
     .site-header{
       background:var(--card-bg);
       border-bottom:1px solid var(--border-color);
-      padding:1.1rem 2rem;
-      display:flex;align-items:center;justify-content:space-between;gap:1rem;
+      padding:1.1rem clamp(12px,3.5vw,2rem);
+      display:flex;align-items:center;justify-content:space-between;gap:.75rem;
       position:sticky;top:0;z-index:var(--header-z);
       box-shadow:0 1px 0 rgba(0,0,0,.02), 0 3px 6px rgba(0,0,0,.08);
     }
     .nav-left,.nav-center,.nav-right{display:flex;align-items:center}
     .nav-center{flex:1;justify-content:center}
-    .brand{font-family:var(--primary-font);font-size:1.8rem;font-weight:900;color:var(--primary-color);text-decoration:none}
-    .nav{display:flex;align-items:center;gap:1rem}
+    .brand{font-family:var(--primary-font);font-size:clamp(1.25rem,4.2vw,1.8rem);font-weight:900;color:var(--primary-color);text-decoration:none}
+    .nav{display:flex;align-items:center;gap:.75rem}
     .nav a{color:#475569;text-decoration:none;font-weight:600}
-    .nav-item{position:relative;margin-left:1.5rem}
+    .nav-item{position:relative;margin-left:1rem}
     .nav-item>button{
       background:none;border:0;cursor:pointer;font:600 1rem var(--secondary-font);color:#475569;
       padding:0 0 .25rem;border-bottom:2px solid transparent;display:inline-flex;align-items:center;gap:.25rem;transition:.25s
     }
     .nav-item>button:hover{color:#111827;border-bottom-color:#b5c4ff}
+
+    /* Hide center nav a bit earlier on tiny widths to prevent overflow */
+    @media (max-width: 430px){
+      .nav-center{display:none}
+    }
 
     .backdrop{
       position:fixed;inset:0;background:rgba(26,26,26,.28);
@@ -79,20 +86,24 @@
     .menu-head{display:flex;justify-content:space-between;align-items:center;padding:4px 6px 10px}
     .menu-title{font:700 14px var(--secondary-font);color:#7a7a7a;letter-spacing:.08em;text-transform:uppercase}
     .menu-close{background:none;border:0;font-size:22px;line-height:1;cursor:pointer;color:#777}
-    .drop-grid{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:1rem}
+    .drop-grid{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:1rem}
     .dd-col h5{margin:.25rem 0 .5rem;font:700 12px var(--secondary-font);color:#7a7a7a;letter-spacing:.08em;text-transform:uppercase}
     .dd-col a{display:block;padding:.45rem .5rem;border-radius:8px;color:var(--primary-color);text-decoration:none}
     .dd-col a:hover{background:#f3f7ff;color:#2b5bd7}
+    @media (max-width: 640px){
+      .drop-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
 
     /* ===== Page hero ===== */
-    .hero{padding:46px 18px 18px;text-align:center}
-    .hero h1{margin:0 0 6px;font-weight:900;letter-spacing:.2px;font-size:clamp(28px,4.6vw,48px)}
+    .hero{padding:clamp(22px,6.5vw,46px) clamp(12px,3.5vw,18px) 18px;text-align:center}
+    .hero h1{margin:0 0 6px;font-weight:900;letter-spacing:.2px;font-size:clamp(26px,6vw,48px)}
     .hero p{margin:0;color:#5b6474}
 
     /* ===== Layout ===== */
-    .wrap{max-width:1200px;margin:0 auto 36px;padding:0 16px;display:grid;gap:16px}
+    .wrap{max-width:1200px;margin:0 auto 36px;padding:0 clamp(10px,3.5vw,16px);display:grid;gap:16px}
+    .card{background:#fff;border:1.5px solid var(--border-strong);border-radius:16px;padding:clamp(10px,2.5vw,14px)}
+    /* 2 columns on desktop only */
     @media(min-width:980px){.wrap{grid-template-columns:1.05fr .95fr}}
-    .card{background:#fff;border:1.5px solid var(--border-strong);border-radius:16px;padding:14px}
 
     /* Inputs & controls */
     label{font-size:12px;color:#6b7280;font-weight:800;margin:0 0 6px;display:block}
@@ -103,6 +114,9 @@
     .row{display:grid;gap:10px}
     .row2{grid-template-columns:1fr 1fr}
     .row3{grid-template-columns:1fr 1fr auto}
+    @media (max-width: 640px){
+      .row2,.row3{grid-template-columns:1fr}
+    }
     .btn{height:44px;padding:0 16px;border-radius:12px;border:1.5px solid var(--border-strong);background:#fff;font-weight:800;cursor:pointer}
     .btn.primary{background:var(--pri);border-color:var(--pri);color:#fff}
     .btn.primary:hover{filter:brightness(1.07)}
@@ -117,10 +131,16 @@
     input:checked + .toggle::after{left:30px}
 
     /* Editor rows */
-    .item{display:grid;grid-template-columns:1fr 1fr 40px;gap:10px;align-items:center;margin-top:10px}
+    #list{display:grid;gap:10px}
+    .item{display:grid;grid-template-columns:1fr 1fr 44px;gap:10px;align-items:center}
     .item .x{height:44px;border-radius:12px;border:1.5px solid var(--border-strong);background:#fff;cursor:pointer;font-weight:900}
+    @media (max-width: 560px){
+      .item{grid-template-columns:1fr;gap:8px}
+      .item .x{width:100%}
+    }
 
     /* Blur answers in editor */
+    .ans,.ans input{position:relative}
     .blur-answers .ans, .blur-answers .ans input{
       filter:blur(7px); pointer-events:auto; position:relative;
     }
@@ -132,19 +152,19 @@
 
     /* Study area + flip animation */
     .study{min-height:390px;border:1.5px dashed var(--border-strong);border-radius:16px;background:linear-gradient(#fafbff,#fff)}
-    .stage{perspective:1200px;height:260px;margin:16px;border-radius:12px;background:#fff;border:1px solid var(--border-color);display:flex;align-items:center;justify-content:center}
+    .stage{perspective:1200px;height:clamp(180px,36vw,260px);margin:16px;border-radius:12px;background:#fff;border:1px solid var(--border-color);display:flex;align-items:center;justify-content:center;overflow:hidden}
     .flip{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.8,.2,1)}
     .flipped .flip{transform:rotateY(180deg)}
-    .face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;backface-visibility:hidden;border-radius:10px}
+    .face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;backface-visibility:hidden;border-radius:10px}
     .front{background:#fff}
     .back{background:#f9fafb;transform:rotateY(180deg)}
-    .q{font-size:clamp(18px,2.6vw,28px);font-weight:800;text-align:center}
-    .a{font-size:clamp(18px,2.6vw,28px);font-weight:900;color:#0ea5e9;text-align:center}
+    .q{font-size:clamp(16px,4.4vw,28px);font-weight:800;text-align:center}
+    .a{font-size:clamp(16px,4.4vw,28px);font-weight:900;color:#0ea5e9;text-align:center}
     .controls{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px 0}
     .stats{display:flex;gap:10px;justify-content:center;color:var(--muted);font-weight:800}
 
     /* Footer */
-    .site-footer{background:#0f172a;color:#b0bdd8;padding:3rem 2rem;font-size:.9rem;margin-top:3rem}
+    .site-footer{background:#0f172a;color:#b0bdd8;padding:3rem clamp(12px,3.5vw,2rem);font-size:.9rem;margin-top:3rem}
     .footer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:2rem}
     .site-footer h4{color:#e6ecff;font-weight:700;margin-bottom:1rem}
     .site-footer a{color:#b0bdd8;display:block;margin-bottom:.5rem;text-decoration:none}
@@ -277,7 +297,7 @@
       <div class="row row2">
         <div>
           <label>Deck name</label>
-          <input id="deckName" type="text" placeholder="My deck">
+          <input id="deckName" type="text" placeholder="My deck" inputmode="text" autocomplete="off">
         </div>
         <div style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
           <button id="newDeck" class="btn">New deck</button>
@@ -300,11 +320,11 @@
       <div class="row row3" style="margin-top:10px">
         <div>
           <label>Term / Question</label>
-          <input id="qIn" type="text" placeholder="e.g., Earth is the ___ planet from the Sun">
+          <input id="qIn" type="text" placeholder="e.g., Earth is the ___ planet from the Sun" inputmode="text" autocomplete="off">
         </div>
         <div class="ans">
           <label>Definition / Answer</label>
-          <input id="aIn" type="text" placeholder="e.g., third">
+          <input id="aIn" type="text" placeholder="e.g., third" inputmode="text" autocomplete="off">
         </div>
         <div style="align-self:end">
           <button id="add" class="btn primary">Add</button>
