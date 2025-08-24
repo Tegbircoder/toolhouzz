@@ -3,83 +3,47 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <!-- a) Improved title + UX copy -->
-  <title>Retirement Calculator (Canada) — Project Savings, Growth & Inflation | ToolHouzz</title>
-  <meta name="description" content="Free Canadian retirement calculator. Enter age, monthly contributions, expected return, and inflation to project your nest egg in nominal and today’s dollars. Great for RRSP, TFSA, pension and personal investing planning.">
-
-  <!-- Canonical stays non‑www -->
+  <title>Free Retirement Calculator – Plan Savings, Growth & Inflation-Adjusted Income | ToolHouzz</title>
+  <meta name="description" content="Use our free Retirement Calculator to project your future savings with monthly contributions, investment growth rate, and inflation. See results in both nominal and real dollars to plan a secure retirement. Ideal for pension planning, 401(k), RRSP, and personal investments.">
   <link rel="canonical" href="https://toolhouzz.com/retirement-calculator.html">
 
-  <!-- OG/Twitter (kept) -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="ToolHouzz">
-  <meta property="og:title" content="Retirement Calculator (Canada) — Savings & Inflation Planning">
-  <meta property="og:description" content="See how your monthly investing could grow by retirement, in both nominal and today’s dollars.">
+  <meta property="og:title" content="Free Retirement Calculator – Savings & Inflation Planning">
+  <meta property="og:description" content="Project your retirement nest egg with monthly contributions, growth rate, and inflation. See results in real and nominal dollars.">
   <meta property="og:url" content="https://toolhouzz.com/retirement-calculator.html">
   <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
+
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Retirement Calculator — ToolHouzz">
-  <meta name="twitter:description" content="Project a retirement nest egg with growth & inflation assumptions.">
+  <meta name="twitter:title" content="Free Retirement Calculator – ToolHouzz">
+  <meta name="twitter:description" content="Plan your retirement savings with growth and inflation projections. Perfect for pension, 401(k), and investment planning.">
   <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
 
-  <!-- Performance basics: preconnect + defer non‑critical -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="th-layout.css">
-  <script defer src="th-layout.js"></script> <!-- layout is non‑critical, keep deferred -->
-
+  <script defer src="th-layout.js"></script>
   <style>
-    .breadcrumb{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--muted);margin:8px 0 0}
-    .breadcrumb a{color:inherit;text-decoration:none}
-    .breadcrumb .sep{opacity:.5}
     .kpi{border:1px solid var(--border-strong);border-radius:12px;padding:10px 12px;background:#fff}
     .chartWrap{height:360px;margin-top:12px}
     .info-card{border:1px solid var(--border);border-radius:12px;padding:12px;background:#fff}
     .subhead{font-weight:900;margin:10px 0 6px}
     .try-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-    .seo-intro{background:#fbfcff;border:1px solid var(--border);border-radius:12px;padding:12px;margin-top:12px}
-    .faq details{border:1px solid var(--border);border-radius:12px;padding:10px;background:#fff}
-    .faq details+details{margin-top:8px}
 
-    /* Mobile stack like other tools */
-    @media (max-width: 900px){ .tools .grid{ grid-template-columns:1fr !important; } }
-    @media (max-width: 600px){ .row{ grid-template-columns:1fr !important; gap:12px; } }
+    /* — Mobile stacking like Budget — */
+    @media (max-width: 900px){
+      .tools .grid{ grid-template-columns:1fr !important; }
+    }
+    @media (max-width: 600px){
+      .row{ grid-template-columns:1fr !important; gap:12px; }
+    }
   </style>
 </head>
 <body class="theme-light">
-  <!-- Header injected by th-layout.js -->
-
-  <!-- Breadcrumb UI -->
-  <nav class="breadcrumb" aria-label="Breadcrumb">
-    <a href="/">Home</a><span class="sep">/</span>
-    <a href="/#calculators">Calculators</a><span class="sep">/</span>
-    <span aria-current="page">Retirement</span>
-  </nav>
-
-  <section class="hero" style="padding:54px 22px 20px">
+  <section class="hero" style="padding:54px 22px 28px">
     <div class="hero-inner">
       <h1 class="hero-title">Retirement Calculator</h1>
       <p class="hero-sub">Project your nest egg with monthly contribution, growth, and inflation — in both nominal and today’s dollars.</p>
-
-      <!-- b) 150–250 word intro above the fold -->
-      <div class="seo-intro">
-        <p>
-          This free retirement calculator helps you estimate how much your savings could grow by the time you stop working. 
-          Enter your current age, your target retirement age, what you’ve already saved, and how much you plan to invest each month. 
-          Then choose a long‑term annual return and an inflation rate. We’ll chart two lines side‑by‑side: the <strong>nominal amount</strong> (raw dollars in the future) and the value in <strong>today’s dollars</strong> after accounting for inflation. 
-          Seeing both makes it easier to compare your future balance with today’s prices.
-        </p>
-        <p>
-          Use this tool for high‑level planning of RRSP/TFSA contributions, workplace pensions, and personal investments in Canada. 
-          Try changing the monthly contribution or return to see how sensitive your outcome is. 
-          This is an educational model—not advice—and real returns vary. 
-          For personalized guidance, consider speaking with a qualified advisor.
-        </p>
-      </div>
     </div>
   </section>
 
@@ -88,33 +52,31 @@
       <!-- Left: Inputs -->
       <div class="card">
         <div class="row">
-          <div><label>Current age</label><input id="age" class="search" type="number" value="25" min="10" max="80" inputmode="numeric"></div>
-          <div><label>Retirement age</label><input id="rAge" class="search" type="number" value="65" min="30" max="90" inputmode="numeric"></div>
-          <div><label>Current savings (CAD)</label><input id="cur" class="search" type="number" value="0" min="0" inputmode="decimal"></div>
+          <div><label>Current age</label><input id="age" class="search" type="number" value="25" min="10" max="80"></div>
+          <div><label>Retirement age</label><input id="rAge" class="search" type="number" value="65" min="30" max="90"></div>
+          <div><label>Current savings (CAD)</label><input id="cur" class="search" type="number" value="0" min="0"></div>
         </div>
         <div class="row" style="margin-top:8px">
-          <div><label>Monthly contribution (CAD)</label><input id="cont" class="search" type="number" value="500" min="0" inputmode="decimal"></div>
-          <div><label>Annual return %</label><input id="ret" class="search" type="number" value="6" step="0.1" inputmode="decimal"></div>
-          <div><label>Inflation %</label><input id="inf" class="search" type="number" value="2" step="0.1" inputmode="decimal"></div>
+          <div><label>Monthly contribution (CAD)</label><input id="cont" class="search" type="number" value="500" min="0"></div>
+          <div><label>Annual return %</label><input id="ret" class="search" type="number" value="6" step="0.1"></div>
+          <div><label>Inflation %</label><input id="inf" class="search" type="number" value="2" step="0.1"></div>
         </div>
-
-        <div class="toolbar" style="margin-top:10px">
-          <button class="btn primary" id="calc">Calculate</button>
-          <button class="btn" id="shareBtn" type="button" aria-label="Share this calculator">Share</button>
-          <span id="shareNote" class="muted" style="margin-left:auto"></span>
-        </div>
+        <div class="toolbar" style="margin-top:10px"><button class="btn primary" id="calc">Calculate</button></div>
 
         <div class="info-card" style="margin-top:12px">
-          <div class="subhead">How to read the results</div>
+          <div class="subhead">What this calculator means</div>
+          <p class="muted">We estimate how your money could grow if you invest <b>monthly</b> until retirement. You’ll see the future value in raw (“nominal”) dollars and also adjusted for <b>inflation</b> (what that amount may feel like in today’s CAD).</p>
+
+          <div class="subhead">How to study the graph</div>
           <ul class="muted" style="margin:0;padding-left:18px">
-            <li><b>Nominal</b>: future dollars without inflation adjustment.</li>
-            <li><b>Today’s CAD</b>: nominal divided by cumulative inflation.</li>
-            <li>Tip: increase monthly contribution, or test 5–8% return with 2–3% inflation for long‑run scenarios.</li>
+            <li><b>Nominal</b> curve: shows total dollars in the future, no inflation adjustment.</li>
+            <li><b>Today’s CAD</b>: the same money divided by cumulative inflation — easier to compare with today’s prices.</li>
+            <li><b>Try sliders</b>: increase monthly contribution, or lower inflation/raise returns to see sensitivity.</li>
           </ul>
         </div>
       </div>
 
-      <!-- Right: Visualization + KPIs -->
+      <!-- Right: Visualization + KPIs (goes BELOW on mobile) -->
       <div class="card">
         <label class="chartLabel" style="display:block;font-weight:900">Growth Over Time</label>
         <div class="chartWrap"><canvas id="growChart"></canvas></div>
@@ -124,77 +86,23 @@
         <div class="kpi" style="margin-top:10px"><label>Years to invest</label><div id="yrs">—</div></div>
 
         <div class="info-card" style="margin-top:12px">
-          <div class="subhead">Related tools</div>
+          <div class="subhead">Try more tools</div>
           <div class="try-grid">
-            <a class="card" href="salary-calculator.html"><div class="icon"><img class="icon-img" src="assets/icons/budget.svg" alt="" loading="lazy" decoding="async"></div><h3>Salary</h3></a>
-            <a class="card" href="sales-tax-cad.html"><div class="icon"><img class="icon-img" src="assets/icons/sales-tax-cad.svg" alt="" loading="lazy" decoding="async"></div><h3>Sales Tax (CAD)</h3></a>
-            <a class="card" href="percentage-calculator.html"><div class="icon"><img class="icon-img" src="assets/icons/percentage-calculator.svg" alt="" loading="lazy" decoding="async"></div><h3>Percentage</h3></a>
+            <a class="card" href="salary-calculator.html"><div class="icon"><img class="icon-img" src="assets/icons/budget.svg" alt=""></div><h3>Salary</h3></a>
+            <a class="card" href="sales-tax-cad.html"><div class="icon"><img class="icon-img" src="assets/icons/sales-tax-cad.svg" alt=""></div><h3>Sales Tax (CAD)</h3></a>
+            <a class="card" href="percentage-calculator.html"><div class="icon"><img class="icon-img" src="assets/icons/percentage-calculator.svg" alt=""></div><h3>Percentage</h3></a>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- c) Methodology section with formulas -->
-  <section class="tools" style="padding-top:0">
-    <div class="grid" style="grid-template-columns:1fr;max-width:1100px">
-      <div class="info-card" id="methodology">
-        <h2 class="subhead">Methodology</h2>
-        <p class="muted">
-          We assume monthly investing with compounding. Let <code>PV</code> = current savings, <code>PMT</code> = monthly contribution, 
-          <code>r</code> = annual return (decimal), <code>i</code> = annual inflation (decimal), and <code>Y</code> = years until retirement.
-        </p>
-        <ul class="muted" style="margin:0 0 8px 18px">
-          <li><strong>Monthly rate:</strong> <code>r_m = r / 12</code></li>
-          <li><strong>Months:</strong> <code>N = 12 × Y</code></li>
-          <li><strong>Future value (nominal):</strong> <code>FV = PV·(1+r_m)<sup>N</sup> + PMT · ((1+r_m)<sup>N</sup> − 1)/r_m</code></li>
-          <li><strong>Inflation‑adjusted FV (today’s CAD):</strong> <code>FV_real = FV / (1+i)<sup>Y</sup></code></li>
-        </ul>
-        <p class="muted">This is a simplified projection and ignores taxes, fees, withdrawal patterns, and sequence‑of‑returns risk.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- d) FAQ content -->
-  <section class="tools" style="padding-top:0">
-    <div class="grid" style="grid-template-columns:1fr;max-width:1100px">
-      <div class="faq">
-        <h2 class="subhead">FAQ</h2>
-
-        <details>
-          <summary><strong>What return and inflation should I use?</strong></summary>
-          <div class="muted">For long‑run planning, many people test 5–8% annual returns with 2–3% inflation, but markets are uncertain. Try a range to see sensitivity.</div>
-        </details>
-
-        <details>
-          <summary><strong>Does this include RRSP/TFSA tax effects?</strong></summary>
-          <div class="muted">No—this is a growth model only. Tax treatment can change outcomes. Consider separate tax planning or professional advice.</div>
-        </details>
-
-        <details>
-          <summary><strong>Is the result guaranteed?</strong></summary>
-          <div class="muted">No. Returns vary year‑to‑year. This tool is for education, not financial advice.</div>
-        </details>
-
-        <details>
-          <summary><strong>How can I reach a target amount?</strong></summary>
-          <div class="muted">Increase monthly contributions, extend the time horizon, or test higher expected returns (with risk in mind). Use the chart to compare scenarios.</div>
-        </details>
-      </div>
-    </div>
-  </section>
-
-  <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" crossorigin="anonymous"></script>
   <script>
     const $=id=>document.getElementById(id);
     let chart;
     const money=n=>isFinite(n)?n.toLocaleString(navigator.language,{style:'currency',currency:'CAD'}):'—';
-
-    function fvMonthly(PV, PMT, r, n){
-      const i=r/12;
-      return i===0 ? PV + PMT*n : PV*Math.pow(1+i,n)+PMT*((Math.pow(1+i,n)-1)/i);
-    }
+    function fvMonthly(PV, PMT, r, n){ const i=r/12; return i===0 ? PV + PMT*n : PV*Math.pow(1+i,n)+PMT*((Math.pow(1+i,n)-1)/i); }
     function compute(){
       const age=+$('age').value||0, rAge=+$('rAge').value||0, cur=+$('cur').value||0;
       const cont=+$('cont').value||0, ret=(+$('ret').value||0)/100, inf=(+$('inf').value||0)/100;
@@ -224,83 +132,6 @@
       });
     }
     $('calc').onclick=compute; compute();
-
-    // Simple share CTA
-    const shareBtn=$('shareBtn'), note=$('shareNote');
-    shareBtn?.addEventListener('click', async ()=>{
-      const url=location.href;
-      if (navigator.share){
-        try{ await navigator.share({title:'Retirement Calculator — ToolHouzz', text:'Project your retirement savings in today’s dollars.', url}); }
-        catch{}
-      } else {
-        try{ await navigator.clipboard.writeText(url); note.textContent='Link copied!'; setTimeout(()=>note.textContent='',1200); }
-        catch{ note.textContent='Copy not supported.'; setTimeout(()=>note.textContent='',1400); }
-      }
-    });
-  </script>
-
-  <!-- e) Structured data: SoftwareApplication + BreadcrumbList + FAQPage -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Retirement Calculator — ToolHouzz",
-    "applicationCategory": "FinancialApplication",
-    "operatingSystem": "Any",
-    "browserRequirements": "Requires a modern web browser",
-    "isAccessibleForFree": true,
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "CAD" },
-    "url": "https://toolhouzz.com/retirement-calculator.html",
-    "image": "https://toolhouzz.com/assets/og/toolhouzz-og.png",
-    "publisher": { "@type": "Organization", "name": "ToolHouzz", "url": "https://toolhouzz.com" },
-    "featureList": [
-      "Monthly contributions with compounding",
-      "Nominal vs inflation-adjusted chart",
-      "Inflation & return sensitivity",
-      "Runs client-side for privacy"
-    ]
-  }
-  </script>
-
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"BreadcrumbList",
-    "itemListElement":[
-      {"@type":"ListItem","position":1,"name":"Home","item":"https://toolhouzz.com/"},
-      {"@type":"ListItem","position":2,"name":"Calculators","item":"https://toolhouzz.com/#calculators"},
-      {"@type":"ListItem","position":3,"name":"Retirement","item":"https://toolhouzz.com/retirement-calculator.html"}
-    ]
-  }
-  </script>
-
-  <script type="application/ld+json">
-  {
-    "@context":"https://schema.org",
-    "@type":"FAQPage",
-    "mainEntity":[
-      {
-        "@type":"Question",
-        "name":"What return and inflation should I use?",
-        "acceptedAnswer":{"@type":"Answer","text":"Many people test 5–8% annual returns with 2–3% inflation for long‑term planning. Markets vary—try a range to see sensitivity."}
-      },
-      {
-        "@type":"Question",
-        "name":"Does this include RRSP/TFSA tax effects?",
-        "acceptedAnswer":{"@type":"Answer","text":"No. The calculator models growth only. Tax treatment can change outcomes; consider separate tax planning or professional advice."}
-      },
-      {
-        "@type":"Question",
-        "name":"Is the result guaranteed?",
-        "acceptedAnswer":{"@type":"Answer","text":"No. Returns are uncertain. This tool is educational and not financial advice."}
-      },
-      {
-        "@type":"Question",
-        "name":"How can I reach a target amount?",
-        "acceptedAnswer":{"@type":"Answer","text":"Increase monthly contributions, extend your time horizon, or test different return assumptions while keeping risk in mind."}
-      }
-    ]
-  }
   </script>
 </body>
 </html>
