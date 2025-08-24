@@ -3,11 +3,12 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  
+
   <title>BMI Calculator – Free Online Body Mass Index Tool | Check Weight & Health Status</title>
-  <meta name="description" content="Use our free BMI Calculator to instantly check your Body Mass Index, find your healthy weight range, and understand BMI categories for adults and children. Fast, accurate, and mobile-friendly.">
+  <meta name="description" content="Use our free BMI Calculator to instantly check your Body Mass Index, find your healthy weight range, and understand BMI categories. Includes a complete guide on how BMI works, ranges, limitations, and tips to improve your BMI.">
   <link rel="canonical" href="https://toolhouzz.com/bmi.html">
 
+  <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="ToolHouzz">
   <meta property="og:title" content="Free BMI Calculator – Check Your Body Mass Index Online">
@@ -15,26 +16,40 @@
   <meta property="og:url" content="https://toolhouzz.com/bmi.html">
   <meta property="og:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
 
+  <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Free BMI Calculator – Body Mass Index Tool">
   <meta name="twitter:description" content="Instantly check your BMI, find your ideal weight range, and understand your health status. 100% free and mobile-friendly.">
   <meta name="twitter:image" content="https://toolhouzz.com/assets/og/toolhouzz-og.png">
 
+  <!-- Performance: Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
 
+  <!-- Site styles -->
   <link rel="stylesheet" href="th-layout.css">
   <script defer src="th-layout.js"></script>
 
   <style>
-    :root{--bg:#f6f7fb;--card:#fff;--ink:#0f172a;--muted:#64748b;--border:#e5e7eb;--border-strong:#d1d5db}
+    :root{
+      --bg:#f6f7fb;--card:#fff;--ink:#0f172a;--muted:#64748b;--border:#e5e7eb;--border-strong:#d1d5db;
+      --accent:#4f46e5
+    }
     *{box-sizing:border-box}
     body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
     a{color:inherit;text-decoration:none}
 
-    .hero{padding:54px 22px 28px;text-align:center}
-    .hero-title{margin:0;font-weight:900;font-size:44px}
-    .hero-sub{margin:8px 0 0;color:#475569}
+    .hero{padding:18px 22px 12px}
+    .hero-title{margin:0;font-weight:900;font-size:44px;text-align:center}
+    .hero-sub{margin:8px auto 0;color:#475569;max-width:880px;text-align:center}
     .hero .hero-sub strong{color:#4f46e5}
+
+    /* Breadcrumbs */
+    .crumbs{max-width:1000px;margin:8px auto 0;padding:0 16px}
+    .crumbs nav{font-size:14px;color:var(--muted)}
+    .crumbs a{color:var(--muted)}
+    .crumbs .sep{margin:0 6px}
 
     .tools{display:flex;justify-content:center;padding:14px 16px 28px}
     .grid{width:100%;max-width:900px;display:grid;gap:12px}
@@ -63,70 +78,131 @@
     .legend>div{display:flex;flex-direction:column;align-items:center;font-size:12px;color:var(--muted)}
     .legend .chip{width:100%;height:8px;border-radius:999px}
     .legend .cU{background:#ef4444}.legend .cH{background:#22c55e}.legend .cO{background:#f59e0b}.legend .cOb{background:#ef4444}
-    
-    /* Mobile-friendly adjustments for a clean layout */
+
+    /* Article / guide styles */
+    .container{max-width:1000px;margin:0 auto;padding:0 16px}
+    .guide{max-width:1000px;margin:0 auto 80px;padding:0 16px}
+    .guide h2{font-size:28px;margin:26px 0 10px}
+    .guide h3{font-size:20px;margin:18px 0 8px}
+    .guide p{line-height:1.75;color:#0f172acc}
+    .note{background:#fff2;border:1px solid var(--border);border-left:4px solid var(--accent);padding:12px;border-radius:10px}
+    .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px;background:#fff}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    th,td{padding:12px 14px;border-bottom:1px solid var(--border)}
+    th{background:#f8fafc;text-align:left;font-weight:800}
+    .toc{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px}
+    .toc a{display:block;padding:6px 0;color:#374151;font-weight:600}
+    .faq details{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px;margin:10px 0}
+    .faq summary{font-weight:800;cursor:pointer}
+
+    /* Mobile */
     @media (max-width: 600px) {
-        .row {
-            grid-template-columns: 1fr;
-            gap: 16px;
-        }
-        .row > div {
-            min-width: auto;
-        }
-        .row .row {
-            grid-template-columns: 1fr;
-            gap: 8px;
-        }
-        .toolbar {
-            flex-direction: column;
-            align-items: stretch;
-        }
-        .toolbar .btn {
-            width: 100%;
-        }
-        .soft {
-            grid-template-columns: 1fr !important;
-        }
-        .soft > div {
-            margin-top: 16px;
-        }
-        .soft > div:first-child {
-            margin-top: 0;
-        }
-        .soft .bigNum {
-            text-align: center;
-        }
-        .legend {
-            grid-template-columns: repeat(2, 1fr);
-        }
+      .row{grid-template-columns:1fr;gap:16px}
+      .toolbar{flex-direction:column;align-items:stretch}
+      .toolbar .btn{width:100%}
+      .soft{grid-template-columns:1fr !important}
+      .soft .bigNum{text-align:center}
+      .legend{grid-template-columns:repeat(2,1fr)}
     }
 
-    /* New styles for the status bar */
+    /* Status bar */
     .status-bar-container { position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; padding: 10px; background-color: transparent; }
     .status-bar { height: 6px; width: 0; background-color: var(--accent); transition: width 0.3s ease-out; }
     .status-message {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background-color: rgba(0, 0, 0, 0.75);
-      color: #fff;
-      padding: 8px 16px;
-      border-radius: 8px;
-      font-size: 14px;
-      opacity: 0;
-      transition: opacity 0.3s ease;
-      pointer-events: none;
-      white-space: nowrap;
+      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background-color: rgba(0,0,0,0.75); color:#fff; padding:8px 16px; border-radius:8px;
+      font-size:14px; opacity:0; transition: opacity .3s ease; pointer-events:none; white-space:nowrap;
     }
     .status-message.show { opacity: 1; }
   </style>
+
+  <!-- FAQPage JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"FAQPage",
+    "mainEntity":[
+      {"@type":"Question","name":"What is BMI (Body Mass Index)?","acceptedAnswer":{"@type":"Answer","text":"BMI is a simple screening measure that compares your weight to your height to estimate whether you are underweight, a healthy weight, overweight, or obese. It does not directly measure body fat but helps flag potential health risks."}},
+      {"@type":"Question","name":"How do I calculate BMI?","acceptedAnswer":{"@type":"Answer","text":"Use the formula BMI = weight(kg) ÷ height(m)^2. In imperial units, BMI = [weight(lb) × 703] ÷ [height(in)^2]. Our BMI Calculator does this instantly without manual math."}},
+      {"@type":"Question","name":"What are the standard BMI ranges?","acceptedAnswer":{"@type":"Answer","text":"Underweight: <18.5; Normal: 18.5–24.9; Overweight: 25–29.9; Obesity I: 30–34.9; Obesity II: 35–39.9; Obesity III: 40+."}},
+      {"@type":"Question","name":"Is BMI accurate for everyone?","acceptedAnswer":{"@type":"Answer","text":"BMI is a helpful general guide but it does not account for muscle mass, age, sex, or body-fat distribution. Athletes or very muscular people may register as overweight despite low body fat."}},
+      {"@type":"Question","name":"What are the health risks of a high BMI?","acceptedAnswer":{"@type":"Answer","text":"A high BMI is associated with an increased risk of type 2 diabetes, high blood pressure, heart disease, stroke, sleep apnea, joint problems, and certain cancers."}},
+      {"@type":"Question","name":"What are the health risks of a low BMI?","acceptedAnswer":{"@type":"Answer","text":"A low BMI can be linked to malnutrition, vitamin and mineral deficiencies, weakened immunity, loss of muscle mass, osteoporosis, and fertility issues."}},
+      {"@type":"Question","name":"How can I reduce my BMI safely?","acceptedAnswer":{"@type":"Answer","text":"Combine a balanced, higher-fiber and higher-protein diet with regular physical activity: at least 150 minutes of moderate cardio weekly plus 2–3 days of strength training. Prioritize sleep, hydration, and stress management."}},
+      {"@type":"Question","name":"Which foods help maintain a healthy BMI?","acceptedAnswer":{"@type":"Answer","text":"Focus on vegetables, fruits, legumes, whole grains, and lean proteins such as beans, lentils, tofu, paneer, eggs, and Greek yogurt. Limit sugary drinks, fried foods, and ultra-processed snacks."}},
+      {"@type":"Question","name":"How can I gain weight if my BMI is low?","acceptedAnswer":{"@type":"Answer","text":"Increase calories with nutritious, calorie-dense foods (nuts, dried fruits, dairy, healthy oils), eat 5–6 meals per day, emphasize protein, and add strength training to build lean mass. Avoid relying on junk food."}},
+      {"@type":"Question","name":"How often should I check my BMI?","acceptedAnswer":{"@type":"Answer","text":"For most people, checking BMI every 1–2 months is enough. If you are actively changing your diet or training program, you may monitor more frequently alongside other measures."}},
+      {"@type":"Question","name":"Is there a different healthy BMI for Asians?","acceptedAnswer":{"@type":"Answer","text":"Some health organizations note that certain Asian populations can have higher metabolic risk at lower BMI values. Discuss individual targets with a healthcare professional."}},
+      {"@type":"Question","name":"What measures are better than BMI?","acceptedAnswer":{"@type":"Answer","text":"BMI is a quick first step. For a fuller picture, include waist circumference, waist-to-hip ratio, and body fat percentage, plus clinical markers like blood pressure, lipids, and blood sugar."}}
+    ]
+  }
+  </script>
+
+  <!-- SoftwareApplication (Web Application) JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"BMI Calculator",
+    "applicationCategory":"HealthApplication",
+    "operatingSystem":"Web",
+    "isAccessibleForFree": true,
+    "inLanguage":"en",
+    "url":"https://toolhouzz.com/bmi.html",
+    "image":"https://toolhouzz.com/assets/og/toolhouzz-og.png",
+    "description":"Free online BMI Calculator that instantly computes Body Mass Index, explains BMI ranges and limitations, and provides tips on diet, exercise, and lifestyle to improve BMI.",
+    "publisher":{
+      "@type":"Organization",
+      "name":"ToolHouzz",
+      "url":"https://toolhouzz.com"
+    },
+    "offers":{
+      "@type":"Offer",
+      "price":"0",
+      "priceCurrency":"USD"
+    },
+    "featureList":[
+      "Metric and imperial input",
+      "Color-coded BMI meter",
+      "Healthy weight range guidance",
+      "Mobile-friendly UI"
+    ],
+    "potentialAction":{
+      "@type":"Action",
+      "name":"Calculate BMI",
+      "target":"https://toolhouzz.com/bmi.html"
+    }
+  }
+  </script>
+
+  <!-- BreadcrumbList JSON-LD (adjust the Calculators hub URL if different) -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"BreadcrumbList",
+    "itemListElement":[
+      {"@type":"ListItem","position":1,"name":"Home","item":"https://toolhouzz.com/"},
+      {"@type":"ListItem","position":2,"name":"Calculators","item":"https://toolhouzz.com/calculators/"},
+      {"@type":"ListItem","position":3,"name":"BMI Calculator","item":"https://toolhouzz.com/bmi.html"}
+    ]
+  }
+  </script>
 </head>
+
 <body>
   <section class="hero">
     <h1 class="hero-title">BMI Calculator</h1>
     <p class="hero-sub">Get your number and see where you fall on the color meter. <strong>BMI = weight (kg) ÷ height² (m²)</strong>.</p>
   </section>
+
+  <!-- Visible breadcrumb -->
+  <div class="crumbs">
+    <nav aria-label="Breadcrumb">
+      <a href="/">Home</a><span class="sep">›</span>
+      <a href="/calculators/">Calculators</a><span class="sep">›</span>
+      <span>BMI Calculator</span>
+    </nav>
+  </div>
 
   <section class="tools">
     <div class="grid">
@@ -137,8 +213,8 @@
           <div>
             <label>Weight</label>
             <div class="row" style="grid-template-columns:1fr 120px">
-              <input id="wVal" class="search" type="number" inputmode="decimal" placeholder="e.g., 70">
-              <select id="wUnit" class="search" style="height:44px">
+              <input id="wVal" class="search" type="number" inputmode="decimal" placeholder="e.g., 70" aria-label="Weight value">
+              <select id="wUnit" class="search" style="height:44px" aria-label="Weight unit">
                 <option value="kg" selected>kg</option>
                 <option value="g">g</option>
                 <option value="lb">lb</option>
@@ -149,27 +225,27 @@
           <div>
             <label>Height</label>
             <div class="row" style="grid-template-columns:1fr 120px">
-              <input id="hVal" class="search" type="number" inputmode="decimal" placeholder="e.g., 170">
-              <select id="hUnit" class="search" style="height:44px">
+              <input id="hVal" class="search" type="number" inputmode="decimal" placeholder="e.g., 170" aria-label="Height value">
+              <select id="hUnit" class="search" style="height:44px" aria-label="Height unit">
                 <option value="cm" selected>cm</option>
                 <option value="m">m</option>
                 <option value="ftin">ft + in</option>
               </select>
             </div>
             <div id="ftWrap" class="row" style="grid-template-columns:1fr 1fr;display:none;margin-top:8px">
-              <input id="ft" class="search" type="number" inputmode="numeric" placeholder="ft">
-              <input id="inch" class="search" type="number" inputmode="decimal" placeholder="in">
+              <input id="ft" class="search" type="number" inputmode="numeric" placeholder="ft" aria-label="Feet">
+              <input id="inch" class="search" type="number" inputmode="decimal" placeholder="in" aria-label="Inches">
             </div>
           </div>
 
           <div>
             <label>Age (optional)</label>
-            <input id="age" class="search" type="number" inputmode="numeric" placeholder="e.g., 25">
+            <input id="age" class="search" type="number" inputmode="numeric" placeholder="e.g., 25" aria-label="Age (optional)">
           </div>
         </div>
 
         <div class="toolbar" style="margin-top:10px">
-          <button class="btn primary" id="calcBmi">Calculate BMI</button>
+          <button class="btn primary" id="calcBmi" aria-label="Calculate BMI">Calculate BMI</button>
           <span class="muted" id="bmiNote" style="margin-left:auto">Use accurate height & weight for best results.</span>
         </div>
 
@@ -182,8 +258,8 @@
             </div>
 
             <div>
-              <div class="meter"><div id="bmiPin" class="pin"></div></div>
-              <div class="legend">
+              <div class="meter" role="img" aria-label="BMI meter"><div id="bmiPin" class="pin"></div></div>
+              <div class="legend" aria-hidden="true">
                 <div><div class="chip cU"></div><span>15–18.4</span><span>Under</span></div>
                 <div><div class="chip cH"></div><span>18.5–24.9</span><span>Healthy</span></div>
                 <div><div class="chip cO"></div><span>25–29.9</span><span>Over</span></div>
@@ -198,6 +274,153 @@
     </div>
   </section>
 
+  <!-- Guide / 2000-word article -->
+  <section class="guide" id="bmi-guide">
+    <div class="container">
+      <div class="toc" aria-label="On this page">
+        <strong>On this page</strong>
+        <a href="#intro">What is BMI & why it matters</a>
+        <a href="#method">How BMI is calculated (methodology)</a>
+        <a href="#ranges">BMI ranges & what they mean</a>
+        <a href="#limits">Limitations of BMI</a>
+        <a href="#risks">Health risks of high/low BMI</a>
+        <a href="#improve">How to lower a high BMI</a>
+        <a href="#foods">Foods that support a healthy BMI</a>
+        <a href="#gain">Gaining weight safely (low BMI)</a>
+        <a href="#compare">BMI vs other measurements</a>
+        <a href="#faq">FAQs</a>
+        <a href="#conclusion">Conclusion</a>
+      </div>
+
+      <h2 id="intro">Body Mass Index (BMI): Why it matters</h2>
+      <p><strong>Body Mass Index (BMI)</strong> is a quick way to check whether your weight is appropriate for your height. It gives you a single number that falls into a category—underweight, healthy, overweight, or obese—which helps flag potential health risks. Doctors, coaches, and dietitians use BMI as a <em>screening</em> tool: it doesn’t diagnose illness or measure body fat directly, but it can indicate when to take a closer look at your lifestyle and health markers.</p>
+      <p>Our free BMI Calculator above does the math instantly. This guide explains how BMI works, the science and formulas behind it, where its limits are, and practical steps to move toward a healthier range—covering diet, exercise, sleep, and habits.</p>
+
+      <h2 id="method">How BMI is calculated (methodology)</h2>
+      <div class="note">
+        <strong>Formula (metric):</strong> BMI = weight (kg) ÷ height² (m²)<br>
+        <strong>Formula (imperial):</strong> BMI = [weight (lb) × 703] ÷ [height (in)²]
+      </div>
+      <h3>Example calculation</h3>
+      <p>Someone weighing 70&nbsp;kg and 1.75&nbsp;m tall has BMI = 70 ÷ (1.75 × 1.75) = 22.9, which falls in the healthy range. The calculator handles metric or imperial inputs and converts feet/inches automatically.</p>
+      <h3>Healthy weight range from BMI</h3>
+      <p>You can invert the formula to estimate a healthy weight range for a given height. For adults, a BMI between 18.5 and 24.9 is considered “healthy.”</p>
+      <div class="table-wrap" role="region" aria-label="BMI categories table">
+        <table>
+          <thead><tr><th>BMI Range</th><th>Category</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Below 18.5</td><td>Underweight</td><td>Consider nutrition review; can indicate low muscle or deficiencies</td></tr>
+            <tr><td>18.5 – 24.9</td><td>Healthy</td><td>Lowest risk of most weight-linked conditions</td></tr>
+            <tr><td>25.0 – 29.9</td><td>Overweight</td><td>Elevated risk for diabetes, hypertension, CVD</td></tr>
+            <tr><td>30.0 – 34.9</td><td>Obesity I</td><td>Increased health risks; structured plan recommended</td></tr>
+            <tr><td>35.0 – 39.9</td><td>Obesity II</td><td>Severe health risks; medical guidance suggested</td></tr>
+            <tr><td>40.0+</td><td>Obesity III</td><td>Very severe risk; multidisciplinary care beneficial</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="ranges">What BMI ranges mean</h2>
+      <p><strong>Underweight (&lt;18.5):</strong> may reflect inadequate calorie/protein intake, nutrient deficiencies, or a medical issue. Focus on nourishing, calorie-dense foods and strength training (see below).</p>
+      <p><strong>Healthy (18.5–24.9):</strong> generally associated with the lowest risk of weight-related diseases. Keeping steady habits—balanced meals, regular activity, good sleep—helps maintain it.</p>
+      <p><strong>Overweight (25–29.9):</strong> risk begins to rise for conditions like type 2 diabetes and cardiovascular disease. Small, sustainable changes often deliver strong results here.</p>
+      <p><strong>Obese (≥30):</strong> higher risk of chronic conditions. A structured, supportive plan (dietary adjustments, activity, behavioral strategies) and professional guidance can be very effective.</p>
+
+      <h2 id="limits">Limitations of BMI</h2>
+      <ul>
+        <li><strong>Not a body fat measure:</strong> two people can share a BMI but have very different body fat percentages.</li>
+        <li><strong>Muscle vs fat:</strong> athletes may appear “overweight” due to high muscle mass.</li>
+        <li><strong>Population differences:</strong> health risk thresholds can differ by age, sex, and ethnicity.</li>
+        <li><strong>Children & teens:</strong> use age- and sex-specific percentiles, not adult ranges.</li>
+      </ul>
+      <p>Because of these limits, BMI is best paired with <strong>waist circumference</strong>, <strong>body fat percentage</strong>, and clinical indicators (blood pressure, glucose, lipids).</p>
+
+      <h2 id="risks">Health risks linked to BMI</h2>
+      <h3>High BMI</h3>
+      <ul>
+        <li>Type 2 diabetes and insulin resistance</li>
+        <li>High blood pressure, heart disease, and stroke</li>
+        <li>Sleep apnea, reflux, and joint problems</li>
+        <li>Elevated risk for some cancers (e.g., colorectal)</li>
+      </ul>
+      <h3>Low BMI</h3>
+      <ul>
+        <li>Malnutrition, vitamin/mineral deficiencies</li>
+        <li>Reduced immunity and muscle mass</li>
+        <li>Bone loss (osteoporosis) and fatigue</li>
+        <li>Fertility and hormonal issues</li>
+      </ul>
+
+      <h2 id="improve">How to lower a high BMI (diet, exercise, lifestyle)</h2>
+      <h3>Nutrition</h3>
+      <ul>
+        <li><strong>High fiber base:</strong> vegetables, fruits, legumes, oats, quinoa, whole wheat roti/bread—fiber promotes fullness.</li>
+        <li><strong>Aim for protein in each meal:</strong> beans, lentils, tofu, paneer, Greek yogurt, eggs (if consumed).</li>
+        <li><strong>Minimize ultra-processed foods:</strong> sugary drinks, desserts, and frequent fried foods.</li>
+        <li><strong>Portion awareness:</strong> smaller plates, mindful eating, and planned snacks (roasted peanuts, fruit, yogurt).</li>
+        <li><strong>Consistency over perfection:</strong> modest calorie deficit (≈300–500 kcal/day) is sustainable.</li>
+      </ul>
+      <h3>Exercise</h3>
+      <ul>
+        <li><strong>Cardio:</strong> brisk walking, cycling, jogging, or swimming—target 150–300 minutes/week.</li>
+        <li><strong>Strength training:</strong> 2–3 sessions/week to build/retain muscle, which raises daily energy burn.</li>
+        <li><strong>Daily movement:</strong> stairs, stretch breaks, short walks—“sit less, move more.”</li>
+      </ul>
+      <h3>Lifestyle habits</h3>
+      <ul>
+        <li><strong>Sleep 7–9 hours:</strong> poor sleep disrupts appetite hormones.</li>
+        <li><strong>Hydration:</strong> water first; sometimes “hunger” is thirst.</li>
+        <li><strong>Stress management:</strong> breathing, meditation, or yoga to curb stress eating.</li>
+        <li><strong>Environment:</strong> keep healthy foods visible; plan meals and grocery lists.</li>
+      </ul>
+
+      <h2 id="foods">Foods that support a healthy BMI</h2>
+      <h3>Great choices</h3>
+      <ul>
+        <li><strong>Vegetables & fruits</strong> (colorful variety)</li>
+        <li><strong>Legumes & pulses</strong> (chickpeas, kidney beans, lentils)</li>
+        <li><strong>Whole grains</strong> (oats, brown rice, quinoa, whole wheat)</li>
+        <li><strong>Lean proteins</strong> (tofu, paneer, eggs if non-veg, Greek yogurt)</li>
+        <li><strong>Healthy fats</strong> (nuts, seeds, olive oil) in moderation</li>
+      </ul>
+      <h3>Limit</h3>
+      <ul>
+        <li>Sugar-sweetened beverages and frequent desserts</li>
+        <li>Refined grains (white bread, many packaged snacks)</li>
+        <li>Deep-fried fast foods</li>
+      </ul>
+
+      <h2 id="gain">How to gain weight safely if your BMI is low</h2>
+      <ul>
+        <li><strong>Increase meal frequency:</strong> 5–6 meals/day with snacks.</li>
+        <li><strong>Calorie-dense, nutritious foods:</strong> nuts, dried fruits, dairy, nut butters, avocado, olive oil.</li>
+        <li><strong>Prioritize protein & strength training:</strong> gain lean mass, not just fat.</li>
+        <li><strong>Avoid “junk bulking”:</strong> ultra-processed foods may add weight but harm health.</li>
+      </ul>
+
+      <h2 id="compare">BMI vs other measurements</h2>
+      <ul>
+        <li><strong>Waist circumference:</strong> reflects abdominal fat, a key risk factor.</li>
+        <li><strong>Waist-to-hip ratio:</strong> shows fat distribution patterns.</li>
+        <li><strong>Body fat percentage:</strong> via tools/scans gives a direct estimate of adiposity.</li>
+      </ul>
+      <p>Combine BMI with these metrics and routine health checks (blood pressure, lipids, glucose) for the full picture.</p>
+
+      <h2 id="faq">Frequently Asked Questions</h2>
+      <div class="faq">
+        <details><summary>Is BMI reliable?</summary><p>For most adults, BMI is a helpful first check. It’s not perfect—muscular people may show “overweight” despite low body fat—so pair it with other measures.</p></details>
+        <details><summary>What are the standard BMI ranges?</summary><p>Underweight: &lt;18.5; Healthy: 18.5–24.9; Overweight: 25–29.9; Obesity: ≥30.</p></details>
+        <details><summary>How often should I check BMI?</summary><p>Every 1–2 months works for most. Track more frequently if you’re on a new program.</p></details>
+        <details><summary>Do children use the same ranges?</summary><p>No. Children and teens use age- and sex-specific percentiles.</p></details>
+        <details><summary>What’s a safe rate of change?</summary><p>For weight loss, ~0.5–1&nbsp;kg per week. For weight gain, add calories gradually while strength training.</p></details>
+        <details><summary>Are targets different by ethnicity?</summary><p>Some populations face higher metabolic risk at lower BMI values. Discuss personalized targets with your clinician.</p></details>
+      </div>
+
+      <h2 id="conclusion">Conclusion</h2>
+      <p><strong>BMI is a simple, fast way to screen weight relative to height.</strong> Use it as a starting point, not the final verdict. Combine your BMI with other measures and healthy habits—balanced meals, regular activity, good sleep, and stress management. Re-check periodically with the calculator above to stay on track, and consider professional guidance if your BMI is very high or very low.</p>
+    </div>
+  </section>
+
+  <!-- Inline status bar for calculator actions -->
   <div id="statusBarContainer" class="status-bar-container" style="display:none;">
     <div class="status-bar" id="statusBar"></div>
     <div class="status-message" id="statusMessage"></div>
@@ -208,10 +431,9 @@
     const $ = (id) => document.getElementById(id);
     const clamp=(v,min,max)=>Math.min(Math.max(v,min),max);
 
-    // New elements for the status bar
-    const statusBarContainer = document.getElementById('statusBarContainer');
-    const statusBar = document.getElementById('statusBar');
-    const statusMessage = document.getElementById('statusMessage');
+    const statusBarContainer = $('statusBarContainer');
+    const statusBar = $('statusBar');
+    const statusMessage = $('statusMessage');
 
     const ftWrap=$('ftWrap'); $('hUnit').addEventListener('change',()=>{ ftWrap.style.display=$('hUnit').value==='ftin'?'grid':'none'; });
 
@@ -230,20 +452,17 @@
     }
     function pinLeftFor(bmi){ return clamp(((bmi-15)/20)*100,0,100); }
 
-    // New functions for the status bar
     function showStatusBar(message, color) {
-        statusBarContainer.style.display = 'block';
-        statusBar.style.width = '0%';
-        statusBar.style.backgroundColor = color;
-        statusMessage.textContent = message;
-        statusMessage.classList.add('show');
+      statusBarContainer.style.display = 'block';
+      statusBar.style.width = '0%';
+      statusBar.style.backgroundColor = color || getComputedStyle(document.documentElement).getPropertyValue('--accent');
+      statusMessage.textContent = message;
+      statusMessage.classList.add('show');
     }
-
     function hideStatusBar() {
-        statusBarContainer.style.display = 'none';
-        statusBar.style.width = '0%';
-        statusBar.style.backgroundColor = 'var(--accent)';
-        statusMessage.classList.remove('show');
+      statusBarContainer.style.display = 'none';
+      statusBar.style.width = '0%';
+      statusMessage.classList.remove('show');
     }
 
     $('calcBmi').onclick=()=>{
@@ -251,25 +470,24 @@
       const kg=toKg($('wVal').value,$('wUnit').value);
       const m =toMeters($('hVal').value,$('hUnit').value);
       const out=$('bmiOut'), pin=$('bmiPin'), tips=$('bmiTips');
-      if(!kg||!m){ 
-        out.textContent='—'; 
-        tips.textContent='Enter valid weight & height.'; 
+      if(!kg||!m){
+        out.textContent='—';
+        tips.textContent='Enter valid weight & height.';
         statusBar.style.width = '100%';
-        statusBar.style.backgroundColor = '#ef4444'; // Red for error
+        statusBar.style.backgroundColor = '#ef4444';
         statusMessage.textContent = "Error: Invalid input.";
         setTimeout(hideStatusBar, 3000);
-        return; 
+        return;
       }
-      
+
       const bmi=kg/(m*m), info=classify(bmi);
       out.textContent=bmi.toFixed(1)+' — '+info.cat;
       pin.style.left=pinLeftFor(bmi)+'%';
       tips.innerHTML=`<span style="font-weight:800;color:${info.color}">${info.cat}</span> · ${info.msg}`;
       const age=parseFloat($('age').value)||null; if(age&&age<18) tips.innerHTML+=' <em>(ranges differ for children/teens)</em>';
 
-      // Simulate completion
       statusBar.style.width = '100%';
-      statusBar.style.backgroundColor = '#34d399'; // Green for completion
+      statusBar.style.backgroundColor = '#34d399';
       statusMessage.textContent = "Calculation complete!";
       setTimeout(hideStatusBar, 2000);
     };
